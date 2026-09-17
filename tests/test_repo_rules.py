@@ -15,21 +15,34 @@ from app.loaders import ROOT
 BANNED_DASHES = re.compile("[" + chr(0x2014) + chr(0x2015) + "]")
 
 SOURCE_GLOBS = ("*.py", "*.json", "*.md", "*.yml", "*.yaml", "*.txt")
-SKIP_DIRS = {".git", ".venv", "__pycache__", ".pytest_cache", "node_modules"}
+
+#: Dot directories are skipped wholesale rather than named one by one. A
+#: virtualenv is not always called .venv, and a scan that walked one would be
+#: checking third-party source for this project's house style. .github is the
+#: one dot directory whose contents are ours.
+KEEP_DOT_DIRS = {".github"}
+SKIP_DIRS = {"__pycache__", "node_modules", "site-packages", "build", "dist"}
+
 #: The generated wordlist is data, and the rule is about text this project
 #: writes. It contains no dashes anyway; excluding it keeps the check fast.
 SKIP_FILES = {"wordlist_en.txt"}
+
+
+def _skipped(path: Path) -> bool:
+    for part in path.relative_to(ROOT).parts[:-1]:
+        if part in SKIP_DIRS:
+            return True
+        if part.startswith(".") and part not in KEEP_DOT_DIRS:
+            return True
+    return path.name in SKIP_FILES
 
 
 def _sources() -> list[Path]:
     out: list[Path] = []
     for pattern in SOURCE_GLOBS:
         for path in ROOT.rglob(pattern):
-            if any(part in SKIP_DIRS for part in path.parts):
-                continue
-            if path.name in SKIP_FILES:
-                continue
-            out.append(path)
+            if not _skipped(path):
+                out.append(path)
     return sorted(out)
 
 
@@ -114,3 +127,19 @@ def test_policy_ships_its_personal_fields_empty():
 @pytest.mark.parametrize("path", ["vocab/taxonomy.json", "config/policy.json"])
 def test_shipped_data_files_parse(path):
     json.loads((ROOT / path).read_text(encoding="utf-8"))
+
+
+def test_the_source_scan_does_not_walk_a_virtualenv(tmp_path, monkeypatch):
+    """A virtualenv is not always called .venv.
+
+    The first fresh-clone run of this suite used one called .v, and the em dash
+    scan happily reported findings in third-party site-packages.
+    """
+    scanned = {p.relative_to(ROOT).as_posix() for p in _sources()}
+    assert not any("site-packages" in name for name in scanned)
+    assert not any(
+        part.startswith(".") and part not in KEEP_DOT_DIRS
+        for name in scanned
+        for part in name.split("/")[:-1]
+    )
+    assert ".github/workflows/ci.yml" in scanned, "the workflow is ours and must be scanned"
