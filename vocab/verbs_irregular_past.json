@@ -1,0 +1,31 @@
+{
+  "schema_version": 1,
+  "_note": "English past-tense forms that do not end in -ed. Used only by the WEAK_OPENING check to decide whether either of a bullet's first two tokens is a verb. Deciding that from policy.opening_verbs alone would make the allowlist enforcing, which it is not: an unlisted but valid verb must report OPENING_VERB_UNLISTED, not reject.",
+  "forms": [
+    "arose", "awoke", "became", "began", "bent", "bet", "bid", "bought",
+    "broke", "brought", "built", "burnt", "bust", "came", "caught", "chose",
+    "clung", "cost", "cut", "dealt", "did", "drew", "drove", "fed", "fell",
+    "felt", "fought", "found", "flew", "forecast", "forgot", "froze", "gave",
+    "got", "grew", "had", "heard", "held", "hid", "hit", "kept", "knew",
+    "laid", "lay", "led", "leant", "leapt", "learnt", "left", "lent", "let",
+    "lit", "lost", "made", "meant", "met", "misread", "outgrew", "overcame",
+    "overran", "oversaw", "overtook", "paid", "put", "quit", "ran", "rang",
+    "read", "rebuilt", "redid", "remade", "rerun", "reset", "rethought",
+    "rewrote", "rid", "rode", "rose", "run", "said", "sang", "sank", "sat",
+    "saw", "sold", "sent", "set", "sewed", "shone", "shook", "shot", "showed",
+    "shrank", "shut", "sought", "spent", "split", "spoke", "sprang", "spun",
+    "stood", "stole", "struck", "strung", "stuck", "swept", "swam", "swung",
+    "took", "taught", "tore", "thought", "threw", "told", "undertook",
+    "understood", "undid", "unwound", "upheld", "upset", "withdrew", "withheld",
+    "withstood", "woke", "won", "wore", "wove", "wrote"
+  ],
+  "non_verb_ed": [
+    "advanced",
+    "aged",
+    "naked",
+    "rugged",
+    "sacred",
+    "wicked",
+    "wretched"
+  ]
+}

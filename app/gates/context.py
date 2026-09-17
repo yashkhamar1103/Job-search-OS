@@ -1,0 +1,194 @@
+"""What every gate is handed, and how a technology's state is resolved.
+
+A block is tokenised and alias-matched once, here, and every gate reads that one
+analysis. Two gates re-tokenising the same text is how two gates end up
+disagreeing about where a word starts.
+
+Resolving a technology's state
+------------------------------
+An explicit ledger entry always wins, in either direction. Where there is none,
+a sub-service may still be permitted by its platform: the spec's model is a
+confirmed platform entry such as aws carrying a services list, with Lambda and
+S3 named in it rather than as ledger entries of their own.
+
+Every path that is not an explicit confirmation, or a service named in a
+confirmed platform's list, resolves to unconfirmed. A confirmed platform with no
+services list at all enumerates nothing, so it confirms no sub-service.
+"""
+
+from __future__ import annotations
+
+from dataclasses import dataclass
+from datetime import date
+from functools import cached_property
+
+from app.computed import ComputedValues
+from app.errors import Rejection, Span
+from app.jd import WatchList
+from app.loaders import CONFIRMED, DENIED, UNCONFIRMED, Bundle, LedgerEntry
+from app.models import Block
+from app.normalise import (
+    AliasIndex,
+    AliasMatch,
+    Normalised,
+    Token,
+    first_token_indices,
+    normalise,
+    sentence_ranges,
+    token_texts,
+    tokenise,
+)
+
+VIA_LEDGER = "ledger"
+VIA_PARENT_SERVICE = "parent_service"
+VIA_ABSENT = "absent"
+
+
+@dataclass(frozen=True)
+class TechResolution:
+    """How a matched canonical id stands, and what supplies its scope."""
+
+    canonical_id: str
+    state: str
+    via: str
+    entry: LedgerEntry | None
+    service_listed: bool | None = None
+
+    @property
+    def confirmed(self) -> bool:
+        return self.state == CONFIRMED
+
+    @property
+    def denied(self) -> bool:
+        return self.state == DENIED
+
+    @property
+    def depth(self) -> str | None:
+        return self.entry.depth if self.entry else None
+
+    @property
+    def contexts(self) -> tuple[str, ...]:
+        return self.entry.contexts if self.entry else ()
+
+
+@dataclass(frozen=True)
+class GateContext:
+    """Loaded inputs plus the run's derived values. Never mutated by a gate."""
+
+    bundle: Bundle
+    watch: WatchList
+    computed: ComputedValues
+    run_date: date
+
+    @cached_property
+    def watch_index(self) -> AliasIndex:
+        """The watch list as a matcher, so a multi-word posting term is found in
+        output the same way a multi-word alias is."""
+        by_key: dict[str, list[str]] = {}
+        for term in self.watch.terms:
+            by_key.setdefault(" ".join(term.key), []).append(term.surface or " ".join(term.key))
+        return AliasIndex({key: [key] for key in by_key})
+
+    def resolve(self, canonical_id: str) -> TechResolution:
+        ledger = self.bundle.ledger
+        explicit = ledger.get(canonical_id)
+        if explicit is not None:
+            return TechResolution(canonical_id, explicit.state, VIA_LEDGER, explicit)
+
+        parent_id = self.bundle.taxonomy.parent(canonical_id)
+        parent = ledger.get(parent_id) if parent_id else None
+        if parent is not None and parent.confirmed:
+            listed = self._service_listed(canonical_id, parent)
+            state = CONFIRMED if listed else UNCONFIRMED
+            return TechResolution(canonical_id, state, VIA_PARENT_SERVICE, parent, listed)
+
+        return TechResolution(canonical_id, UNCONFIRMED, VIA_ABSENT, None)
+
+    def _service_listed(self, canonical_id: str, parent: LedgerEntry) -> bool:
+        if not parent.services:
+            return False
+        wanted = self.bundle.taxonomy.alias_keys(canonical_id)
+        listed = {token_texts(s) for s in parent.services}
+        return bool(wanted & listed)
+
+
+@dataclass(frozen=True)
+class MatchedTech:
+    """One technology named in a block, with its resolution and its span."""
+
+    match: AliasMatch
+    resolution: TechResolution
+    sentence: int
+
+    @property
+    def start(self) -> int:
+        return self.match.start
+
+    @property
+    def end(self) -> int:
+        return self.match.end
+
+
+class BlockAnalysis:
+    """One block, tokenised and alias-matched once."""
+
+    def __init__(self, block: Block, ctx: GateContext) -> None:
+        self.block = block
+        self.ctx = ctx
+        self.norm: Normalised = normalise(block.text, fold_case=False)
+        self.tokens: tuple[Token, ...] = tokenise(self.norm)
+        self.sentence_ranges = sentence_ranges(self.norm)
+        self.sentence_openers = first_token_indices(self.tokens, self.sentence_ranges)
+
+        matches = ctx.bundle.taxonomy.index.match(self.tokens)
+        self.matches: tuple[MatchedTech, ...] = tuple(
+            MatchedTech(m, ctx.resolve(m.canonical_id), self._sentence_of(m.tokens[0]))
+            for m in matches
+        )
+        self.covered: frozenset[int] = frozenset(
+            i for m in matches for i in m.token_indices
+        )
+
+    def _sentence_of(self, token: Token) -> int:
+        for i, (start, end) in enumerate(self.sentence_ranges):
+            if start <= token.norm_start < end:
+                return i
+        return 0
+
+    def sentence_of_token(self, token: Token) -> int:
+        return self._sentence_of(token)
+
+    def span(self, start: int, end: int) -> Span:
+        return Span(start, end, self.block.text[start:end])
+
+    def token_span(self, token: Token) -> Span:
+        return self.span(token.start, token.end)
+
+    def match_span(self, matched: MatchedTech) -> Span:
+        return self.span(matched.start, matched.end)
+
+    def whole_span(self) -> Span:
+        return self.span(0, len(self.block.text))
+
+    def reject(self, code: str, span: Span, detail: str = "", **context: str) -> Rejection:
+        return Rejection(
+            code=code,
+            span=span,
+            detail=detail,
+            block_id=self.block.block_id,
+            context=dict(context),
+        )
+
+
+__all__ = [
+    "BlockAnalysis",
+    "GateContext",
+    "MatchedTech",
+    "TechResolution",
+    "VIA_ABSENT",
+    "VIA_LEDGER",
+    "VIA_PARENT_SERVICE",
+    "CONFIRMED",
+    "DENIED",
+    "UNCONFIRMED",
+]

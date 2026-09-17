@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "_note": "Test fixture. An approved translation lets an employer's wording appear when the literal term is absent from the evidence. It does not and must not unlock a technology: G1's taxonomy check runs independently, so a synonym pointing at an unconfirmed or denied id is still rejected. tests/test_g1_technology.py asserts that.",
+  "translations": [
+    {
+      "jd_term": "high throughput ingestion",
+      "evidence_term": "serverless ingestion platform",
+      "scope_note": "Fictional. Describes the same work in the employer's words.",
+      "approved_by_yash": true,
+      "added": "2025-02-01"
+    }
+  ]
+}

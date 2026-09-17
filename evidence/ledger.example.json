@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "_note": "TEMPLATE, NOT EVIDENCE. Obviously fake ids. Copy to ledger.json and replace every id with a canonical id from vocab/taxonomy.json. Yash writes the real file by hand, in git, outside any tailoring run. Nothing in the app writes here.",
+  "technologies": {
+    "faketech": {
+      "state": "confirmed",
+      "depth": "used",
+      "contexts": ["fakerole"],
+      "scope_note": "producer side only",
+      "versions": [],
+      "evidence": "What Yash personally did, where, and what proves it.",
+      "added": "2025-01-01",
+      "origin": "unprompted"
+    },
+    "fakeplatform": {
+      "state": "confirmed",
+      "depth": "built",
+      "contexts": ["fakerole"],
+      "services": ["FakeServiceOne", "FakeServiceTwo"],
+      "evidence": "A platform entry. Any sub-service a bullet names must be in services.",
+      "added": "2025-01-01",
+      "origin": "after_gap"
+    },
+    "fakeunconfirmed": {"state": "unconfirmed"},
+    "fakedenied": {"state": "denied"}
+  }
+}

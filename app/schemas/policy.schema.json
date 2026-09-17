@@ -1,0 +1,70 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "policy.schema.json",
+  "title": "config/policy.json",
+  "description": "Verbs, banned phrases, blocklists, thresholds, retry limits, model id, and token budget. Not an evidence file and not under evidence/: none of it is a claim about what Yash has done.",
+  "type": "object",
+  "required": [
+    "schema_version", "build_verbs", "weak_openers", "opening_verbs",
+    "be_have_openers", "banned_phrases", "vague_intensity_words",
+    "proficiency_qualifiers", "duration_hedges", "ambiguous_acronyms",
+    "client_blocklist", "location_allowlist", "default_location",
+    "max_bullets_per_role", "jd_copy_ngram", "max_pages", "retry_limits",
+    "cooling_off_hours", "fit_threshold", "fit_ceiling_divergence_points",
+    "number_coverage_min", "number_coverage_target", "model_id",
+    "token_budget_per_run"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {"const": 1},
+    "_note": {"type": "string"},
+
+    "build_verbs": {"$ref": "#/$defs/phrase_list", "minItems": 1},
+    "weak_openers": {"$ref": "#/$defs/phrase_list"},
+    "opening_verbs": {"$ref": "#/$defs/phrase_list", "minItems": 1},
+    "be_have_openers": {"$ref": "#/$defs/phrase_list"},
+    "banned_phrases": {"$ref": "#/$defs/phrase_list"},
+    "vague_intensity_words": {"$ref": "#/$defs/phrase_list"},
+    "proficiency_qualifiers": {"$ref": "#/$defs/phrase_list"},
+    "duration_hedges": {"$ref": "#/$defs/phrase_list"},
+    "ambiguous_acronyms": {"$ref": "#/$defs/phrase_list"},
+    "client_blocklist": {"$ref": "#/$defs/phrase_list"},
+    "location_allowlist": {"$ref": "#/$defs/phrase_list"},
+
+    "default_location": {
+      "type": "string",
+      "description": "Yash's home location. Empty until he sets it. Never a location he does not live in or is not relocating to."
+    },
+
+    "max_bullets_per_role": {"type": "integer", "minimum": 1},
+    "jd_copy_ngram": {"type": "integer", "minimum": 2},
+    "max_pages": {"type": "integer", "minimum": 1},
+
+    "retry_limits": {
+      "type": "object",
+      "required": ["truth", "style", "schema"],
+      "additionalProperties": false,
+      "properties": {
+        "truth": {"type": "integer", "minimum": 0},
+        "style": {"type": "integer", "minimum": 0},
+        "schema": {"type": "integer", "minimum": 0}
+      },
+      "description": "Separate budgets. A style finding must never consume the budget that would have saved a factually clean bullet, and must never drop one."
+    },
+
+    "cooling_off_hours": {"type": "integer", "minimum": 0},
+    "fit_threshold": {"type": "number", "minimum": 0, "maximum": 100},
+    "fit_ceiling_divergence_points": {"type": "number", "minimum": 0, "maximum": 100},
+    "number_coverage_min": {"type": "number", "minimum": 0, "maximum": 1},
+    "number_coverage_target": {"type": "number", "minimum": 0, "maximum": 1},
+
+    "model_id": {
+      "type": ["string", "null"],
+      "description": "Pinned here and nowhere else. Null until milestone 2, which is the first milestone that calls a model."
+    },
+    "token_budget_per_run": {"type": ["integer", "null"], "minimum": 1}
+  },
+  "$defs": {
+    "phrase_list": {"type": "array", "items": {"type": "string", "minLength": 1}}
+  }
+}

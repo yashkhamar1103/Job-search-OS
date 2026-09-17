@@ -1,0 +1,62 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "experience.schema.json",
+  "title": "evidence/experience.json",
+  "type": "object",
+  "required": ["schema_version", "roles"],
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {"const": 1},
+    "_note": {"type": "string"},
+    "roles": {"type": "array", "items": {"$ref": "#/$defs/role"}}
+  },
+  "$defs": {
+    "month": {"type": "string", "pattern": "^[0-9]{4}-(0[1-9]|1[0-2])$"},
+    "role": {
+      "type": "object",
+      "required": ["id", "employer", "title", "start", "facts"],
+      "additionalProperties": false,
+      "properties": {
+        "id": {"type": "string", "pattern": "^[a-z][a-z0-9_-]*$"},
+        "employer": {"type": "string", "minLength": 1},
+        "title": {"type": "string", "minLength": 1},
+        "start": {"$ref": "#/$defs/month"},
+        "end": {
+          "oneOf": [{"$ref": "#/$defs/month"}, {"const": "present"}, {"type": "null"}],
+          "description": "Omitted, null, or present all mean the role is current and is anchored to the run date."
+        },
+        "location": {"type": "string"},
+        "facts": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/fact"}},
+        "metrics": {"type": "array", "items": {"$ref": "#/$defs/metric"}}
+      }
+    },
+    "fact": {
+      "type": "object",
+      "required": ["id", "text"],
+      "additionalProperties": false,
+      "properties": {
+        "id": {"type": "string", "minLength": 1},
+        "text": {
+          "type": "string",
+          "minLength": 1,
+          "description": "A plain statement of what Yash did, in his words."
+        }
+      }
+    },
+    "metric": {
+      "type": "object",
+      "required": ["id", "value", "what", "source"],
+      "additionalProperties": false,
+      "properties": {
+        "id": {"type": "string", "minLength": 1},
+        "value": {"type": "string", "minLength": 1, "description": "A number with its unit."},
+        "what": {"type": "string", "minLength": 1},
+        "source": {
+          "enum": ["measured", "recalled"],
+          "description": "There is deliberately no estimated value. An estimated number is not evidence and cannot enter this file. A recalled metric caps its bullet at Thin in Step 4."
+        },
+        "note": {"type": "string"}
+      }
+    }
+  }
+}
