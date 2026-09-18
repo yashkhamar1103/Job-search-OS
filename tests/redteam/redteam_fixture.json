@@ -1,5 +1,5 @@
 {
-  "fixture_version": 2,
+  "fixture_version": 3,
   "purpose": "Independent adversarial cases for the gate suite. Authored outside the session that wrote the gates. The harness must load the evidence block below instead of evidence/ so this file runs before the real evidence exists and never depends on it.",
   "rules_for_harness": [
     "Do not edit a case to make it pass. A failing case is a finding: report it.",
@@ -730,9 +730,9 @@
       },
       "expect": "reject",
       "codes": [
-        "NUMBER_UNSUPPORTED"
+        "NUMBER_FORM_MISMATCH"
       ],
-      "why": "Number word form of 3x. Either it normalises to the cited metric and passes, or it must reject. It must not pass unchecked as prose."
+      "why": "Number word form of 3x. Matches the cited metric's value but not its form, so the retry can name the form."
     },
     {
       "id": "n06",
@@ -795,6 +795,44 @@
         "UNCITED_NUMBER"
       ],
       "why": "Magnitude word standing in for a number."
+    },
+    {
+      "id": "n12",
+      "block": "bullet",
+      "role": "r_beta",
+      "text": "Migrated 12+ services onto the new portal platform.",
+      "cites": {
+        "fact_ids": [
+          "b-f1"
+        ],
+        "metric_ids": [
+          "b-m1"
+        ]
+      },
+      "expect": "reject",
+      "codes": [
+        "VAGUE_METRIC"
+      ],
+      "why": "Trailing plus widens a number the metric records exactly."
+    },
+    {
+      "id": "n13",
+      "block": "bullet",
+      "role": "r_alpha",
+      "text": "Cut report query latency by 40% or more.",
+      "cites": {
+        "fact_ids": [
+          "a-f2"
+        ],
+        "metric_ids": [
+          "a-m1"
+        ]
+      },
+      "expect": "reject",
+      "codes": [
+        "VAGUE_METRIC"
+      ],
+      "why": "Trailing hedge phrase widens a measured value."
     },
     {
       "id": "f01",
@@ -977,7 +1015,17 @@
       "codes": [
         "BULLET_COUNT"
       ],
-      "why": "Four bullets in one role."
+      "why": "Four bullets in one role.",
+      "cites": {
+        "fact_ids": [
+          "a-f1",
+          "a-f2",
+          "a-f3"
+        ],
+        "metric_ids": [
+          "a-m1"
+        ]
+      }
     },
     {
       "id": "r01",
@@ -1165,6 +1213,35 @@
       },
       "expect": "pass",
       "why": "No technology named at all. Must not be rejected for absence of a match."
+    },
+    {
+      "id": "p13",
+      "block": "bullet",
+      "role": "r_alpha",
+      "text": "Raised ingest throughput 3x over the prior pipeline.",
+      "cites": {
+        "fact_ids": [
+          "a-f1"
+        ],
+        "metric_ids": [
+          "a-m2"
+        ]
+      },
+      "expect": "pass",
+      "why": "Over follows the number, so it compares rather than hedges."
+    },
+    {
+      "id": "p14",
+      "block": "bullet",
+      "role": "r_alpha",
+      "text": "Scheduled ingest jobs on AWS Lambda over the weekend window.",
+      "cites": {
+        "fact_ids": [
+          "a-f3"
+        ]
+      },
+      "expect": "pass",
+      "why": "Over with no number in sight is a preposition."
     },
     {
       "id": "m01",

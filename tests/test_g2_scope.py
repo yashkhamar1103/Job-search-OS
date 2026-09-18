@@ -98,9 +98,24 @@ def test_technologies_from_different_roles_cannot_share_a_sentence(ctx):
     in one sentence and the sentence describes work that never happened.
     """
     result = check_block(
-        bullet("Connected Kafka streams into PostgreSQL for reporting.", role="acme"), ctx
+        bullet("Connected Kafka topics into PostgreSQL for reporting.", role="acme"), ctx
     )
     assert "SCOPE_COHABITATION" in codes(result)
+
+
+def test_a_single_technology_cannot_cohabit_with_anything(ctx):
+    """One participant is not cohabitation, it is SCOPE_CONTEXT named twice.
+
+    This guard exposed the test above: it used to say "Kafka streams", which
+    longest-first matching reads as the product Kafka Streams, so the sentence
+    held one confirmed technology and an unconfirmed one. It passed on a group
+    of one, which is not what it claimed to be testing.
+    """
+    result = check_block(
+        bullet("Operated PostgreSQL for the reporting path.", role="acme"), ctx
+    )
+    assert "SCOPE_CONTEXT" in codes(result)
+    assert "SCOPE_COHABITATION" not in codes(result)
 
 
 def test_technologies_sharing_a_role_may_share_a_sentence(ctx):

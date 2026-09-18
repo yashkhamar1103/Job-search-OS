@@ -10,7 +10,7 @@
     "proficiency_qualifiers", "duration_hedges", "ambiguous_acronyms",
     "client_blocklist", "location_allowlist", "default_location",
     "permanently_denied_ids", "unverifiable_labels", "title_nouns",
-    "title_modifiers",
+    "title_modifiers", "leading_hedges", "trailing_hedges",
     "max_bullets_per_role", "jd_copy_ngram", "max_pages", "retry_limits",
     "cooling_off_hours", "fit_threshold", "fit_ceiling_divergence_points",
     "number_coverage_min", "number_coverage_target", "model_id",
@@ -34,6 +34,14 @@
     "unverifiable_labels": {"$ref": "#/$defs/phrase_list"},
     "title_nouns": {"$ref": "#/$defs/phrase_list"},
     "title_modifiers": {"$ref": "#/$defs/phrase_list"},
+    "leading_hedges": {
+      "$ref": "#/$defs/phrase_list",
+      "description": "Hedges that modify a number only when they precede it. Position is what distinguishes a hedge from a preposition: 'over 6 years' hedges, '3x over the prior pipeline' compares."
+    },
+    "trailing_hedges": {
+      "$ref": "#/$defs/phrase_list",
+      "description": "Hedges that follow a numeric span. The computed years rendering N+ years is exempt: it is code-generated from the role dates, not a claim the model widened."
+    },
     "location_allowlist": {"$ref": "#/$defs/phrase_list"},
 
     "permanently_denied_ids": {

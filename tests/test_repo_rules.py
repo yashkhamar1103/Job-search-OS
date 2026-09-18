@@ -202,3 +202,37 @@ def test_the_review_file_check_sees_a_newly_generated_file():
     text = _workflow_text()
     review_step = text.split("name: Review file is current", 1)[1]
     assert "--intent-to-add" in review_step
+
+
+def test_the_red_team_fixture_is_pure_ascii_on_disk():
+    """The fixture carries an em dash, a zero width space and a Cyrillic a as
+    test data. All three are delivered as \\u escapes.
+
+    Re-serialising it with ensure_ascii=False writes them as literal characters,
+    which is legal JSON and tripped the em dash rule from an unrelated file.
+    This asserts the encoding directly, so the next re-serialisation fails here
+    with the reason rather than somewhere else with a symptom.
+    """
+    path = ROOT / "tests" / "redteam" / "redteam_fixture.json"
+    raw = path.read_bytes()
+    offenders = [
+        (i, hex(byte)) for i, byte in enumerate(raw) if byte > 0x7F
+    ]
+    assert not offenders, (
+        f"{path.name} contains {len(offenders)} non-ASCII bytes, first at offset "
+        f"{offenders[0][0]}. Re-serialise with json.dump(..., ensure_ascii=True)."
+    )
+
+
+def test_the_fixture_still_carries_its_escaped_adversarial_characters():
+    """The lock must not be satisfiable by deleting the test data it protects."""
+    import json
+
+    path = ROOT / "tests" / "redteam" / "redteam_fixture.json"
+    source = path.read_text(encoding="utf-8")
+    for escape in ("\\u2014", "\\u200b", "\\u0430"):
+        assert escape in source, f"{escape} is missing from the fixture"
+
+    loaded = json.loads(source)
+    texts = " ".join(c.get("text", "") for c in loaded["cases"])
+    assert chr(0x2014) in texts and chr(0x200B) in texts and chr(0x0430) in texts

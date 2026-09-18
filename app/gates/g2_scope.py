@@ -131,6 +131,11 @@ def _cohabitation(analysis: BlockAnalysis):
     role_id = analysis.block.role_id if analysis.block.block_type == BULLET else None
 
     for sentence, group in sorted(by_sentence.items()):
+        # One technology cannot cohabit with anything. Without this guard a
+        # single technology under the wrong role reported both SCOPE_CONTEXT and
+        # SCOPE_COHABITATION, which is the same finding named twice.
+        if len(group) < 2:
+            continue
         shared: set[str] | None = None
         for matched in group:
             contexts = set(matched.resolution.contexts)

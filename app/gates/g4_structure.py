@@ -134,24 +134,19 @@ def _banned_phrases(analysis: BlockAnalysis, ctx: GateContext):
 
 
 def _client_names(analysis: BlockAnalysis, ctx: GateContext):
-    blocklist = ctx.bundle.policy.list_of("client_blocklist")
-    if not blocklist:
-        return
-    text_tokens = tuple(t.folded for t in analysis.tokens)
-    for name in blocklist:
-        wanted = token_texts(name)
-        if not wanted:
-            continue
-        for i in range(0, max(0, len(text_tokens) - len(wanted) + 1)):
-            if text_tokens[i : i + len(wanted)] != wanted:
-                continue
-            window = analysis.tokens[i : i + len(wanted)]
-            yield analysis.reject(
-                "CLIENT_NAME",
-                analysis.span(window[0].start, window[-1].end),
-                f"blocklisted client name {name!r}",
-                name=name,
-            )
+    """Blocklisted client names, read from the claim chain.
+
+    The chain matched longest first and non-overlapping, so a blocklist holding
+    both "Northwind Retail" and "Northwind" reports the name once, not twice.
+    """
+    for span in analysis.client_spans:
+        name = analysis.client_name_at(span, ctx)
+        yield analysis.reject(
+            "CLIENT_NAME",
+            analysis.span(*span),
+            f"blocklisted client name {name!r}",
+            name=name,
+        )
 
 
 def _jd_copy(analysis: BlockAnalysis, ctx: GateContext):

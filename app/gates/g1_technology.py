@@ -89,11 +89,13 @@ def _watch_list_check(analysis: BlockAnalysis, ctx: GateContext):
 def _unknown_terms(analysis: BlockAnalysis, ctx: GateContext, claimed: set[int]):
     corpus = ctx.bundle.corpus
     for token in analysis.tokens:
-        if token.index in analysis.covered or token.index in claimed:
+        if token.index in claimed:
             continue
-        # Gate precedence: a span G3 already claims as a number or a version is
-        # never a product name, whether or not it validated.
-        if analysis.claimed_by_a_number(token):
+        # The residue heuristic runs last in the claim chain. A span already
+        # claimed as a number, a version, a blocklisted client name or a
+        # technology is not a candidate product name, whether or not it
+        # validated.
+        if analysis.claimed_earlier(token):
             continue
         if corpus.contains((token.folded,)):
             continue

@@ -299,5 +299,36 @@
     "platform",
     "cloud",
     "systems"
+  ],
+  "leading_hedges": [
+    "roughly",
+    "approximately",
+    "approx",
+    "about",
+    "around",
+    "nearly",
+    "almost",
+    "over",
+    "under",
+    "more than",
+    "less than",
+    "up to",
+    "at least",
+    "at most",
+    "upwards of",
+    "in excess of",
+    "north of",
+    "circa",
+    "~"
+  ],
+  "trailing_hedges": [
+    "or more",
+    "or less",
+    "or better",
+    "or so",
+    "plus",
+    "and up",
+    "and change",
+    "+"
   ]
 }

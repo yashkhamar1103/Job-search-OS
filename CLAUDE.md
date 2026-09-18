@@ -182,7 +182,18 @@ Each gate returns either `pass` or a list of rejections. Each rejection carries 
 - Handle plural and hyphenated variants. Plural tolerance applies from four characters up, so a short acronym cannot be widened into a different word.
 - Fold `-ise` and `-ize` spellings together so one config entry covers both.
 
-**Gate precedence.** Numeric spans are claimed by G3 first, technology spans by G1 second, and G1's proper-noun heuristic sees only the residue. A span already validated as a metric or a version can never raise `UNKNOWN_TERM`. Without this order a cited multiplier such as `3x`, which carries both a letter and a digit, matches the shape the proper-noun heuristic looks for, and G1 holds it as a possible product name while G3 is busy validating it against its metric.
+**Gate precedence.** One ordered claim over spans:
+
+```
+G0 hygiene  ->  G3 numeric and version spans  ->  client blocklist
+            ->  taxonomy match  ->  proper-noun residue heuristic
+```
+
+A span claimed earlier is invisible to everything later. Longest match wins inside the blocklist, so "Northwind Retail" consumes "Northwind" and one name is named once. Findings are deduplicated by (code, span) before the run report.
+
+Without an order the same characters get reported by three gates at once: a blocklisted client name is also a proper noun the taxonomy has never heard of, and a cited multiplier such as `3x` carries both a letter and a digit, which is exactly the shape the residue heuristic hunts for.
+
+Alias spans are resolved before numeric spans even though the chain ranks numbers first, and that is not a contradiction. Digits inside a product name are part of the name rather than a claim about scale: `Route 53`, `OAuth 2.0` and `SOC 2` are names. Settling that question first is what makes the rest of the chain well defined.
 
 **Block types.** G1, G2, G3, and G4 all run over bullets, the summary, and the skills section. Two checks are bullet-only because they have no meaning elsewhere: G2's context check, since neither the summary nor the skills section sits under a role, and G3's citation check, since neither carries citations.
 
@@ -218,6 +229,7 @@ The homoglyph fold in `app/normalise.py` runs **after** tokenisation, never inst
 - **Services:** a sub-service not in the platform's `services` list is rejected with `SCOPE_SERVICE`. G1 also rejects it as unconfirmed, on purpose: each gate stays independently correct rather than relying on the other having run.
 - **Exposure:** a technology with `depth` `exposure` may not appear in bullet text at all (`SCOPE_EXPOSURE_IN_BULLET`), nor in the skills section (`SKILLS_EXPOSURE`). It may appear only on a separate environment line.
 - **Cohabitation:** split the text into sentences deterministically. For each sentence, collect the matched canonical ids that have a non-empty `contexts` list. If the intersection of their contexts is empty, reject with `SCOPE_COHABITATION`. Inside a bullet, the intersection must also include the bullet's own role.
+  - At least two participants are required. One technology cannot cohabit with anything, and without the guard a single technology under the wrong role reported both `SCOPE_CONTEXT` and `SCOPE_COHABITATION`, which is one finding named twice.
   - This is the check per-technology context cannot make. Two technologies can each be confirmed, each under a role of its own, and still describe work that never happened by sitting next to each other.
 - **Known limit:** free-text scope such as "producer side only" cannot be enforced in code. `scope_note` is shown next to the bullet in Step 4 for human review.
 
@@ -237,7 +249,12 @@ The homoglyph fold in `app/normalise.py` runs **after** tokenisation, never inst
 - **Versions:** a number attached directly to a technology term (`.NET 8`, `Angular 16`) is a version. It is allowed only if listed in that entry's `versions`; otherwise `VERSION_UNSUPPORTED`. Only nothing or a single space may sit between the name and the number: anything else, a comma above all, means the number belongs to the next item in a list.
   - A number **inside** a matched alias is part of the product name and is not a claim about scale. `OAuth 2.0`, `Route 53`, and `SOC 2` are names.
 - **Vague intensity words:** words such as "significantly", "dramatically", "substantially", and "massively" are rejected with `VAGUE_METRIC`, because they imply a number that does not exist.
-- **Hedged numbers:** a hedge adjacent to any number is `VAGUE_METRIC` in **every** block type, bullets included. "roughly 40%" asserts imprecision over a measured value, and the fact that the integer matches its metric is exactly what let it through before.
+- **Hedged numbers:** position is the rule, not presence. The same word hedges in one place and does not in another.
+  - A `policy.leading_hedges` entry **preceding** a number, within two tokens, is `VAGUE_METRIC`. "roughly 40%" widens a measured value.
+  - A `policy.trailing_hedges` entry **following** a numeric span is `VAGUE_METRIC`. "12+ services" and "40% or more" widen a number the metric records exactly.
+  - Neither fires otherwise. "3x over the prior pipeline" compares; "over the weekend window" is a preposition with no number in sight. Checking presence rather than position blocked all three.
+  - The computed years rendering `N+ years` is exempt from the **trailing** rule only, being code-generated from the role dates. A leading hedge on a computed value is still the model widening a number it was handed, so "over 6 years" is rejected.
+- **Form mismatch:** a value that matches a cited metric but not its form is `NUMBER_FORM_MISMATCH`, not `NUMBER_UNSUPPORTED`. Plain 3 against a multiplier of 3x, "three times" against "3x", "40 percent" against "40%". They are different defects: one means the model invented a number, the other means it has the right metric and rendered it wrong, and a retry told which form to use converges instead of guessing at a number it already has.
 - **Summary and skills:** no citation exists, so every number and every vague intensity word is rejected with `SUMMARY_NUMBER_UNCITED`, together with every duration hedge ("nearly", "almost", "over", "more than", "half a decade", "a decade").
   - The one exception is the computed-values registry below.
 
@@ -518,3 +535,13 @@ An independent adversarial fixture, authored outside the session that wrote the 
 **Code names.** `VERSION_UNSUPPORTED` and `SKILLS_PROFICIENCY` were kept: they are more precise than the spec names, and the fixture changed instead. `SUMMARY_NUMBER_UNCITED` was renamed `UNCITED_NUMBER`, because it fires on skills lines too and the prefix was wrong.
 
 **Cases that were wrong.** Three: a bullet whose evidence did not confirm the technology it tested, and two expecting bare "delivered" to be banned. "Delivered 12 services" is a real claim; "delivered on" is the empty one, and only the latter is banned.
+
+### Red team adjudication, round 2, fixture version 3
+
+Three findings from the first adjudication were themselves adjudicated.
+
+**The hedge rule was wrong and is now positional.** "A hedge adjacent to any number" blocked "3x over the prior pipeline", which compares rather than hedges. Split into `leading_hedges` (before the number) and `trailing_hedges` (after it), with the computed years exemption scoped to the trailing rule alone.
+
+**`NUMBER_FORM_MISMATCH` split from `NUMBER_UNSUPPORTED`.** An invented number and a correctly cited number in the wrong form are different defects and a retry should be told which.
+
+**`SCOPE_COHABITATION` requires two participants.** The guard immediately exposed a test of this project's own that had been passing for the wrong reason: it read "Kafka streams" as the product Kafka Streams, so its sentence held one confirmed technology, not two.

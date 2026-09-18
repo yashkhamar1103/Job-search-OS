@@ -129,11 +129,10 @@ def _numbers(analysis: BlockAnalysis, ctx: GateContext):
 
     year_token_spans = _computed_year_spans(analysis, allowed_years) if not is_bullet else set()
 
-    # A hedge adjacent to a number is VAGUE_METRIC everywhere, bullets
-    # included. "roughly 40%" asserts imprecision over a measured value, which
-    # is a claim the metric does not support, and the fact that the integer
-    # matches is exactly what made it slip through before.
-    yield from _hedged_numbers(analysis, ctx)
+    # The computed years rendering is code-generated from the role dates, so
+    # its trailing plus is not a model widening a number it was given.
+    computed_years = _computed_year_spans(analysis, allowed_years)
+    yield from _hedged_numbers(analysis, ctx, computed_years)
 
     # In a block with no citations, a hedged duration is its own defect even
     # with no digits nearby: "nearly a decade" is a number with no value.
@@ -164,61 +163,42 @@ def _numbers(analysis: BlockAnalysis, ctx: GateContext):
             continue
 
         if expression.key not in supported:
-            yield analysis.reject(
-                "NUMBER_UNSUPPORTED",
-                span,
-                f"{expression.raw.strip()!r} does not equal a value in the bullet's "
-                f"cited metrics ({', '.join(cited_metric_values(analysis, ctx)) or 'none cited'})",
+            yield _number_finding(
+                analysis, ctx, span, expression.raw.strip(), expression.canonical, supported
             )
 
     yield from _number_words(analysis, ctx, supported, is_bullet)
 
 
-#: How many tokens may sit between a hedge and the number it qualifies. One,
-#: so that "roughly 40%" and "about the 40%" both count and the next clause's
-#: number does not.
-_HEDGE_GAP = 1
+#: How many whole tokens may sit between a leading hedge and the number it
+#: qualifies. One, so "roughly 40%" and "about the 40%" both count.
+_LEADING_HEDGE_GAP = 1
+
+#: Characters that hedge without being tokens. "~" leads, "+" trails.
+_TILDE = "~"
+_PLUS = "+"
 
 
-def _hedge_phrases(analysis: BlockAnalysis, ctx: GateContext):
-    """Every hedge phrase in the block, as (first token, last token)."""
+def _phrase_positions(analysis: BlockAnalysis, phrases: tuple[str, ...]):
+    """Every occurrence of any phrase, longest first, as (first, last, phrase)."""
     text_tokens = tuple(t.folded for t in analysis.tokens)
-    phrases = sorted(
-        (p for p in (token_texts(h) for h in ctx.bundle.policy.list_of("duration_hedges")) if p),
-        key=len,
+    wanted = sorted(
+        ((token_texts(p), p) for p in phrases),
+        key=lambda pair: len(pair[0]),
         reverse=True,
     )
     consumed: set[int] = set()
-    for wanted in phrases:
-        for i in range(0, max(0, len(text_tokens) - len(wanted) + 1)):
-            if text_tokens[i : i + len(wanted)] != wanted:
+    for seq, phrase in wanted:
+        if not seq:
+            continue
+        for i in range(0, max(0, len(text_tokens) - len(seq) + 1)):
+            if text_tokens[i : i + len(seq)] != seq:
                 continue
-            window = analysis.tokens[i : i + len(wanted)]
+            window = analysis.tokens[i : i + len(seq)]
             if any(t.index in consumed for t in window):
                 continue
             consumed.update(t.index for t in window)
-            yield window[0], window[-1]
-
-
-def _hedged_numbers(analysis: BlockAnalysis, ctx: GateContext):
-    if not analysis.numeric_spans:
-        return
-    for first, last in _hedge_phrases(analysis, ctx):
-        for start, end in analysis.numeric_spans:
-            before = 0 <= _tokens_between(analysis, last.end, start) <= _HEDGE_GAP
-            after = 0 <= _tokens_between(analysis, end, first.start) <= _HEDGE_GAP
-            if not (before or after):
-                continue
-            low, high = min(first.start, start), max(last.end, end)
-            yield analysis.reject(
-                "VAGUE_METRIC",
-                analysis.span(low, high),
-                f"{analysis.block.text[first.start : last.end]!r} hedges a number. "
-                f"A measured value is not approximate, and an approximate one is "
-                f"not evidence.",
-                hedge=analysis.block.text[first.start : last.end],
-            )
-            break
+            yield window[0], window[-1], phrase
 
 
 def _tokens_between(analysis: BlockAnalysis, left_end: int, right_start: int) -> int:
@@ -226,6 +206,84 @@ def _tokens_between(analysis: BlockAnalysis, left_end: int, right_start: int) ->
     if right_start < left_end:
         return -1
     return sum(1 for t in analysis.tokens if left_end <= t.start and t.end <= right_start)
+
+
+def _hedged_numbers(analysis: BlockAnalysis, ctx: GateContext, exempt: set[tuple[int, int]]):
+    """A hedge attached to a number, by position.
+
+    Position is the whole rule. The same word hedges in one place and does not
+    in another: "over 6 years" widens a number, "3x over the prior pipeline"
+    compares one thing to another, and "over the weekend window" is a
+    preposition with no number in sight. Checking presence rather than position
+    blocked all three.
+    """
+    if not analysis.numeric_spans:
+        return
+
+    text = analysis.block.text
+    leading = tuple(ctx.bundle.policy.list_of("leading_hedges"))
+    trailing = tuple(ctx.bundle.policy.list_of("trailing_hedges"))
+
+    word_leading = tuple(h for h in leading if h != _TILDE)
+    word_trailing = tuple(h for h in trailing if h != _PLUS)
+
+    for start, end in analysis.numeric_spans:
+        # A tilde immediately before the number, which is not a token.
+        before = text[:start].rstrip()
+        if before.endswith(_TILDE):
+            yield analysis.reject(
+                "VAGUE_METRIC",
+                analysis.span(len(before) - 1, end),
+                f"{_TILDE!r} hedges {text[start:end]!r}",
+                hedge=_TILDE,
+            )
+            continue
+
+        # A trailing plus carried inside the numeric token itself.
+        #
+        # The exemption is scoped to trailing hedges alone, which is where the
+        # directive puts it. "6+ years" is code-generated from the role dates.
+        # "over 6 years" is not: the hedge sits in front, and a leading hedge on
+        # a computed value is still the model widening a number it was handed.
+        if (start, end) in exempt:
+            pass
+        elif text[start:end].rstrip().endswith(_PLUS):
+            yield analysis.reject(
+                "VAGUE_METRIC",
+                analysis.span(start, end),
+                f"{text[start:end]!r} widens a number that a metric records exactly",
+                hedge=_PLUS,
+            )
+            continue
+
+        hedged = False
+        for first, last, phrase in _phrase_positions(analysis, word_leading):
+            if 0 <= _tokens_between(analysis, last.end, start) <= _LEADING_HEDGE_GAP:
+                yield analysis.reject(
+                    "VAGUE_METRIC",
+                    analysis.span(first.start, end),
+                    f"{phrase!r} precedes {text[start:end]!r}. A measured value is "
+                    f"not approximate, and an approximate one is not evidence.",
+                    hedge=phrase,
+                )
+                hedged = True
+                break
+        if hedged:
+            continue
+
+        if (start, end) in exempt:
+            continue
+
+        for first, last, phrase in _phrase_positions(analysis, word_trailing):
+            if 0 <= _tokens_between(analysis, end, first.start) <= 0:
+                yield analysis.reject(
+                    "VAGUE_METRIC",
+                    analysis.span(start, last.end),
+                    f"{phrase!r} follows {text[start:end]!r} and widens it beyond "
+                    f"what the metric records",
+                    hedge=phrase,
+                )
+                break
 
 
 def _duration_hedges(analysis: BlockAnalysis, ctx: GateContext):
@@ -270,11 +328,7 @@ def _number_words(analysis, ctx, supported, is_bullet):
                 f"{token.raw!r} is a number word with no citation available here",
             )
         elif canonical.key() not in supported:
-            yield analysis.reject(
-                "NUMBER_UNSUPPORTED",
-                span,
-                f"{token.raw!r} does not equal a value in the bullet's cited metrics",
-            )
+            yield _number_finding(analysis, ctx, span, token.raw, canonical, supported)
 
 
 def _computed_year_spans(analysis: BlockAnalysis, allowed: set[tuple[str, ...]]) -> set[tuple[int, int]]:
@@ -311,4 +365,37 @@ def _version(analysis: BlockAnalysis, ctx: GateContext, owner: MatchedTech, star
         f"{list(versions) or 'empty'}",
         canonical_id=resolution.canonical_id,
         version=candidate,
+    )
+
+
+def _number_finding(analysis, ctx, span, surface, canonical, supported):
+    """NUMBER_UNSUPPORTED or NUMBER_FORM_MISMATCH, whichever is true.
+
+    They are different defects and a retry should be told which. A value that
+    is simply absent from the cited metrics means the model invented it. A
+    value that matches but in the wrong form means the model has the right
+    metric and rendered it as something else, so naming the metric's own form
+    lets the retry converge instead of guessing at a number it already has.
+    """
+    from app.numbers import _canonical_text
+
+    values = cited_metric_values(analysis, ctx)
+    mine = _canonical_text(canonical.value)
+    same_value = sorted(
+        {key for key in supported if key[2] == mine}
+    )
+    if same_value:
+        forms = ", ".join(f"{k[0]}{(' ' + k[1]) if k[1] else ''}" for k in same_value)
+        return analysis.reject(
+            "NUMBER_FORM_MISMATCH",
+            span,
+            f"{surface!r} matches a cited metric's value but not its form. The "
+            f"metric records it as {forms}; rewrite to that form.",
+            recorded_as=forms,
+        )
+    return analysis.reject(
+        "NUMBER_UNSUPPORTED",
+        span,
+        f"{surface!r} does not equal a value in the bullet's cited metrics "
+        f"({', '.join(values) or 'none cited'})",
     )

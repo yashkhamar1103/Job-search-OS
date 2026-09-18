@@ -41,6 +41,7 @@ TABLE: dict[str, tuple[str, str, int | None]] = {
     "SCOPE_COHABITATION": (TRUTH, REJECT, None),
     # G3 numbers.
     "NUMBER_UNSUPPORTED": (TRUTH, REJECT, None),
+    "NUMBER_FORM_MISMATCH": (TRUTH, REJECT, None),
     "VAGUE_METRIC": (TRUTH, REJECT, None),
     "VERSION_UNSUPPORTED": (TRUTH, REJECT, None),
     "CITATION_MISSING": (TRUTH, REJECT, None),

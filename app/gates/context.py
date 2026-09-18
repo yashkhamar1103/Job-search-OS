@@ -149,35 +149,114 @@ class BlockAnalysis:
             i for m in matches for i in m.token_indices
         )
 
-        # Gate precedence, in one place so every gate reads the same answer.
+        # The claim chain, in one place so every gate reads the same answer.
         #
-        # Numeric spans are claimed by G3 first, technology spans by G1 second,
-        # and G1's proper-noun heuristic sees only what is left. Without this a
-        # cited multiplier such as 3x, which carries both a letter and a digit,
-        # matches the shape the heuristic looks for and gets held as a possible
-        # product name while G3 is busy validating it against its metric.
+        #   G0 hygiene -> numeric and version spans -> client blocklist ->
+        #   taxonomy match -> proper-noun residue
+        #
+        # A span claimed earlier is invisible to everything later. Without an
+        # order, the same characters get reported by three gates at once: a
+        # blocklisted client name is also a proper noun the taxonomy has never
+        # heard of, and a cited multiplier such as 3x carries both a letter and
+        # a digit, which is exactly the shape the proper-noun heuristic hunts.
+        #
+        # Alias spans are computed before numeric spans even though the chain
+        # ranks numbers first, and that is not a contradiction. Digits inside a
+        # product name are part of the name, not a claim about scale: Route 53
+        # and OAuth 2.0 are names. Resolving that question first is what makes
+        # the rest of the chain well defined.
         self.numeric_spans: tuple[tuple[int, int], ...] = self._numeric_spans()
-        self.numeric_token_indices: frozenset[int] = frozenset(
+        self.numeric_token_indices: frozenset[int] = self._tokens_in(self.numeric_spans)
+
+        self.client_spans: tuple[tuple[int, int], ...] = self._client_spans(ctx)
+        self.client_token_indices: frozenset[int] = self._tokens_in(self.client_spans)
+
+        self.claimed_token_indices: frozenset[int] = (
+            self.covered | self.numeric_token_indices | self.client_token_indices
+        )
+
+    def _tokens_in(self, spans: tuple[tuple[int, int], ...]) -> frozenset[int]:
+        return frozenset(
             token.index
             for token in self.tokens
-            for start, end in self.numeric_spans
+            for start, end in spans
             if token.start < end and start < token.end
         )
 
     def _numeric_spans(self) -> tuple[tuple[int, int], ...]:
         from app.numbers import extract, word_value
 
+        def inside_a_name(start: int, end: int) -> bool:
+            return any(m.start <= start and end <= m.end for m in self.matches)
+
         spans: list[tuple[int, int]] = []
         for expression in extract(self.norm.text):
-            spans.append(self.norm.origin(expression.start, expression.end))
+            start, end = self.norm.origin(expression.start, expression.end)
+            if not inside_a_name(start, end):
+                spans.append((start, end))
         for token in self.tokens:
-            if word_value(token.folded) is not None:
-                spans.append((token.start, token.end))
+            if word_value(token.folded) is None:
+                continue
+            if inside_a_name(token.start, token.end):
+                continue
+            spans.append((token.start, token.end))
         return tuple(sorted(set(spans)))
+
+    def _client_spans(self, ctx: "GateContext") -> tuple[tuple[int, int], ...]:
+        """Blocklisted client names, longest match first, non-overlapping.
+
+        Longest first matters: with both "Northwind Retail" and "Northwind" on
+        the list, the short entry would otherwise report a second time inside
+        the span the long one already claimed, and the same name would be named
+        twice in one report.
+        """
+        from app.normalise import token_texts
+
+        blocklist = ctx.bundle.policy.list_of("client_blocklist")
+        if not blocklist:
+            return ()
+
+        wanted = sorted(
+            ((token_texts(name), name) for name in blocklist),
+            key=lambda pair: len(pair[0]),
+            reverse=True,
+        )
+        text_tokens = tuple(t.folded for t in self.tokens)
+        taken: set[int] = set()
+        spans: list[tuple[int, int]] = []
+
+        for seq, _name in wanted:
+            if not seq:
+                continue
+            for i in range(0, max(0, len(text_tokens) - len(seq) + 1)):
+                if text_tokens[i : i + len(seq)] != seq:
+                    continue
+                window = self.tokens[i : i + len(seq)]
+                if any(t.index in taken for t in window):
+                    continue
+                if any(t.index in self.numeric_token_indices for t in window):
+                    continue
+                taken.update(t.index for t in window)
+                spans.append((window[0].start, window[-1].end))
+        return tuple(sorted(spans))
+
+    def client_name_at(self, span: tuple[int, int], ctx: "GateContext") -> str:
+        from app.normalise import token_texts
+
+        surface = self.block.text[span[0] : span[1]]
+        key = token_texts(surface)
+        for name in ctx.bundle.policy.list_of("client_blocklist"):
+            if token_texts(name) == key:
+                return name
+        return surface
 
     def claimed_by_a_number(self, token: Token) -> bool:
         """True when a numeric expression already owns this token's span."""
         return token.index in self.numeric_token_indices
+
+    def claimed_earlier(self, token: Token) -> bool:
+        """True when anything ahead of the residue heuristic owns this token."""
+        return token.index in self.claimed_token_indices
 
     def _sentence_of(self, token: Token) -> int:
         for i, (start, end) in enumerate(self.sentence_ranges):

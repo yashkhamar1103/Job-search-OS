@@ -222,6 +222,17 @@ _ALL: tuple[CodeSpec, ...] = (
         "cited metrics.",
     ),
     _spec(
+        "NUMBER_FORM_MISMATCH",
+        Gate.G3,
+        Severity.REJECT,
+        Bucket.TRUTH,
+        Exhaustion.DROP,
+        "A numeric expression matches a cited metric's value but not its form: "
+        "plain 3 against a multiplier of 3x, or 40 percent against 40%. Split "
+        "from NUMBER_UNSUPPORTED so the retry can name the metric's own form and "
+        "converge, rather than guess at a number it already has.",
+    ),
+    _spec(
         "VAGUE_METRIC",
         Gate.G3,
         Severity.REJECT,
@@ -505,7 +516,28 @@ class GateResult:
         out: list[Rejection] = []
         for result in results:
             out.extend(result.rejections)
-        return GateResult(tuple(out))
+        return GateResult(_deduplicate(tuple(out)))
+
+    def deduplicated(self) -> "GateResult":
+        return GateResult(_deduplicate(self.rejections))
+
+
+def _deduplicate(rejections: tuple[Rejection, ...]) -> tuple[Rejection, ...]:
+    """One finding per (code, span).
+
+    Two gates can legitimately reach the same conclusion about the same
+    characters. Reporting it twice does not make it twice as true, and a run
+    report that lists one name three times trains the reader to skim.
+    """
+    seen: set[tuple[str, int, int]] = set()
+    out: list[Rejection] = []
+    for rejection in rejections:
+        key = (rejection.code, rejection.span.start, rejection.span.end)
+        if key in seen:
+            continue
+        seen.add(key)
+        out.append(rejection)
+    return tuple(out)
 
 
 PASS = GateResult()
