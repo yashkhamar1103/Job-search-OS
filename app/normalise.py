@@ -24,16 +24,25 @@ Neither changes a threshold. Both make evasion harder.
 
 from __future__ import annotations
 
+import json
 import re
 import unicodedata
 from dataclasses import dataclass
+from functools import lru_cache
+from pathlib import Path
 from typing import Iterable, Mapping, Sequence
 
 # Characters kept inside a token so that .NET, C#, C++, Node.js, and CI/CD
 # survive tokenisation as single tokens.
 TOKEN_INNER = ".#+/"
 
-_TOKEN_RE = re.compile(r"[0-9A-Za-z" + re.escape(TOKEN_INNER) + r"]+")
+# Every Unicode letter is a letter. [^\W_] is a word character minus the
+# underscore, so it covers Latin, Cyrillic, Greek and the rest.
+#
+# An ASCII-only pattern made a non-Latin letter a separator rather than a
+# character, which silently truncated the token around it. One Cyrillic a split
+# RAG into r and G, and a denied technology became invisible to every gate.
+_TOKEN_RE = re.compile(r"(?:[^\W_]|[" + re.escape(TOKEN_INNER) + r"])+")
 
 # Stripped from a token's edges. A trailing # or + is meaningful (C#, C++) and a
 # leading . is meaningful (.NET), so those are not stripped.
@@ -62,6 +71,35 @@ _ABBREVIATIONS = frozenset(
         "no.",
     }
 )
+
+
+@lru_cache(maxsize=1)
+def _homoglyph_map() -> dict[str, str]:
+    """Characters from other scripts that render as Latin letters.
+
+    Loaded lazily from vocab/confusables.json. This module deliberately does not
+    import app.loaders, which would be a cycle, so the file is read here.
+    """
+    path = Path(__file__).resolve().parent.parent / "vocab" / "confusables.json"
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+    except FileNotFoundError:
+        return {}
+    return dict(data.get("homoglyphs", {}))
+
+
+def fold_homoglyphs(text: str) -> str:
+    """Map lookalike characters onto the Latin letters they imitate.
+
+    Applied after tokenisation, never instead of the hygiene gate. G0 sees the
+    original characters and rejects the text; this fold exists so the term is
+    also classified correctly, and a homoglyph attack reports both the script
+    violation and the denial it was hiding.
+    """
+    mapping = _homoglyph_map()
+    if not mapping:
+        return text
+    return "".join(mapping.get(ch, ch) for ch in text)
 
 
 @dataclass(frozen=True)
@@ -186,6 +224,7 @@ def tokenise(norm: Normalised) -> tuple[Token, ...]:
         ne = ns + len(trimmed)
         o_start, o_end = norm.origin(ns, ne)
         folded = trimmed if norm.folded else normalise(trimmed, fold_case=True).text
+        folded = fold_homoglyphs(folded)
         tokens.append(
             Token(
                 text=trimmed,
@@ -339,6 +378,18 @@ class AliasIndex:
                     continue
                 self._entries.append((seq, canonical_id, alias))
                 self._by_alias.setdefault(" ".join(seq), canonical_id)
+
+                # Every multi-token alias is indexed a second time with its
+                # whitespace removed. A zero width space between two words is
+                # stripped by normalisation, which joins them into one token, so
+                # Semantic<ZWSP>Kernel arrives as semantickernel and the spaced
+                # alias no longer matches. Indexing the joined form as well
+                # means the term is still recognised, while G0 still rejects the
+                # text for carrying the character in the first place.
+                if len(seq) > 1:
+                    joined = ("".join(seq),)
+                    self._entries.append((joined, canonical_id, alias))
+                    self._by_alias.setdefault(joined[0], canonical_id)
         # Longest alias wins, so Azure AI Search is never matched as Azure.
         self._entries.sort(key=lambda e: (len(e[0]), sum(len(t) for t in e[0])), reverse=True)
         self._max_len = max((len(e[0]) for e in self._entries), default=0)
@@ -400,7 +451,7 @@ class AliasIndex:
 # ---------------------------------------------------------------------------
 
 _CAMEL_RE = re.compile(r"[a-z][A-Z]|[A-Z]{2,}[a-z]")
-_HAS_LETTER_RE = re.compile(r"[A-Za-z]")
+_HAS_LETTER_RE = re.compile(r"[^\W\d_]")
 _HAS_DIGIT_RE = re.compile(r"[0-9]")
 
 

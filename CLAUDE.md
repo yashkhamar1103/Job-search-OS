@@ -177,11 +177,26 @@ Each gate returns either `pass` or a list of rejections. Each rejection carries 
 - Apply Unicode NFKC, casefold, and collapse whitespace.
 - Decompose first, drop combining marks and format characters, then recompose. A precomposed and a decomposed accent must fold to the same token, and a zero width space or soft hyphen must not be able to hide a technology name.
 - Keep `.`, `#`, `+`, and `/` inside tokens, so `.NET`, `C#`, `C++`, `Node.js`, and `CI/CD` survive.
-- Match aliases longest-first, on token boundaries.
+- Every Unicode letter is a letter. A non-ASCII letter must never act as a separator: an ASCII-only token pattern silently truncated the token around it, and one Cyrillic `a` split `RAG` into `r` and `G`, making a denied technology invisible to every gate.
+- Match aliases longest-first, on token boundaries. Every alias is indexed twice, spaced and with whitespace removed, so a zero width space that joins two words into one token still resolves.
 - Handle plural and hyphenated variants. Plural tolerance applies from four characters up, so a short acronym cannot be widened into a different word.
 - Fold `-ise` and `-ize` spellings together so one config entry covers both.
 
+**Gate precedence.** Numeric spans are claimed by G3 first, technology spans by G1 second, and G1's proper-noun heuristic sees only the residue. A span already validated as a metric or a version can never raise `UNKNOWN_TERM`. Without this order a cited multiplier such as `3x`, which carries both a letter and a digit, matches the shape the proper-noun heuristic looks for, and G1 holds it as a possible product name while G3 is busy validating it against its metric.
+
 **Block types.** G1, G2, G3, and G4 all run over bullets, the summary, and the skills section. Two checks are bullet-only because they have no meaning elsewhere: G2's context check, since neither the summary nor the skills section sits under a role, and G3's citation check, since neither carries citations.
+
+### G0 Text hygiene gate (pre-gate)
+
+Runs before every other gate. Truth bucket, **zero retries**, never auto-corrected. Silently repairing the text would produce clean output and erase the only evidence that something put the character there.
+
+- **Invisible characters:** any zero-width, invisible, or bidi control character (U+200B to U+200F, U+2060, U+00AD, U+FEFF, bidi embeds, overrides and isolates) is rejected with `INVISIBLE_CHAR`.
+- **Mixed script:** a token drawing characters from more than one Unicode script is rejected with `MIXED_SCRIPT`. This is how a homoglyph is smuggled into an otherwise Latin word.
+- **Non-Latin letters:** a letter outside the Latin script is rejected with `NON_LATIN_SCRIPT`. Latin Extended accented characters stay legal.
+
+**Asymmetric by design.** On generated text, reject. On job description ingest, do not reject: strip, record what was removed to the run report, and flag any term extracted from a stripped span. Yash does not control what a recruiter pasted into a posting, and refusing to read one over a stray soft hyphen would make the tool unusable for a reason that is nobody's fault.
+
+The homoglyph fold in `app/normalise.py` runs **after** tokenisation, never instead of this gate. The fold exists so the term is still classified correctly, so a homoglyph attack reports both the script violation and the denial it was hiding.
 
 ### G1 Technology gate
 
@@ -222,6 +237,7 @@ Each gate returns either `pass` or a list of rejections. Each rejection carries 
 - **Versions:** a number attached directly to a technology term (`.NET 8`, `Angular 16`) is a version. It is allowed only if listed in that entry's `versions`; otherwise `VERSION_UNSUPPORTED`. Only nothing or a single space may sit between the name and the number: anything else, a comma above all, means the number belongs to the next item in a list.
   - A number **inside** a matched alias is part of the product name and is not a claim about scale. `OAuth 2.0`, `Route 53`, and `SOC 2` are names.
 - **Vague intensity words:** words such as "significantly", "dramatically", "substantially", and "massively" are rejected with `VAGUE_METRIC`, because they imply a number that does not exist.
+- **Hedged numbers:** a hedge adjacent to any number is `VAGUE_METRIC` in **every** block type, bullets included. "roughly 40%" asserts imprecision over a measured value, and the fact that the integer matches its metric is exactly what let it through before.
 - **Summary and skills:** no citation exists, so every number and every vague intensity word is rejected with `SUMMARY_NUMBER_UNCITED`, together with every duration hedge ("nearly", "almost", "over", "more than", "half a decade", "a decade").
   - The one exception is the computed-values registry below.
 
@@ -255,6 +271,8 @@ Numbers in the summary may come only from code-computed values, never from the m
   - Measurement input is the final marked-up text, inline bold included.
   - Use the same measurement as the DOCX proxy. See Section 7 on why that proxy is valid.
   - Only the summary and the bullet are length-checked. The header headline is the posting's exact job title and the role title is a real job title, so a limit on either would reject a truthful document with no available remedy. Overflow there is caught by `PAGE_COUNT_EXCEEDED` and the run report.
+- **Unverifiable labels:** a self-description from `policy.unverifiable_labels`, such as "seasoned" or "proven track record", is rejected with `UNVERIFIABLE_LABEL`. Style bucket, 1 retry: it is not a false claim about a technology, it is a claim with no truth value at all, and dropping a bullet over an adjective would be a style rule deciding a question of fact. Checked in the summary and in bullets.
+- **Title claims:** a job-title-shaped phrase in summary prose matching no title in `experience.json` reports `TITLE_CLAIM_UNVERIFIED`. Advisory, never a rejection. The header headline is the posting's exact job title and is exempt: applying for a role is not claiming to have held it.
 - **Skills section:**
   - only confirmed entries with `depth` `built` or `used` (`SKILLS_EXPOSURE` rejects `exposure`)
   - no proficiency qualifiers anywhere in the section (`SKILLS_PROFICIENCY`): expert, advanced, proficient, intermediate, familiar, working knowledge, basic, or any "N years" construction
@@ -445,6 +463,10 @@ A golden test pins expected line counts for a fixture set of blocks. Any geometr
 - Any change to a gate's behaviour, threshold, or retry count from the defaults above.
 - Any place where this spec seems to contradict itself.
 
+### The bucket table
+
+`app/gates/buckets.py` pins every code to a bucket, a severity and a retry budget, as a literal table. Moving a code between buckets requires editing that file, so a truth gate cannot be downgraded to advisory as a side effect of a refactor. A test asserts the table and the registry in `app/errors.py` agree in both directions, so neither a new code nor a changed one can slip through unlisted.
+
 ## 12. Decision log
 
 Amendments to the original spec, with the reason each one was made. Every entry was decided by Yash under Section 11, except where marked.
@@ -484,3 +506,15 @@ Decompose, drop combining marks and format characters, then recompose. A plain N
 
 **Synonyms unlock wording, never a technology (decided by Claude Code, flagged for review).**
 Section 4.4 says an entry lets a JD term appear when the literal term is absent from the evidence. Section 5 defines the corpus as containing the *targets*, which under a strict reading would mean no JD term is ever unlocked and the file does nothing. Both sides are now within reach of the watch-list check, and G1's taxonomy check runs independently so a synonym can never launder a denied id.
+
+### Red team adjudication, fixture version 2
+
+An independent adversarial fixture, authored outside the session that wrote the gates, was run against milestone 1. Fifteen of sixty-nine cases failed. The reviewer adjudicated every one. What changed:
+
+**Gates that were wrong.** A homoglyph bypass, found by pulling on a case that *passed*: the tokeniser was ASCII-only, so a non-Latin letter acted as a separator rather than a character, and one Cyrillic `a` inside `RAG` produced no codes at all where the clean spelling produced `TECH_DENIED`. Fixed by G0, by Unicode-aware tokenisation, and by homoglyph folding applied after tokenisation. A zero width space joined two words into one token and lost a two-word alias; fixed by double-indexing aliases. A cited multiplier was held as an unknown product name; fixed by gate precedence. A hedge next to a number was unchecked inside bullets; fixed by applying hedges everywhere.
+
+**Gates that did not exist.** `UNVERIFIABLE_LABEL`, `TITLE_CLAIM_UNVERIFIED`, and the load-time client blocklist check.
+
+**Code names.** `VERSION_UNSUPPORTED` and `SKILLS_PROFICIENCY` were kept: they are more precise than the spec names, and the fixture changed instead. `SUMMARY_NUMBER_UNCITED` was renamed `UNCITED_NUMBER`, because it fires on skills lines too and the prefix was wrong.
+
+**Cases that were wrong.** Three: a bullet whose evidence did not confirm the technology it tested, and two expecting bare "delivered" to be banned. "Delivered 12 services" is a real claim; "delivered on" is the empty one, and only the latter is banned.

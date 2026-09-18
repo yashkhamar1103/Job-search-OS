@@ -28,7 +28,7 @@ from typing import Any, Iterable, Mapping
 
 from jsonschema import Draft202012Validator
 
-from app.normalise import AliasIndex, normalise_spelling, token_texts
+from app.normalise import AliasIndex, normalise_spelling, token_texts, tokens_of
 
 ROOT = Path(__file__).resolve().parent.parent
 SCHEMA_DIR = Path(__file__).resolve().parent / "schemas"
@@ -474,6 +474,53 @@ def require_permanent_denials(ledger: Ledger | None, policy: Policy) -> None:
         )
 
 
+def require_clean_evidence(experience: Experience, policy: Policy) -> None:
+    """Refuse to load evidence that names a blocklisted client.
+
+    G4 catches a client name on the way out, which is one check too late. A
+    client name sitting in a fact means every bullet generated from that fact
+    starts life contaminated, and the only thing standing between it and a PDF
+    is a gate firing correctly every single time. Catching it at load makes the
+    contamination impossible rather than merely detected.
+
+    Checked over fact text, employer names, and metric descriptions: all three
+    are strings that reach output through some path.
+    """
+    blocklist = policy.list_of("client_blocklist")
+    if not blocklist:
+        return
+
+    wanted = {name: token_texts(name) for name in blocklist}
+    findings: list[str] = []
+
+    def scan(where: str, text: str) -> None:
+        if not text:
+            return
+        found = tuple(t.folded for t in tokens_of(text))
+        for name, seq in wanted.items():
+            if not seq:
+                continue
+            for i in range(0, max(0, len(found) - len(seq) + 1)):
+                if found[i : i + len(seq)] == seq:
+                    findings.append(f"{where}: {name!r}")
+                    return
+
+    for role in experience.roles:
+        scan(f"role {role.id} employer", role.employer)
+        for fact in role.facts:
+            scan(f"fact {fact.id}", fact.text)
+        for metric in role.metrics:
+            scan(f"metric {metric.id} what", metric.what)
+            scan(f"metric {metric.id} note", metric.note)
+
+    if findings:
+        raise EvidenceError(
+            f"{experience.path}: evidence names a blocklisted client. A client name "
+            f"in the evidence contaminates every bullet generated from it:\n  "
+            + "\n  ".join(findings)
+        )
+
+
 def require_default_location(policy: Policy) -> None:
     """Refuse to run without a default location.
 
@@ -640,6 +687,7 @@ def load_bundle(
             )
 
     require_permanent_denials(ledger, policy)
+    require_clean_evidence(experience, policy)
 
     corpus = build_corpus(ledger, experience, synonyms, taxonomy)
 

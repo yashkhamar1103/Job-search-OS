@@ -21,7 +21,7 @@ import re
 from app import layout
 from app.errors import GateResult, Rejection
 from app.gates.context import BlockAnalysis, GateContext
-from app.models import BULLET, CLAIM_BLOCKS, SKILLS_LINE, Document
+from app.models import BULLET, CLAIM_BLOCKS, HEADER, SKILLS_LINE, SUMMARY, Document
 from app.normalise import Token, ngrams, token_texts, tokens_of
 
 #: The banned dashes, built from code points so that this file obeys the rule
@@ -48,6 +48,12 @@ def check(analysis: BlockAnalysis, ctx: GateContext) -> GateResult:
     if analysis.block.block_type in CLAIM_BLOCKS:
         rejections.extend(_banned_phrases(analysis, ctx))
         rejections.extend(_too_long(analysis))
+
+    if analysis.block.block_type in (BULLET, SUMMARY):
+        rejections.extend(_unverifiable_labels(analysis, ctx))
+
+    if analysis.block.block_type == SUMMARY:
+        rejections.extend(_title_claims(analysis, ctx))
 
     if analysis.block.block_type == BULLET:
         rejections.extend(_opening(analysis, ctx))
@@ -371,3 +377,100 @@ def check_document(document: Document, ctx: GateContext) -> GateResult:
                         )
                     )
     return GateResult(tuple(rejections))
+
+
+# ---------------------------------------------------------------------------
+# Unverifiable claims
+# ---------------------------------------------------------------------------
+
+
+def _phrase_hits(analysis: BlockAnalysis, phrases: tuple[str, ...]):
+    """Every occurrence of any phrase, as (first token, last token, phrase)."""
+    text_tokens = tuple(t.folded for t in analysis.tokens)
+    for phrase in phrases:
+        wanted = token_texts(phrase)
+        if not wanted:
+            continue
+        for i in range(0, max(0, len(text_tokens) - len(wanted) + 1)):
+            if text_tokens[i : i + len(wanted)] != wanted:
+                continue
+            window = analysis.tokens[i : i + len(wanted)]
+            yield window[0], window[-1], phrase
+
+
+def _unverifiable_labels(analysis: BlockAnalysis, ctx: GateContext):
+    """Self-description no evidence can support or refute.
+
+    Style bucket rather than truth: "seasoned" is not a false claim about a
+    technology, it is a claim with no truth value at all. It gets one retry and
+    then renders flagged, because dropping a bullet over an adjective would be
+    a style rule deciding a question of fact.
+    """
+    for first, last, phrase in _phrase_hits(
+        analysis, ctx.bundle.policy.list_of("unverifiable_labels")
+    ):
+        yield analysis.reject(
+            "UNVERIFIABLE_LABEL",
+            analysis.span(first.start, last.end),
+            f"{phrase!r} asserts a quality no evidence can support or refute",
+            label=phrase,
+        )
+
+
+# ---------------------------------------------------------------------------
+# Title claims
+# ---------------------------------------------------------------------------
+
+
+def _held_titles(ctx: GateContext) -> frozenset[tuple[str, ...]]:
+    return frozenset(token_texts(role.title) for role in ctx.bundle.experience.roles)
+
+
+def _title_claims(analysis: BlockAnalysis, ctx: GateContext):
+    """A job-title-shaped phrase in prose that matches no title actually held.
+
+    Advisory, never a rejection. The header headline is the posting's exact job
+    title and is exempt by block type: claiming to be applying for a role is not
+    the same as claiming to have held it.
+
+    A run of capitalised words ending in a title noun, two tokens or more. One
+    token is not enough: a summary opening with "Engineer building ..." has
+    capitalised its first word because it is the first word, and reading that as
+    a title claim would flag almost every summary ever written.
+    """
+    if analysis.block.block_type == HEADER:
+        return
+
+    nouns = {n.lower() for n in ctx.bundle.policy.list_of("title_nouns")}
+    modifiers = {m.lower() for m in ctx.bundle.policy.list_of("title_modifiers")}
+    held = _held_titles(ctx)
+
+    tokens = analysis.tokens
+    i = 0
+    while i < len(tokens):
+        if not tokens[i].raw[:1].isupper():
+            i += 1
+            continue
+        j = i
+        while j + 1 < len(tokens) and tokens[j + 1].raw[:1].isupper():
+            j += 1
+        run = tokens[i : j + 1]
+        i = j + 1
+
+        if len(run) < 2:
+            continue
+        if run[-1].folded not in nouns:
+            continue
+        if not any(t.folded in nouns or t.folded in modifiers for t in run[:-1]):
+            continue
+
+        claimed = tuple(t.folded for t in run)
+        if claimed in held:
+            continue
+        yield analysis.reject(
+            "TITLE_CLAIM_UNVERIFIED",
+            analysis.span(run[0].start, run[-1].end),
+            f"{analysis.block.text[run[0].start : run[-1].end]!r} matches no title in "
+            f"experience.json ({', '.join(sorted(' '.join(t) for t in held)) or 'none'})",
+            claimed=" ".join(claimed),
+        )

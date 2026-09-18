@@ -325,4 +325,4 @@ def test_document_check_runs_every_gate(ctx):
     )
     found = codes(check_document(doc, ctx))
     assert "TECH_DENIED" in found
-    assert "SUMMARY_NUMBER_UNCITED" in found
+    assert "UNCITED_NUMBER" in found

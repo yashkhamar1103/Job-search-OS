@@ -91,6 +91,10 @@ def _unknown_terms(analysis: BlockAnalysis, ctx: GateContext, claimed: set[int])
     for token in analysis.tokens:
         if token.index in analysis.covered or token.index in claimed:
             continue
+        # Gate precedence: a span G3 already claims as a number or a version is
+        # never a product name, whether or not it validated.
+        if analysis.claimed_by_a_number(token):
+            continue
         if corpus.contains((token.folded,)):
             continue
         signal = proper_noun_signal(

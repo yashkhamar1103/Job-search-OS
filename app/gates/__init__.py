@@ -13,11 +13,13 @@ do not have to be written twice.
 from __future__ import annotations
 
 from app.errors import GateResult
-from app.gates import g1_technology, g2_scope, g3_numbers, g4_structure
+from app.gates import g0_hygiene, g1_technology, g2_scope, g3_numbers, g4_structure
 from app.gates.context import BlockAnalysis, GateContext, MatchedTech, TechResolution
 from app.models import Block, Document
 
-GATES = (g1_technology, g2_scope, g3_numbers, g4_structure)
+#: G0 first. It is a pre-gate: it reads the characters, the others read the
+#: tokens those characters produced.
+GATES = (g0_hygiene, g1_technology, g2_scope, g3_numbers, g4_structure)
 
 
 def check_block(block: Block, ctx: GateContext) -> GateResult:
@@ -47,6 +49,7 @@ __all__ = [
     "analyse",
     "check_block",
     "check_document",
+    "g0_hygiene",
     "g1_technology",
     "g2_scope",
     "g3_numbers",

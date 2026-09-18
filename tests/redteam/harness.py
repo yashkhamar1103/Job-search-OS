@@ -49,10 +49,10 @@ from app.models import BULLET, SKILLS_LINE, SUMMARY, Block, Document
 
 FIXTURE_PATH = Path(__file__).parent / "redteam_fixture.json"
 
-#: Asserted at load. A fixture that grew or shrank silently is a fixture whose
-#: coverage nobody is tracking.
-EXPECTED_TOTAL = 69
-EXPECTED_BY_EXPECT = {"reject": 55, "pass": 12, "report": 2}
+#: Asserted at load, fixture version 2. A fixture that grew or shrank silently
+#: is a fixture whose coverage nobody is tracking.
+EXPECTED_TOTAL = 70
+EXPECTED_BY_EXPECT = {"reject": 55, "pass": 13, "report": 2}
 EXPECTED_MILESTONE_3 = 3
 
 #: Every key the harness understands. An unrecognised key is a hard error: the
@@ -132,8 +132,15 @@ class Outcome:
                 )
             return True, f"returned {list(self.codes)}"
         if self.case.expect == "pass":
-            if self.codes:
-                return False, f"expected no codes, returned {list(self.codes)}"
+            # Fixture version 2: pass means not rejected and no truth or style
+            # code. An advisory is allowed and is printed rather than hidden,
+            # because an advisory firing on truthful text is information, not a
+            # failure.
+            blocking = [c for c in self.codes if c not in self.advisory_codes]
+            if blocking or not self.passed:
+                return False, f"expected no blocking codes, returned {blocking}"
+            if self.advisory_codes:
+                return True, f"not rejected; advisories {list(self.advisory_codes)}"
             return True, "no codes"
         if self.case.expect == "report":
             missing = [c for c in self.case.codes if c not in self.advisory_codes]
@@ -157,10 +164,29 @@ class Outcome:
 # ---------------------------------------------------------------------------
 
 
+#: Top-level keys the harness understands. Same rule as for case keys: an
+#: unrecognised one is a hard error rather than something quietly ignored.
+KNOWN_FIXTURE_KEYS = frozenset(
+    {"fixture_version", "amended_by", "purpose", "rules_for_harness", "evidence",
+     "cases", "behavioural_checks"}
+)
+SUPPORTED_FIXTURE_VERSION = 2
+
+
 def load_fixture(path: Path = FIXTURE_PATH) -> dict[str, Any]:
     if not path.exists():
         raise FixtureError(f"fixture not found: {path}")
-    return json.loads(path.read_text(encoding="utf-8"))
+    data = json.loads(path.read_text(encoding="utf-8"))
+
+    unknown = sorted(set(data) - KNOWN_FIXTURE_KEYS)
+    if unknown:
+        raise FixtureError(f"fixture carries unknown top-level keys: {unknown}")
+    if data.get("fixture_version") != SUPPORTED_FIXTURE_VERSION:
+        raise FixtureError(
+            f"fixture_version {data.get('fixture_version')!r}, harness supports "
+            f"{SUPPORTED_FIXTURE_VERSION}"
+        )
+    return data
 
 
 def parse_cases(fixture: dict[str, Any]) -> tuple[Case, ...]:

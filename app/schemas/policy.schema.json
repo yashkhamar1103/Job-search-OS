@@ -9,7 +9,8 @@
     "be_have_openers", "banned_phrases", "vague_intensity_words",
     "proficiency_qualifiers", "duration_hedges", "ambiguous_acronyms",
     "client_blocklist", "location_allowlist", "default_location",
-    "permanently_denied_ids",
+    "permanently_denied_ids", "unverifiable_labels", "title_nouns",
+    "title_modifiers",
     "max_bullets_per_role", "jd_copy_ngram", "max_pages", "retry_limits",
     "cooling_off_hours", "fit_threshold", "fit_ceiling_divergence_points",
     "number_coverage_min", "number_coverage_target", "model_id",
@@ -30,6 +31,9 @@
     "duration_hedges": {"$ref": "#/$defs/phrase_list"},
     "ambiguous_acronyms": {"$ref": "#/$defs/phrase_list"},
     "client_blocklist": {"$ref": "#/$defs/phrase_list"},
+    "unverifiable_labels": {"$ref": "#/$defs/phrase_list"},
+    "title_nouns": {"$ref": "#/$defs/phrase_list"},
+    "title_modifiers": {"$ref": "#/$defs/phrase_list"},
     "location_allowlist": {"$ref": "#/$defs/phrase_list"},
 
     "permanently_denied_ids": {

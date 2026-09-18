@@ -160,57 +160,57 @@ def test_digits_inside_a_product_name_are_not_numbers(ctx):
 
 def test_uncited_number_in_the_summary_is_rejected(ctx):
     result = check_block(summary("Backend engineer who cut latency by 40%."), ctx)
-    assert "SUMMARY_NUMBER_UNCITED" in codes(result)
+    assert "UNCITED_NUMBER" in codes(result)
 
 
 def test_a_real_metric_does_not_rescue_a_summary_number(ctx):
     """acme-m1 really is 40%. The summary still cannot carry it: there is no
     citation on a summary, so nothing ties the number to the claim."""
     result = check_block(summary("Cut ingestion latency by 40% at a previous employer."), ctx)
-    assert "SUMMARY_NUMBER_UNCITED" in codes(result)
+    assert "UNCITED_NUMBER" in codes(result)
 
 
 def test_computed_total_years_is_permitted_in_the_summary(ctx):
     """The one exception: a value this codebase derived from the role dates."""
     years = ctx.computed.total_years
     result = check_block(summary(f"Backend engineer with {years} years building data platforms."), ctx)
-    assert "SUMMARY_NUMBER_UNCITED" not in codes(result)
+    assert "UNCITED_NUMBER" not in codes(result)
 
 
 def test_computed_total_years_plus_form_is_permitted(ctx):
     years = ctx.computed.total_years
     result = check_block(summary(f"Backend engineer with {years}+ years of experience."), ctx)
-    assert "SUMMARY_NUMBER_UNCITED" not in codes(result)
+    assert "UNCITED_NUMBER" not in codes(result)
 
 
 def test_a_wrong_years_figure_is_rejected(ctx):
     years = ctx.computed.total_years
     result = check_block(summary(f"Backend engineer with {years + 2} years of experience."), ctx)
-    assert "SUMMARY_NUMBER_UNCITED" in codes(result)
+    assert "UNCITED_NUMBER" in codes(result)
 
 
 @pytest.mark.parametrize("hedge", ["nearly", "almost", "over", "more than"])
 def test_duration_hedges_are_rejected_in_the_summary(hedge, ctx):
     years = ctx.computed.total_years
     result = check_block(summary(f"Backend engineer with {hedge} {years} years of experience."), ctx)
-    assert "SUMMARY_NUMBER_UNCITED" in codes(result)
+    assert "UNCITED_NUMBER" in codes(result)
 
 
 @pytest.mark.parametrize("phrase", ["half a decade", "a decade"])
 def test_decade_phrasings_are_rejected_in_the_summary(phrase, ctx):
     result = check_block(summary(f"Backend engineer with {phrase} of experience."), ctx)
-    assert "SUMMARY_NUMBER_UNCITED" in codes(result)
+    assert "UNCITED_NUMBER" in codes(result)
 
 
 def test_vague_intensity_in_the_summary_uses_the_summary_code(ctx):
     result = check_block(summary("Backend engineer who significantly improved throughput."), ctx)
-    assert "SUMMARY_NUMBER_UNCITED" in codes(result)
+    assert "UNCITED_NUMBER" in codes(result)
     assert "VAGUE_METRIC" not in codes(result)
 
 
 def test_numbers_in_the_skills_section_are_rejected(ctx):
     result = check_block(skills("Languages: Python, 5 years"), ctx)
-    assert "SUMMARY_NUMBER_UNCITED" in codes(result)
+    assert "UNCITED_NUMBER" in codes(result)
 
 
 # ---------------------------------------------------------------------------

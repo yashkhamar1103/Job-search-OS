@@ -59,6 +59,7 @@ class Exhaustion(str, Enum):
 
 
 class Gate(str, Enum):
+    G0 = "G0"
     G1 = "G1"
     G2 = "G2"
     G3 = "G3"
@@ -75,6 +76,10 @@ class CodeSpec:
     bucket: Bucket
     exhaustion: Exhaustion
     description: str
+    retries: int | None = None
+    """Per-code retry budget. None means the bucket's budget from policy.
+    Zero means no retry at all: some defects are not the kind of thing a
+    regeneration fixes, and retrying them only launders the attempt."""
 
 
 def _spec(
@@ -84,11 +89,50 @@ def _spec(
     bucket: Bucket,
     exhaustion: Exhaustion,
     description: str,
+    retries: int | None = None,
 ) -> CodeSpec:
-    return CodeSpec(code, gate, severity, bucket, exhaustion, description)
+    return CodeSpec(code, gate, severity, bucket, exhaustion, description, retries)
 
 
 _ALL: tuple[CodeSpec, ...] = (
+    # G0 text hygiene. Runs before every other gate, on generated text only.
+    #
+    # Zero retries on all three. A homoglyph or an invisible character is not a
+    # phrasing problem that a regeneration fixes, and none of them is ever
+    # auto-corrected: silently repairing the text would hide the fact that
+    # something produced it in the first place.
+    _spec(
+        "INVISIBLE_CHAR",
+        Gate.G0,
+        Severity.REJECT,
+        Bucket.TRUTH,
+        Exhaustion.DROP,
+        "A zero-width, invisible, or bidi control character appears in the text. "
+        "Such a character can hide a technology name from every gate that reads "
+        "tokens.",
+        retries=0,
+    ),
+    _spec(
+        "MIXED_SCRIPT",
+        Gate.G0,
+        Severity.REJECT,
+        Bucket.TRUTH,
+        Exhaustion.DROP,
+        "A single token mixes characters from more than one Unicode script, which "
+        "is how a homoglyph is smuggled into an otherwise Latin word.",
+        retries=0,
+    ),
+    _spec(
+        "NON_LATIN_SCRIPT",
+        Gate.G0,
+        Severity.REJECT,
+        Bucket.TRUTH,
+        Exhaustion.DROP,
+        "A letter outside the Latin script appears in generated text. Latin "
+        "Extended accented characters remain legal.",
+        retries=0,
+    ),
+
     # G1 technology. All truth.
     _spec(
         "TECH_UNCONFIRMED",
@@ -211,14 +255,14 @@ _ALL: tuple[CodeSpec, ...] = (
         "A cited fact_id or metric_id is not in experience.json.",
     ),
     _spec(
-        "SUMMARY_NUMBER_UNCITED",
+        "UNCITED_NUMBER",
         Gate.G3,
         Severity.REJECT,
         Bucket.TRUTH,
         Exhaustion.DROP,
-        "A number or vague intensity word appears in the summary or skills "
-        "section, where no citation exists to support it. The only exception is "
-        "a computed value rendered in an allowed form.",
+        "A number appears in a block that carries no citations, so nothing ties "
+        "it to evidence. Fires on the summary and on skills lines alike, which "
+        "is why the name carries no SUMMARY prefix.",
     ),
     # G4 structure and style.
     _spec(
@@ -289,6 +333,26 @@ _ALL: tuple[CodeSpec, ...] = (
         Bucket.STYLE,
         Exhaustion.RENDER_AND_FLAG,
         "The block wraps to more rendered lines than its type allows.",
+    ),
+    _spec(
+        "UNVERIFIABLE_LABEL",
+        Gate.G4,
+        Severity.REJECT,
+        Bucket.STYLE,
+        Exhaustion.RENDER_AND_FLAG,
+        "An unverifiable self-description, such as seasoned or proven track "
+        "record. It asserts a quality no evidence can support or refute.",
+        retries=1,
+    ),
+    _spec(
+        "TITLE_CLAIM_UNVERIFIED",
+        Gate.G4,
+        Severity.ADVISORY,
+        Bucket.STYLE,
+        Exhaustion.RENDER_AND_FLAG,
+        "A job-title-shaped phrase in summary prose matches no title in "
+        "experience.json. Reported, never rejected: the header headline is the "
+        "posting's title and is exempt.",
     ),
     _spec(
         "SKILLS_EXPOSURE",

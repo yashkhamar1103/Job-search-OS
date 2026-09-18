@@ -195,9 +195,10 @@ class TestBehavioural:
 
         block = Block(
             block_type=BULLET,
-            # "Moved" is absent from policy.opening_verbs, so the advisory fires.
-            # "Backfilled" is in the list, which is why r01 does not report.
-            text="Moved telemetry into Kafka topics for downstream consumers.",
+            # "Choreographed" is absent from policy.opening_verbs, so the
+            # advisory fires. "Moved" and "Backfilled" are both listed, which is
+            # why neither p01 nor r01 reports one.
+            text="Choreographed the telemetry handoff into Kafka topics.",
             block_id="behavioural-style",
             role_id="r_alpha",
             fact_ids=("a-f1",),
@@ -291,96 +292,109 @@ class TestBehavioural:
     def test_fact_text_containing_a_client_name_raises_at_load(self):
         """behavioural_checks[3].
 
-        Recorded as a finding rather than asserted green. No such check exists:
-        the client blocklist is enforced on output by G4, and nothing inspects
-        the evidence itself at load time. See the failure report.
+        G4 catches a client name on the way out, which is one check too late. A
+        name sitting in a fact means every bullet generated from it starts life
+        contaminated, and the only thing between it and a PDF is a gate firing
+        correctly every single time.
         """
-        from app.loaders import ROOT
+        from app.loaders import (
+            EvidenceError,
+            Experience,
+            Fact,
+            Metric,
+            Policy,
+            Role,
+            require_clean_evidence,
+        )
 
-        source = (ROOT / "app" / "loaders.py").read_text(encoding="utf-8")
-        has_check = "client_blocklist" in source and "facts" in source.split("client_blocklist", 1)[1][:2000]
-        pytest.xfail(
-            "behavioural_checks[3] asks for a load-time client-name check over fact "
-            "text. No such check exists; the blocklist is enforced on output only. "
-            f"(loaders.py mentions a fact-adjacent blocklist check: {has_check})"
+        policy = Policy({"client_blocklist": ["Northwind Retail", "Project Halyard"]}, None)
+
+        def one(fact_text="ordinary work", employer="Alpha Systems", what="latency"):
+            return Experience(
+                (
+                    Role(
+                        id="r",
+                        employer=employer,
+                        title="Engineer",
+                        start="2020-01",
+                        end="2021-01",
+                        location="",
+                        facts=(Fact("f1", fact_text),),
+                        metrics=(Metric("m1", "40%", what, "measured"),),
+                    ),
+                )
+            )
+
+        with pytest.raises(EvidenceError, match="blocklisted client"):
+            require_clean_evidence(one(fact_text="Built the Northwind Retail pipeline."), policy)
+
+        with pytest.raises(EvidenceError, match="blocklisted client"):
+            require_clean_evidence(one(employer="Northwind Retail"), policy)
+
+        with pytest.raises(EvidenceError, match="blocklisted client"):
+            require_clean_evidence(one(what="Project Halyard throughput"), policy)
+
+        # Clean evidence loads.
+        require_clean_evidence(one(), policy)
+
+        # An empty blocklist disables the check, same as everywhere else.
+        require_clean_evidence(
+            one(fact_text="Built the Northwind Retail pipeline."),
+            Policy({"client_blocklist": []}, None),
         )
 
 
-# ---------------------------------------------------------------------------
-# Findings derived from the fixture rather than stated by it
-# ---------------------------------------------------------------------------
+class TestHygieneAsymmetry:
+    """G0 is asymmetric on purpose: generated text is rejected, a posting is not.
 
-
-class TestDerivedFindings:
-    """Pulled from cases that PASSED.
-
-    d19 passes, and passes for a reason its why field does not state: the
-    Cyrillic character is not folded to its Latin lookalike, it is dropped as a
-    non-token character, and what gets held is the truncated stem. Pulling that
-    thread found a clean bypass, which is recorded here as an xfail so it stays
-    visible and turns green the day it is fixed.
+    Yash writes neither the homoglyph nor the posting, but he is answerable for
+    only one of them. Refusing to read a job description because a recruiter's
+    paste carried a soft hyphen would make the tool unusable for a reason that
+    is nobody's fault.
     """
 
-    CYRILLIC_A = "а"
-    CYRILLIC_CAPITAL_A = "А"
-
-    def _codes(self, text, ctx):
+    def test_generated_text_carrying_an_invisible_character_is_rejected(self, ctx):
         from app.gates import check_block
         from app.models import BULLET, Block
 
-        block = Block(BULLET, text, "derived", "r_alpha", ("a-f1",))
-        return sorted({r.code for r in check_block(block, ctx).rejections})
-
-    def test_a_homoglyph_inside_a_denied_term_does_not_bypass_every_gate(self, ctx):
-        """The token pattern is ASCII only, so a Cyrillic a is not a character
-        the tokeniser folds. It is a character the tokeniser treats as a
-        separator, which splits RAG into r and G and leaves nothing to match."""
-        clean = self._codes("Built a RAG pipeline over the archive.", ctx)
-        assert "TECH_DENIED" in clean
-
-        spoofed = self._codes(
-            f"Built a R{self.CYRILLIC_A}G pipeline over the archive.", ctx
+        block = Block(
+            BULLET, "Configured the Kafka​ topics.", "hyg", "r_alpha", ("a-f1",)
         )
-        if not spoofed:
-            pytest.xfail(
-                "one Cyrillic character renders a denied technology invisible to "
-                "every gate: codes are empty where the clean spelling gives "
-                "TECH_DENIED"
-            )
-        assert "TECH_DENIED" in spoofed
+        codes = {r.code for r in check_block(block, ctx).rejections}
+        assert "INVISIBLE_CHAR" in codes
 
-    def test_a_homoglyph_does_not_downgrade_a_denied_product_to_another_one(self, ctx):
-        """Azure OpenAI with a Cyrillic A tokenises to zure openai, and openai
-        is a different canonical id that is merely unconfirmed."""
-        spoofed = self._codes(
-            f"Integrated {self.CYRILLIC_CAPITAL_A}zure OpenAI Service into the ingest path.",
-            ctx,
+    def test_a_posting_carrying_one_is_stripped_and_recorded_not_rejected(self, bundle):
+        from app.jd import build_watch_list
+
+        watch, _ = build_watch_list(
+            "Required: Sem​antic Kernel and Kafka experience.", bundle
         )
-        if "TECH_DENIED" not in spoofed:
-            pytest.xfail(
-                f"a homoglyph downgrades azure_openai (denied) to openai "
-                f"(unconfirmed): codes were {spoofed}"
-            )
+        lines = watch.report_lines
+        assert any("removed ZERO WIDTH SPACE" in line for line in lines)
+        assert any("altered span" in line for line in lines)
+        assert watch.terms, "the posting was still read"
 
-    def test_a_zero_width_space_does_not_split_a_multi_word_denied_term(self, ctx):
-        """d07. Stripping the zero width space joins the two words into one
-        token, so the two-token alias no longer matches."""
-        spoofed = self._codes(
-            "Built orchestration with Semantic​Kernel across the portal services.", ctx
-        )
-        if "TECH_DENIED" not in spoofed:
-            pytest.xfail(
-                f"a zero width space joins Semantic and Kernel into one token, so "
-                f"the alias misses: codes were {spoofed}"
-            )
+    def test_a_term_from_a_stripped_span_is_flagged(self, bundle):
+        from app.jd import build_watch_list
 
-    def test_a_cited_metric_expression_is_not_held_as_an_unknown_product(self, ctx):
-        """p10. 3x carries a letter and a digit, which is the shape the
-        proper-noun heuristic looks for, so a validated metric is held as a
-        possible product name."""
-        codes = self._codes("Raised ingest throughput 3x across the telemetry pipeline.", ctx)
-        if "UNKNOWN_TERM" in codes:
-            pytest.xfail(
-                "a cited multiplier is held as an unknown proper noun: "
-                f"codes were {codes}"
-            )
+        watch, _ = build_watch_list("Required: Sem​antic Kernel experience.", bundle)
+        flagged = [t.surface for t in watch.terms if t.from_stripped_span]
+        assert "Semantic Kernel" in flagged
+
+    def test_a_clean_posting_records_nothing(self, bundle):
+        from app.jd import build_watch_list
+
+        watch, _ = build_watch_list("Required: Semantic Kernel and Kafka.", bundle)
+        assert watch.report_lines == ()
+        assert not any(t.from_stripped_span for t in watch.terms)
+
+    def test_accented_latin_stays_legal_in_generated_text(self, ctx):
+        """Latin Extended is Latin. Rejecting an accent would be a bug, not a
+        defence."""
+        from app.gates import check_block
+        from app.models import BULLET, Block
+
+        block = Block(BULLET, "Configured the naïve retry path.", "acc", "r_alpha", ("a-f1",))
+        codes = {r.code for r in check_block(block, ctx).rejections}
+        assert "NON_LATIN_SCRIPT" not in codes
+        assert "MIXED_SCRIPT" not in codes

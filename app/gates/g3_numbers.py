@@ -93,7 +93,7 @@ def _vague_words(analysis: BlockAnalysis, ctx: GateContext):
         lexicon.spell(w.lower()) for w in ctx.bundle.policy.list_of("vague_intensity_words")
     }
     is_bullet = analysis.block.block_type == BULLET
-    code = "VAGUE_METRIC" if is_bullet else "SUMMARY_NUMBER_UNCITED"
+    code = "VAGUE_METRIC" if is_bullet else "UNCITED_NUMBER"
     for token in analysis.tokens:
         if lexicon.spell(token.folded) not in vague:
             continue
@@ -129,6 +129,14 @@ def _numbers(analysis: BlockAnalysis, ctx: GateContext):
 
     year_token_spans = _computed_year_spans(analysis, allowed_years) if not is_bullet else set()
 
+    # A hedge adjacent to a number is VAGUE_METRIC everywhere, bullets
+    # included. "roughly 40%" asserts imprecision over a measured value, which
+    # is a claim the metric does not support, and the fact that the integer
+    # matches is exactly what made it slip through before.
+    yield from _hedged_numbers(analysis, ctx)
+
+    # In a block with no citations, a hedged duration is its own defect even
+    # with no digits nearby: "nearly a decade" is a number with no value.
     if not is_bullet:
         yield from _duration_hedges(analysis, ctx)
 
@@ -148,7 +156,7 @@ def _numbers(analysis: BlockAnalysis, ctx: GateContext):
             if (origin_start, origin_end) in year_token_spans:
                 continue
             yield analysis.reject(
-                "SUMMARY_NUMBER_UNCITED",
+                "UNCITED_NUMBER",
                 span,
                 f"{expression.raw.strip()!r} has no citation available in a "
                 f"{block.block_type} and is not a computed value",
@@ -164,6 +172,60 @@ def _numbers(analysis: BlockAnalysis, ctx: GateContext):
             )
 
     yield from _number_words(analysis, ctx, supported, is_bullet)
+
+
+#: How many tokens may sit between a hedge and the number it qualifies. One,
+#: so that "roughly 40%" and "about the 40%" both count and the next clause's
+#: number does not.
+_HEDGE_GAP = 1
+
+
+def _hedge_phrases(analysis: BlockAnalysis, ctx: GateContext):
+    """Every hedge phrase in the block, as (first token, last token)."""
+    text_tokens = tuple(t.folded for t in analysis.tokens)
+    phrases = sorted(
+        (p for p in (token_texts(h) for h in ctx.bundle.policy.list_of("duration_hedges")) if p),
+        key=len,
+        reverse=True,
+    )
+    consumed: set[int] = set()
+    for wanted in phrases:
+        for i in range(0, max(0, len(text_tokens) - len(wanted) + 1)):
+            if text_tokens[i : i + len(wanted)] != wanted:
+                continue
+            window = analysis.tokens[i : i + len(wanted)]
+            if any(t.index in consumed for t in window):
+                continue
+            consumed.update(t.index for t in window)
+            yield window[0], window[-1]
+
+
+def _hedged_numbers(analysis: BlockAnalysis, ctx: GateContext):
+    if not analysis.numeric_spans:
+        return
+    for first, last in _hedge_phrases(analysis, ctx):
+        for start, end in analysis.numeric_spans:
+            before = 0 <= _tokens_between(analysis, last.end, start) <= _HEDGE_GAP
+            after = 0 <= _tokens_between(analysis, end, first.start) <= _HEDGE_GAP
+            if not (before or after):
+                continue
+            low, high = min(first.start, start), max(last.end, end)
+            yield analysis.reject(
+                "VAGUE_METRIC",
+                analysis.span(low, high),
+                f"{analysis.block.text[first.start : last.end]!r} hedges a number. "
+                f"A measured value is not approximate, and an approximate one is "
+                f"not evidence.",
+                hedge=analysis.block.text[first.start : last.end],
+            )
+            break
+
+
+def _tokens_between(analysis: BlockAnalysis, left_end: int, right_start: int) -> int:
+    """How many whole tokens sit strictly between two character offsets."""
+    if right_start < left_end:
+        return -1
+    return sum(1 for t in analysis.tokens if left_end <= t.start and t.end <= right_start)
 
 
 def _duration_hedges(analysis: BlockAnalysis, ctx: GateContext):
@@ -186,7 +248,7 @@ def _duration_hedges(analysis: BlockAnalysis, ctx: GateContext):
                 continue
             consumed.update(t.index for t in window)
             yield analysis.reject(
-                "SUMMARY_NUMBER_UNCITED",
+                "UNCITED_NUMBER",
                 analysis.span(window[0].start, window[-1].end),
                 f"{' '.join(wanted)!r} hedges a duration, which is a number without a value",
                 phrase=" ".join(wanted),
@@ -203,7 +265,7 @@ def _number_words(analysis, ctx, supported, is_bullet):
         span = analysis.token_span(token)
         if not is_bullet:
             yield analysis.reject(
-                "SUMMARY_NUMBER_UNCITED",
+                "UNCITED_NUMBER",
                 span,
                 f"{token.raw!r} is a number word with no citation available here",
             )

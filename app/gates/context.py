@@ -149,6 +149,36 @@ class BlockAnalysis:
             i for m in matches for i in m.token_indices
         )
 
+        # Gate precedence, in one place so every gate reads the same answer.
+        #
+        # Numeric spans are claimed by G3 first, technology spans by G1 second,
+        # and G1's proper-noun heuristic sees only what is left. Without this a
+        # cited multiplier such as 3x, which carries both a letter and a digit,
+        # matches the shape the heuristic looks for and gets held as a possible
+        # product name while G3 is busy validating it against its metric.
+        self.numeric_spans: tuple[tuple[int, int], ...] = self._numeric_spans()
+        self.numeric_token_indices: frozenset[int] = frozenset(
+            token.index
+            for token in self.tokens
+            for start, end in self.numeric_spans
+            if token.start < end and start < token.end
+        )
+
+    def _numeric_spans(self) -> tuple[tuple[int, int], ...]:
+        from app.numbers import extract, word_value
+
+        spans: list[tuple[int, int]] = []
+        for expression in extract(self.norm.text):
+            spans.append(self.norm.origin(expression.start, expression.end))
+        for token in self.tokens:
+            if word_value(token.folded) is not None:
+                spans.append((token.start, token.end))
+        return tuple(sorted(set(spans)))
+
+    def claimed_by_a_number(self, token: Token) -> bool:
+        """True when a numeric expression already owns this token's span."""
+        return token.index in self.numeric_token_indices
+
     def _sentence_of(self, token: Token) -> int:
         for i, (start, end) in enumerate(self.sentence_ranges):
             if start <= token.norm_start < end:

@@ -35,6 +35,12 @@ class WatchTerm:
     source: str
     """taxonomy, camel_case, symbol_or_digit, capitalised, or model."""
 
+    from_stripped_span: bool = False
+    """True when this term was extracted from a span an invisible character was
+    removed from. The posting is not rejected for carrying one, because Yash did
+    not write the posting, but a term that arrived altered is worth knowing
+    about before it is treated as a requirement."""
+
     @property
     def key(self) -> tuple[str, ...]:
         return self.tokens
@@ -45,6 +51,20 @@ class WatchList:
     terms: tuple[WatchTerm, ...] = ()
     copy_ngrams: frozenset[tuple[str, ...]] = frozenset()
     ngram_size: int = 8
+    hygiene: object | None = None
+    """What sanitising the posting removed, for the run report."""
+
+    @property
+    def report_lines(self) -> tuple[str, ...]:
+        if self.hygiene is None:
+            return ()
+        lines = list(self.hygiene.report_lines())
+        lines.extend(
+            f"job description: term {t.surface!r} was extracted from an altered span"
+            for t in self.terms
+            if t.from_stripped_span
+        )
+        return tuple(lines)
 
     @property
     def keys(self) -> frozenset[tuple[str, ...]]:
@@ -71,7 +91,18 @@ class WatchList:
             term = WatchTerm(key, surface, None, "model")
             existing[key] = term
             extra.append(term)
-        return WatchList(self.terms + tuple(extra), self.copy_ngrams, self.ngram_size)
+        return WatchList(
+            self.terms + tuple(extra), self.copy_ngrams, self.ngram_size, self.hygiene
+        )
+
+
+def _overlaps(term: WatchTerm, spans: tuple[tuple[int, int], ...], text: str) -> bool:
+    """True when the term's surface sits inside a span that was stripped."""
+    at = text.find(term.surface)
+    if at < 0:
+        return False
+    end = at + len(term.surface)
+    return any(at < span_end and span_start < end for span_start, span_end in spans)
 
 
 @dataclass(frozen=True)
@@ -102,8 +133,21 @@ class TaxonomyCandidates:
         }
 
 
-def build_watch_list(jd_text: str, bundle: Bundle) -> tuple[WatchList, TaxonomyCandidates]:
-    """Build the watch list and the unknown-term review list from a posting."""
+def build_watch_list(
+    jd_text: str, bundle: Bundle
+) -> tuple[WatchList, TaxonomyCandidates]:
+    """Build the watch list and the unknown-term review list from a posting.
+
+    The posting is sanitised, never rejected. G0 rejects generated text that
+    carries an invisible character; a posting is an input from outside and Yash
+    does not control what a recruiter pasted into it. What was removed is
+    recorded for the run report, and any term drawn from a span that was
+    stripped is flagged.
+    """
+    from app.gates.g0_hygiene import sanitise_jd
+
+    hygiene = sanitise_jd(jd_text)
+    jd_text = hygiene.text
     norm = normalise(jd_text, fold_case=False)
     tokens = tokenise(norm)
     ranges = sentence_ranges(norm)
@@ -148,11 +192,21 @@ def build_watch_list(jd_text: str, bundle: Bundle) -> tuple[WatchList, TaxonomyC
     ngram_size = int(bundle.policy["jd_copy_ngram"])
     copy_ngrams = frozenset(gram for gram, _, _ in ngrams(tokens, ngram_size))
 
+    if hygiene.altered_spans:
+        terms = {
+            key: (
+                term
+                if not _overlaps(term, hygiene.altered_spans, jd_text)
+                else WatchTerm(term.tokens, term.surface, term.canonical_id, term.source, True)
+            )
+            for key, term in terms.items()
+        }
+
     seen_surface: dict[str, TaxonomyCandidate] = {}
     for candidate in candidates:
         seen_surface.setdefault(candidate.surface, candidate)
 
     return (
-        WatchList(tuple(terms.values()), copy_ngrams, ngram_size),
+        WatchList(tuple(terms.values()), copy_ngrams, ngram_size, hygiene),
         TaxonomyCandidates(tuple(seen_surface.values())),
     )
