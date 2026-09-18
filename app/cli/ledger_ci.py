@@ -50,6 +50,31 @@ def compare(base: dict, head: dict) -> tuple[Violation, ...]:
     return tuple(out)
 
 
+class UnresolvableBase(Exception):
+    """The base ref does not name a commit in this repository."""
+
+
+def _resolve_commit(ref: str, repo: Path) -> str:
+    """Resolve `ref` to a commit, or raise.
+
+    Separated from reading the file on purpose. Without it, a base ref with a
+    typo in it is indistinguishable from a base commit that simply predates the
+    ledger, and both read as nothing to check. A check that cannot tell those
+    apart reports success when it has compared nothing, which is the failure
+    mode this whole tool exists to prevent.
+    """
+    result = subprocess.run(
+        ["git", "rev-parse", "--verify", "--quiet", f"{ref}^{{commit}}"],
+        cwd=repo,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    if result.returncode != 0 or not result.stdout.strip():
+        raise UnresolvableBase(ref)
+    return result.stdout.strip()
+
+
 def _git_show(ref: str, path: str, repo: Path) -> dict | None:
     result = subprocess.run(
         ["git", "show", f"{ref}:{path}"],
@@ -73,16 +98,38 @@ def main(argv: list[str] | None = None) -> int:
     repo = Path(args.repo).resolve()
     head_path = repo / args.path
 
-    if not head_path.exists():
-        print(f"{args.path} does not exist yet. Nothing to check.")
-        return 0
+    # The base is read first, on purpose.
+    #
+    # Checking the head file's existence first looks harmless and is not: a
+    # commit that deletes the whole ledger would take that early exit and pass,
+    # even though deleting the file deletes every denied entry in it. Deletion
+    # is the case the check exists for, so the head's absence has to be read as
+    # an empty ledger and compared, not as nothing to do.
+    try:
+        base_commit = _resolve_commit(args.base, repo)
+    except UnresolvableBase:
+        print(
+            f"base {args.base!r} does not name a commit in {repo}.\n"
+            f"Refusing to report success without comparing anything.",
+            file=sys.stderr,
+        )
+        return 2
 
-    base = _git_show(args.base, args.path, repo)
+    base = _git_show(base_commit, args.path, repo)
+
     if base is None:
-        print(f"{args.path} is not present at {args.base}. Treating as a new file.")
+        if head_path.exists():
+            print(f"{args.path} is not present at {args.base}. Treating as a new file.")
+        else:
+            print(f"{args.path} exists at neither {args.base} nor HEAD. Nothing to check.")
         return 0
 
-    head = json.loads(head_path.read_text(encoding="utf-8"))
+    if head_path.exists():
+        head = json.loads(head_path.read_text(encoding="utf-8"))
+    else:
+        print(f"{args.path} was deleted. Every entry it held is compared as removed.")
+        head = {"technologies": {}}
+
     violations = compare(base, head)
     if not violations:
         print(f"denied entries unchanged between {args.base} and the working tree")

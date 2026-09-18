@@ -143,3 +143,62 @@ def test_the_source_scan_does_not_walk_a_virtualenv(tmp_path, monkeypatch):
         for part in name.split("/")[:-1]
     )
     assert ".github/workflows/ci.yml" in scanned, "the workflow is ours and must be scanned"
+
+
+# ---------------------------------------------------------------------------
+# The CI workflow
+# ---------------------------------------------------------------------------
+
+WORKFLOW = ROOT / ".github" / "workflows" / "ci.yml"
+
+
+def _workflow_text() -> str:
+    return WORKFLOW.read_text(encoding="utf-8")
+
+
+def test_the_checkout_is_not_shallow():
+    """The ledger check needs the merge base, which a shallow clone lacks."""
+    assert "fetch-depth: 0" in _workflow_text()
+
+
+def test_the_workflow_runs_on_pull_requests_as_well_as_pushes():
+    text = _workflow_text()
+    head = text.split("jobs:", 1)[0]
+    assert "pull_request:" in head
+    assert "push:" in head
+
+
+def test_the_ledger_check_takes_a_resolved_commit_not_a_branch_name():
+    """A branch name is the wrong handle.
+
+    The default branch is a setting that can point anywhere, including at the
+    branch under test, in which case the check compares that branch against
+    itself and passes while comparing nothing.
+    """
+    text = _workflow_text()
+    ledger_step = text.split("name: Ledger CI", 1)[1].split("- name:", 1)[0]
+    assert "steps.base.outputs.sha" in ledger_step
+    assert "default_branch" not in ledger_step
+    assert "merge-base" in text
+
+
+def test_the_base_resolution_prefers_the_pull_requests_own_base_commit():
+    text = _workflow_text()
+    assert "github.event.pull_request.base.sha" in text
+
+
+def test_a_failed_fetch_fails_the_job_rather_than_passing_quietly():
+    """`|| true` on the base fetch leaves the check with nothing to compare
+    against and a green tick, which is worse than a rejection."""
+    text = _workflow_text()
+    for line in text.splitlines():
+        if "git fetch" in line:
+            assert "|| true" not in line, f"fetch swallows failure: {line.strip()}"
+
+
+def test_the_review_file_check_sees_a_newly_generated_file():
+    """git diff does not report untracked files, so a first generation would
+    read as no change and land uncommitted."""
+    text = _workflow_text()
+    review_step = text.split("name: Review file is current", 1)[1]
+    assert "--intent-to-add" in review_step
