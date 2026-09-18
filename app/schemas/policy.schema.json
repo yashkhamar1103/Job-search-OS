@@ -9,6 +9,7 @@
     "be_have_openers", "banned_phrases", "vague_intensity_words",
     "proficiency_qualifiers", "duration_hedges", "ambiguous_acronyms",
     "client_blocklist", "location_allowlist", "default_location",
+    "permanently_denied_ids",
     "max_bullets_per_role", "jd_copy_ngram", "max_pages", "retry_limits",
     "cooling_off_hours", "fit_threshold", "fit_ceiling_divergence_points",
     "number_coverage_min", "number_coverage_target", "model_id",
@@ -30,6 +31,13 @@
     "ambiguous_acronyms": {"$ref": "#/$defs/phrase_list"},
     "client_blocklist": {"$ref": "#/$defs/phrase_list"},
     "location_allowlist": {"$ref": "#/$defs/phrase_list"},
+
+    "permanently_denied_ids": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {"type": "string", "pattern": "^[a-z][a-z0-9_]*$"},
+      "description": "Canonical ids that must be present in evidence/ledger.json in state denied, checked at loader startup and in CI. Without this list, a ledger that was never committed at all reads as empty at both base and head, finds no transitions, and passes forever: the transition check can only see a state that changed, never a state that was never written down."
+    },
 
     "default_location": {
       "type": "string",

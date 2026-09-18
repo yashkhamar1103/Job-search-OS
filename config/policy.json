@@ -202,6 +202,16 @@
 
   "default_location": "",
 
+  "permanently_denied_ids": [
+    "azure_openai",
+    "semantic_kernel",
+    "azure_ai_foundry",
+    "azure_ai_search",
+    "mcp",
+    "rag"
+  ],
+
+
   "max_bullets_per_role": 3,
   "jd_copy_ngram": 8,
   "max_pages": 2,

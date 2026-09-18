@@ -54,6 +54,10 @@ class UnresolvableBase(Exception):
     """The base ref does not name a commit in this repository."""
 
 
+class PolicyMissing(Exception):
+    """The policy file is not where it was expected."""
+
+
 def _resolve_commit(ref: str, repo: Path) -> str:
     """Resolve `ref` to a commit, or raise.
 
@@ -88,11 +92,45 @@ def _git_show(ref: str, path: str, repo: Path) -> dict | None:
     return json.loads(result.stdout)
 
 
+def _check_permanent_denials(
+    repo: Path, policy_rel: str, head_path: Path, head: dict
+) -> tuple[str, ...]:
+    """Every permanently denied id, checked against the head ledger.
+
+    Reads the policy file directly rather than importing the app, so the CI
+    tool stays a thin git-and-JSON utility. The comparison itself is the one in
+    app.loaders, imported so that CI and the loader cannot drift apart on what
+    counts as satisfied.
+    """
+    from app.loaders import permanent_denial_failures
+
+    policy_path = repo / policy_rel
+    if not policy_path.exists():
+        raise PolicyMissing(str(policy_path))
+
+    required = json.loads(policy_path.read_text(encoding="utf-8")).get(
+        "permanently_denied_ids", []
+    )
+    if not required:
+        return ()
+
+    if not head_path.exists():
+        return tuple(f"{cid}: evidence/ledger.json does not exist" for cid in required)
+
+    states = {cid: entry.get("state") for cid, entry in head.get("technologies", {}).items()}
+    return permanent_denial_failures(states, required)
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="Fail if a denied ledger entry changed state.")
     parser.add_argument("--base", default="origin/main", help="git ref to compare against")
     parser.add_argument("--path", default=DEFAULT_PATH, help="path to the ledger inside the repo")
     parser.add_argument("--repo", default=".", help="repository root")
+    parser.add_argument(
+        "--policy",
+        default="config/policy.json",
+        help="path to the policy file, inside the repo",
+    )
     args = parser.parse_args(argv)
 
     repo = Path(args.repo).resolve()
@@ -115,6 +153,41 @@ def main(argv: list[str] | None = None) -> int:
         )
         return 2
 
+    head = (
+        json.loads(head_path.read_text(encoding="utf-8"))
+        if head_path.exists()
+        else {"technologies": {}}
+    )
+
+    # Runs before any early return, on purpose.
+    #
+    # The transition check compares two states and can only see one that
+    # changed. It cannot see a state that was never written down: a ledger that
+    # was never committed reads as empty at both base and head, finds no
+    # transitions, and passes forever. That is the whole window before Yash
+    # writes the file, which is exactly when the six claims are unguarded.
+    try:
+        permanent = _check_permanent_denials(repo, args.policy, head_path, head)
+    except PolicyMissing as missing:
+        print(
+            f"policy file not found: {missing}.\n"
+            f"Refusing to report success without checking the permanent denials.",
+            file=sys.stderr,
+        )
+        return 2
+
+    if permanent:
+        print("permanently denied ids are not recorded as denied at HEAD:", file=sys.stderr)
+        for failure in permanent:
+            print(f"  {failure}", file=sys.stderr)
+        print(
+            "\nThe transition check sees a state that changed. It cannot see a state "
+            "that was never written, so this list is what guards a ledger that does "
+            "not exist yet.",
+            file=sys.stderr,
+        )
+        return 1
+
     base = _git_show(base_commit, args.path, repo)
 
     if base is None:
@@ -124,11 +197,8 @@ def main(argv: list[str] | None = None) -> int:
             print(f"{args.path} exists at neither {args.base} nor HEAD. Nothing to check.")
         return 0
 
-    if head_path.exists():
-        head = json.loads(head_path.read_text(encoding="utf-8"))
-    else:
+    if not head_path.exists():
         print(f"{args.path} was deleted. Every entry it held is compared as removed.")
-        head = {"technologies": {}}
 
     violations = compare(base, head)
     if not violations:

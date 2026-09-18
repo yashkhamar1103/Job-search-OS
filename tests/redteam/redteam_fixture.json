@@ -1,0 +1,161 @@
+{
+  "fixture_version": 1,
+  "purpose": "Independent adversarial cases for the gate suite. Authored outside the session that wrote the gates. The harness must load the evidence block below instead of evidence/ so this file runs before the real evidence exists and never depends on it.",
+  "rules_for_harness": [
+    "Do not edit a case to make it pass. A failing case is a finding: report it.",
+    "expect=reject means the gates return at least the codes listed in codes[].",
+    "expect=report means the run report carries the code and the text is NOT rejected.",
+    "expect=pass means no codes at all. These catch over-blocking.",
+    "Cases with milestone=3 are skipped until app/render.py exists, then run."
+  ],
+
+  "evidence": {
+    "policy_overrides": {
+      "client_blocklist": ["Northwind Retail", "Northwind", "Project Halyard"],
+      "default_location": "Toronto, ON",
+      "location_allowlist": ["Toronto, ON", "Mississauga, ON", "Remote, Canada"],
+      "max_pages": 2,
+      "permanently_denied_ids": ["azure_openai", "semantic_kernel", "azure_ai_foundry", "azure_ai_search", "mcp", "rag"]
+    },
+    "ledger": {
+      "kafka":           { "state": "confirmed", "depth": "used",     "contexts": ["r_alpha"], "services": [] },
+      "aws":             { "state": "confirmed", "depth": "used",     "contexts": ["r_alpha"], "services": ["Lambda", "S3"] },
+      "postgresql":      { "state": "confirmed", "depth": "built",    "contexts": ["r_alpha", "r_beta"] },
+      "dotnet":          { "state": "confirmed", "depth": "built",    "contexts": ["r_beta"], "versions": ["8"] },
+      "javascript":      { "state": "confirmed", "depth": "used",     "contexts": ["r_beta"] },
+      "redis":           { "state": "confirmed", "depth": "exposure", "contexts": ["r_alpha"] },
+      "terraform":       { "state": "unconfirmed" },
+      "java":            { "state": "denied" },
+      "azure_openai":    { "state": "denied" },
+      "semantic_kernel": { "state": "denied" },
+      "azure_ai_foundry":{ "state": "denied" },
+      "azure_ai_search": { "state": "denied" },
+      "mcp":             { "state": "denied" },
+      "rag":             { "state": "denied" }
+    },
+    "experience": {
+      "roles": [
+        {
+          "id": "r_alpha",
+          "employer": "Alpha Systems",
+          "title": "Software Engineer",
+          "start": "2018-06",
+          "end": "2022-06",
+          "location": "Toronto, ON",
+          "facts": [
+            { "id": "a-f1", "text": "Moved real-time vehicle telemetry into Kafka topics for downstream consumers." },
+            { "id": "a-f2", "text": "Tuned PostgreSQL queries behind the reporting screens." },
+            { "id": "a-f3", "text": "Wired scheduled jobs to AWS Lambda writing to S3." }
+          ],
+          "metrics": [
+            { "id": "a-m1", "value": "40%", "what": "report query latency reduction", "source": "measured" },
+            { "id": "a-m2", "value": "3x", "what": "ingest throughput increase", "source": "recalled" }
+          ]
+        },
+        {
+          "id": "r_beta",
+          "employer": "Beta Works",
+          "title": "Full Stack Developer",
+          "start": "2022-07",
+          "end": "2024-11",
+          "location": "Toronto, ON",
+          "facts": [
+            { "id": "b-f1", "text": "Built .NET 8 services backing the customer portal." },
+            { "id": "b-f2", "text": "Rebuilt the front end screens in JavaScript." }
+          ],
+          "metrics": [
+            { "id": "b-m1", "value": "12", "what": "services migrated", "source": "measured" }
+          ]
+        }
+      ]
+    },
+    "synonyms": {},
+    "jd_text": "We are hiring a senior engineer. Required: Azure OpenAI Service, Semantic Kernel, Azure AI Search, Terraform, Java, and Kafka. You will design and operate retrieval augmented generation pipelines and own the Orbital Mesh Gateway platform end to end. The successful candidate will work closely with product and design to deliver features on a weekly cadence."
+  },
+
+  "cases": [
+    { "id": "d01", "block": "bullet", "role": "r_alpha", "text": "Integrated Azure OpenAI Service into the ingest path.", "cites": { "fact_ids": ["a-f1"] }, "expect": "reject", "codes": ["TECH_DENIED"], "why": "Denied entry, exact name." },
+    { "id": "d02", "block": "bullet", "role": "r_alpha", "text": "Integrated Azure OpenAI into the ingest path.", "cites": { "fact_ids": ["a-f1"] }, "expect": "reject", "codes": ["TECH_DENIED"], "why": "Alias without the word Service." },
+    { "id": "d03", "block": "bullet", "role": "r_alpha", "text": "Integrated AOAI into the ingest path.", "cites": { "fact_ids": ["a-f1"] }, "expect": "reject", "codes": ["TECH_DENIED"], "why": "Acronym alias." },
+    { "id": "d04", "block": "bullet", "role": "r_alpha", "text": "Integrated azure open ai into the ingest path.", "cites": { "fact_ids": ["a-f1"] }, "expect": "reject", "codes": ["TECH_DENIED"], "why": "Lowercase and word-split." },
+    { "id": "d05", "block": "bullet", "role": "r_alpha", "text": "Integrated Azure-OpenAI into the ingest path.", "cites": { "fact_ids": ["a-f1"] }, "expect": "reject", "codes": ["TECH_DENIED"], "why": "Hyphenated variant." },
+    { "id": "d06", "block": "bullet", "role": "r_beta", "text": "Built orchestration with Semantic Kernel across the portal services.", "cites": { "fact_ids": ["b-f1"] }, "expect": "reject", "codes": ["TECH_DENIED"], "why": "Denied entry." },
+    { "id": "d07", "block": "bullet", "role": "r_beta", "text": "Built orchestration with Semantic\u200bKernel across the portal services.", "cites": { "fact_ids": ["b-f1"] }, "expect": "reject", "codes": ["TECH_DENIED"], "why": "Zero-width space inside the term. Normalisation must strip it." },
+    { "id": "d08", "block": "bullet", "role": "r_alpha", "text": "Indexed telemetry into Azure Cognitive Search for the ops team.", "cites": { "fact_ids": ["a-f1"] }, "expect": "reject", "codes": ["TECH_DENIED"], "why": "Historical name of a denied product." },
+    { "id": "d09", "block": "bullet", "role": "r_alpha", "text": "Indexed telemetry into Cognitive Search for the ops team.", "cites": { "fact_ids": ["a-f1"] }, "expect": "reject", "codes": ["TECH_DENIED"], "why": "Shortened historical name." },
+    { "id": "d10", "block": "bullet", "role": "r_beta", "text": "Shipped agent tooling on Azure AI Studio.", "cites": { "fact_ids": ["b-f1"] }, "expect": "reject", "codes": ["TECH_DENIED"], "why": "Former name of Azure AI Foundry." },
+    { "id": "d11", "block": "bullet", "role": "r_beta", "text": "Shipped agent tooling on Microsoft Foundry.", "cites": { "fact_ids": ["b-f1"] }, "expect": "reject", "codes": ["TECH_DENIED"], "why": "Later name of the same denied product." },
+    { "id": "d12", "block": "bullet", "role": "r_beta", "text": "Exposed portal data through Model Context Protocol servers.", "cites": { "fact_ids": ["b-f1"] }, "expect": "reject", "codes": ["TECH_DENIED"], "why": "Expanded form of MCP." },
+    { "id": "d13", "block": "bullet", "role": "r_beta", "text": "Exposed portal data through MCP servers.", "cites": { "fact_ids": ["b-f1"] }, "expect": "reject", "codes": ["TECH_DENIED"], "why": "Acronym form, whole token." },
+    { "id": "d14", "block": "bullet", "role": "r_alpha", "text": "Delivered retrieval-augmented generation over the telemetry archive.", "cites": { "fact_ids": ["a-f1"] }, "expect": "reject", "codes": ["TECH_DENIED", "BANNED_VERB"], "why": "Expanded RAG plus a banned phrase." },
+    { "id": "d15", "block": "bullet", "role": "r_alpha", "text": "Built a RAG pipeline over the telemetry archive.", "cites": { "fact_ids": ["a-f1"] }, "expect": "reject", "codes": ["TECH_DENIED"], "why": "Acronym form." },
+    { "id": "d16", "block": "bullet", "role": "r_alpha", "text": "Streamed events through messaging tooling (Kafka, Semantic Kernel) for consumers.", "cites": { "fact_ids": ["a-f1"] }, "expect": "reject", "codes": ["TECH_DENIED"], "why": "Denied term hidden in a parenthetical beside a confirmed one." },
+    { "id": "d17", "block": "summary", "text": "Engineer with production experience across Kafka and Azure AI Search.", "expect": "reject", "codes": ["TECH_DENIED"], "why": "Denied term in the summary, which has no citations." },
+    { "id": "d18", "block": "skills", "text": "Cloud and Data: Kafka, PostgreSQL, Semantic Kernel", "expect": "reject", "codes": ["TECH_DENIED"], "why": "Denied term in the skills list, where no verb exists to catch it." },
+    { "id": "d19", "block": "bullet", "role": "r_alpha", "text": "Streamed events through Kafk\u0430 topics for downstream consumers.", "cites": { "fact_ids": ["a-f1"] }, "expect": "reject", "codes": ["UNKNOWN_TERM"], "why": "Cyrillic a inside Kafka. Either confusable folding resolves it to kafka and it passes, or it must be held as unknown. It must never render unflagged." },
+
+    { "id": "u01", "block": "bullet", "role": "r_alpha", "text": "Provisioned the ingest stack with Terraform modules.", "cites": { "fact_ids": ["a-f3"] }, "expect": "reject", "codes": ["TECH_UNCONFIRMED"], "why": "Unconfirmed ledger entry." },
+    { "id": "u02", "block": "bullet", "role": "r_beta", "text": "Rewrote the batch layer in Java for the portal.", "cites": { "fact_ids": ["b-f1"] }, "expect": "reject", "codes": ["TECH_DENIED"], "why": "Denied entry." },
+    { "id": "u03", "block": "bullet", "role": "r_beta", "text": "Operated the Orbital Mesh Gateway platform for the portal team.", "cites": { "fact_ids": ["b-f1"] }, "expect": "reject", "codes": ["JD_TERM_NOT_IN_EVIDENCE"], "why": "Invented product named in the JD. The primary fabrication path." },
+    { "id": "u04", "block": "bullet", "role": "r_beta", "text": "Operated the Cindervane Broker for the portal team.", "cites": { "fact_ids": ["b-f1"] }, "expect": "reject", "codes": ["UNKNOWN_TERM"], "why": "Invented product absent from both the JD and the taxonomy. Must be held, not passed." },
+
+    { "id": "s01", "block": "bullet", "role": "r_alpha", "text": "Built Kafka consumer groups for the telemetry pipeline.", "cites": { "fact_ids": ["a-f1"] }, "expect": "reject", "codes": ["SCOPE_DEPTH"], "why": "Build verb against a used-depth technology." },
+    { "id": "s02", "block": "bullet", "role": "r_beta", "text": "Tuned Kafka retention for the portal event stream.", "cites": { "fact_ids": ["b-f1"] }, "expect": "reject", "codes": ["SCOPE_CONTEXT"], "why": "Confirmed technology under a role outside its contexts." },
+    { "id": "s03", "block": "bullet", "role": "r_alpha", "text": "Scheduled model training jobs on AWS SageMaker.", "cites": { "fact_ids": ["a-f3"] }, "expect": "reject", "codes": ["SCOPE_SERVICE"], "why": "Sub-service outside the platform services allowlist." },
+    { "id": "s04", "block": "bullet", "role": "r_alpha", "text": "Cached lookup results in Redis for the reporting screens.", "cites": { "fact_ids": ["a-f2"] }, "expect": "reject", "codes": ["SCOPE_EXPOSURE_IN_BULLET"], "why": "Exposure-depth technology in bullet text." },
+    { "id": "s05", "block": "skills", "text": "Data: PostgreSQL, Redis", "expect": "reject", "codes": ["SKILLS_EXPOSURE"], "why": "Exposure-depth technology in the skills section." },
+    { "id": "s06", "block": "summary", "text": "Engineer building .NET services on Kafka event streams.", "expect": "reject", "codes": ["SCOPE_COHABITATION"], "why": "Both confirmed, but under disjoint roles. Asserts a pairing that never existed." },
+    { "id": "s07", "block": "bullet", "role": "r_alpha", "text": "Tuned PostgreSQL indexes behind the .NET reporting services.", "cites": { "fact_ids": ["a-f2"] }, "expect": "reject", "codes": ["SCOPE_CONTEXT", "SCOPE_COHABITATION"], "why": "Cohabitation inside a bullet where the intersection excludes the bullet's own role." },
+
+    { "id": "n01", "block": "bullet", "role": "r_alpha", "text": "Reduced report query latency by 55%.", "cites": { "fact_ids": ["a-f2"], "metric_ids": ["a-m1"] }, "expect": "reject", "codes": ["NUMBER_UNSUPPORTED"], "why": "Number does not match the cited metric." },
+    { "id": "n02", "block": "bullet", "role": "r_alpha", "text": "Reduced report query latency by 40% across 12 services.", "cites": { "fact_ids": ["a-f2"], "metric_ids": ["a-m1"] }, "expect": "reject", "codes": ["NUMBER_UNSUPPORTED"], "why": "Second number exists in evidence but belongs to another role and is not cited. The borrowed-metric seam." },
+    { "id": "n03", "block": "bullet", "role": "r_alpha", "text": "Reduced report query latency by roughly 40%.", "cites": { "fact_ids": ["a-f2"], "metric_ids": ["a-m1"] }, "expect": "reject", "codes": ["VAGUE_METRIC"], "why": "Hedged number. Either measured or absent." },
+    { "id": "n04", "block": "bullet", "role": "r_alpha", "text": "Reduced report query latency significantly for the ops team.", "cites": { "fact_ids": ["a-f2"] }, "expect": "reject", "codes": ["VAGUE_METRIC"], "why": "Implies a number that does not exist." },
+    { "id": "n05", "block": "bullet", "role": "r_alpha", "text": "Raised ingest throughput three times over the prior pipeline.", "cites": { "fact_ids": ["a-f1"], "metric_ids": ["a-m2"] }, "expect": "reject", "codes": ["NUMBER_UNSUPPORTED"], "why": "Number word form of 3x. Either it normalises to the cited metric and passes, or it must reject. It must not pass unchecked as prose." },
+    { "id": "n06", "block": "bullet", "role": "r_beta", "text": "Built .NET 9 services backing the customer portal.", "cites": { "fact_ids": ["b-f1"] }, "expect": "reject", "codes": ["NUMBER_UNSUPPORTED"], "why": "Version not in the ledger versions list." },
+    { "id": "n07", "block": "bullet", "role": "r_beta", "text": "Migrated 12 services to the new portal platform.", "cites": { "fact_ids": ["b-f1"] }, "expect": "reject", "codes": ["NUMBER_UNSUPPORTED"], "why": "Correct value but the metric is not cited. Citation is the gate, not coincidence." },
+    { "id": "n08", "block": "summary", "text": "Engineer who cut query latency by 40% on reporting workloads.", "expect": "reject", "codes": ["SUMMARY_NUMBER_UNCITED"], "why": "Summary carries no citations, so it carries no numbers." },
+    { "id": "n09", "block": "summary", "text": "Engineer with over 6 years building data services.", "expect": "reject", "codes": ["SUMMARY_NUMBER_UNCITED"], "why": "The word over is rejected even when the integer is right." },
+    { "id": "n10", "block": "summary", "text": "Engineer with nearly a decade building data services.", "expect": "reject", "codes": ["SUMMARY_NUMBER_UNCITED"], "why": "Magnitude word standing in for a number." },
+
+    { "id": "f01", "block": "bullet", "role": "r_alpha", "text": "Built the Northwind Retail ingest pipeline on Kafka topics.", "cites": { "fact_ids": ["a-f1"] }, "expect": "reject", "codes": ["CLIENT_NAME", "SCOPE_DEPTH"], "why": "Client name in bullet text." },
+    { "id": "f02", "block": "bullet", "role": "r_alpha", "text": "Delivered Project Halyard ahead of the contract deadline.", "cites": { "fact_ids": ["a-f1"] }, "expect": "reject", "codes": ["CLIENT_NAME", "BANNED_VERB"], "why": "Client-identifying codename." },
+    { "id": "f03", "block": "bullet", "role": "r_beta", "text": "Spearheaded the portal rebuild in JavaScript.", "cites": { "fact_ids": ["b-f2"] }, "expect": "reject", "codes": ["BANNED_VERB"], "why": "Banned verb." },
+    { "id": "f04", "block": "bullet", "role": "r_alpha", "text": "Responsible for the telemetry pipeline into Kafka topics.", "cites": { "fact_ids": ["a-f1"] }, "expect": "reject", "codes": ["WEAK_OPENING"], "why": "Denylist opener." },
+    { "id": "f05", "block": "bullet", "role": "r_alpha", "text": "Building telemetry pipelines into Kafka topics for consumers.", "cites": { "fact_ids": ["a-f1"] }, "expect": "reject", "codes": ["WEAK_OPENING"], "why": "Gerund opener." },
+    { "id": "f06", "block": "bullet", "role": "r_alpha", "text": "Successfully moved telemetry into Kafka topics for consumers.", "cites": { "fact_ids": ["a-f1"] }, "expect": "reject", "codes": ["WEAK_OPENING"], "why": "Adverb opener." },
+    { "id": "f07", "block": "bullet", "role": "r_beta", "text": "Rebuilt the portal screens \u2014 cutting page weight for users.", "cites": { "fact_ids": ["b-f2"] }, "expect": "reject", "codes": ["EM_DASH"], "why": "U+2014." },
+    { "id": "f08", "block": "bullet", "role": "r_beta", "text": "Rebuilt the portal screens -- cutting page weight for users.", "cites": { "fact_ids": ["b-f2"] }, "expect": "reject", "codes": ["EM_DASH"], "why": "Double hyphen." },
+    { "id": "f09", "block": "bullet", "role": "r_beta", "text": "Worked closely with product and design to deliver features on a weekly cadence.", "cites": { "fact_ids": ["b-f1"] }, "expect": "reject", "codes": ["JD_COPY", "WEAK_OPENING"], "why": "Eight-word shingle lifted from the JD." },
+    { "id": "f10", "block": "skills", "text": "Backend: .NET (Expert), PostgreSQL (3 years)", "expect": "reject", "codes": ["SKILLS_PROFICIENCY_LABEL"], "why": "Unverifiable proficiency labels." },
+    { "id": "f11", "block": "summary", "text": "Seasoned engineer with a proven track record across data platforms.", "expect": "reject", "codes": ["UNVERIFIABLE_LABEL"], "why": "Unverifiable self-description. Style bucket." },
+    { "id": "f12", "block": "role_set", "role": "r_alpha", "bullets": ["Moved telemetry into Kafka topics for downstream consumers.", "Tuned PostgreSQL indexes behind the reporting screens.", "Scheduled jobs on AWS Lambda writing to S3.", "Cut report query latency by 40% on reporting workloads."], "expect": "reject", "codes": ["BULLET_COUNT"], "why": "Four bullets in one role." },
+
+    { "id": "r01", "block": "bullet", "role": "r_alpha", "text": "Backfilled the telemetry archive from Kafka topics for downstream consumers.", "cites": { "fact_ids": ["a-f1"] }, "expect": "report", "codes": ["OPENING_VERB_UNLISTED"], "why": "Specific verb outside the allowlist must report, never reject." },
+    { "id": "r02", "block": "summary", "text": "Senior Solutions Architect working across data and backend platforms.", "expect": "report", "codes": ["TITLE_CLAIM_UNVERIFIED"], "why": "Title in prose matching no held title." },
+
+    { "id": "p01", "block": "bullet", "role": "r_alpha", "text": "Moved real-time telemetry into Kafka topics, cutting report query latency 40%.", "cites": { "fact_ids": ["a-f1", "a-f2"], "metric_ids": ["a-m1"] }, "expect": "pass", "why": "Confirmed technology, correct role, cited metric, listed verb." },
+    { "id": "p02", "block": "bullet", "role": "r_beta", "text": "Rebuilt the portal front end in JavaScript for the customer screens.", "cites": { "fact_ids": ["b-f2"] }, "expect": "pass", "why": "JavaScript must not trip the denied java entry. Substring matching bug." },
+    { "id": "p03", "block": "skills", "text": "Backend: .NET, PostgreSQL, JavaScript", "expect": "pass", "why": "JavaScript in a skills list beside a denied java entry." },
+    { "id": "p04", "block": "bullet", "role": "r_beta", "text": "Built .NET 8 services backing the customer portal.", "cites": { "fact_ids": ["b-f1"] }, "expect": "pass", "why": "Listed version, build verb against built-depth technology." },
+    { "id": "p05", "block": "bullet", "role": "r_beta", "text": "Migrated 12 services onto the new portal platform.", "cites": { "fact_ids": ["b-f1"], "metric_ids": ["b-m1"] }, "expect": "pass", "why": "Cited bare integer." },
+    { "id": "p06", "block": "bullet", "role": "r_alpha", "text": "Scheduled ingest jobs on AWS Lambda writing to S3.", "cites": { "fact_ids": ["a-f3"] }, "expect": "pass", "why": "Sub-services inside the allowlist." },
+    { "id": "p07", "block": "bullet", "role": "r_alpha", "text": "Tuned PostgreSQL indexes behind the reporting screens.", "cites": { "fact_ids": ["a-f2"] }, "expect": "pass", "why": "Confirmed under both roles." },
+    { "id": "p08", "block": "summary", "text": "Engineer building PostgreSQL-backed services for reporting and portal workloads.", "expect": "pass", "why": "Single technology, no cohabitation question, no numbers." },
+    { "id": "p09", "block": "summary", "text": "Engineer with 6 years building data and backend services.", "expect": "pass", "why": "Matches computed.total_years_experience from the fixture role dates. Adjust the integer if the computation anchors differently and record which." },
+    { "id": "p10", "block": "bullet", "role": "r_alpha", "text": "Raised ingest throughput 3x across the telemetry pipeline.", "cites": { "fact_ids": ["a-f1"], "metric_ids": ["a-m2"] }, "expect": "pass", "why": "Multiplier form matching a recalled metric. Recalled is allowed to render and is capped at Thin later." },
+    { "id": "p11", "block": "bullet", "role": "r_beta", "text": "Rewrote the portal service layer in C# against the existing schema.", "cites": { "fact_ids": ["b-f1"] }, "expect": "pass", "why": "C# tokenisation must survive normalisation." },
+    { "id": "p12", "block": "bullet", "role": "r_alpha", "text": "Instrumented the ingest path so consumers could trace lag per topic.", "cites": { "fact_ids": ["a-f1"] }, "expect": "pass", "why": "No technology named at all. Must not be rejected for absence of a match." },
+
+    { "id": "m01", "block": "filename", "text": "Northwind_Senior_Developer_Yash_Khamar_Resume.pdf", "milestone": 3, "expect": "reject", "codes": ["CLIENT_NAME"], "why": "Client name in the filename." },
+    { "id": "m02", "block": "docx_metadata", "field": "comments", "text": "Prepared for Northwind Retail engagement", "milestone": 3, "expect": "reject", "codes": ["CLIENT_NAME"], "why": "Client name in document metadata, invisible on the page." },
+    { "id": "m03", "block": "pdf_roundtrip", "milestone": 3, "expect": "reject", "codes": ["PAGE_COUNT_EXCEEDED"], "why": "Render enough roles that the PDF exceeds max_pages. Remedy is the report, never auto-shrinking type." }
+  ],
+
+  "behavioural_checks": [
+    "A bullet failing only OPENING_VERB_UNLISTED or TOO_LONG must render and be flagged, never dropped. Assert the split retry budget directly.",
+    "A bullet failing a truth gate twice must be dropped and appear in the run report with its codes.",
+    "Loading a ledger where a permanently_denied_id is missing, or present with any state other than denied, must raise at startup.",
+    "Loading evidence whose fact text contains a client blocklist entry must raise at load, not wait for output gating."
+  ]
+}

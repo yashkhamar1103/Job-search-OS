@@ -424,6 +424,56 @@ def require_client_blocklist(policy: Policy) -> None:
         )
 
 
+def permanent_denial_failures(ledger_states: Mapping[str, str], required: Iterable[str]) -> tuple[str, ...]:
+    """Ids that are not recorded as denied. Pure, so CI and the loader agree.
+
+    Takes a plain id-to-state mapping rather than a Ledger so that the CI tool,
+    which reads raw JSON out of git and never constructs a Ledger, runs the
+    identical comparison.
+    """
+    out: list[str] = []
+    for canonical_id in required:
+        state = ledger_states.get(canonical_id)
+        if state is None:
+            out.append(f"{canonical_id}: absent from the ledger")
+        elif state != DENIED:
+            out.append(f"{canonical_id}: state {state!r}, expected {DENIED!r}")
+    return tuple(out)
+
+
+def require_permanent_denials(ledger: Ledger | None, policy: Policy) -> None:
+    """Refuse to run unless every permanently denied id is written down as denied.
+
+    The transition check in CI can only see a state that changed. It cannot see
+    a state that was never written: a ledger that does not exist reads as empty
+    at both base and head, finds no transitions, and passes forever. So the six
+    claims this system exists to prevent would be unguarded precisely while
+    there is no ledger, which is every moment before Yash writes one.
+
+    An empty permanently_denied_ids list disables the check, which is the
+    documented way to opt out. It is not the documented way to ship.
+    """
+    required = policy.list_of("permanently_denied_ids")
+    if not required:
+        return
+
+    if ledger is None:
+        raise EvidenceError(
+            f"{policy.path}: permanently_denied_ids names "
+            f"{len(required)} id(s) but evidence/ledger.json does not exist, so "
+            f"nothing records them as denied: {', '.join(required)}"
+        )
+
+    failures = permanent_denial_failures(
+        {cid: entry.state for cid, entry in ledger.entries.items()}, required
+    )
+    if failures:
+        raise EvidenceError(
+            f"{ledger.path}: permanently denied ids are not recorded as denied:\n  "
+            + "\n  ".join(failures)
+        )
+
+
 def require_default_location(policy: Policy) -> None:
     """Refuse to run without a default location.
 
@@ -588,6 +638,8 @@ def load_bundle(
                 f"{ledger.path}: {canonical_id} lists contexts that are not role ids "
                 f"in experience.json: {', '.join(unknown)}"
             )
+
+    require_permanent_denials(ledger, policy)
 
     corpus = build_corpus(ledger, experience, synonyms, taxonomy)
 

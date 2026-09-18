@@ -88,9 +88,21 @@ def repo(tmp_path: Path) -> Path:
     (tmp_path / "evidence" / "ledger.json").write_text(
         json.dumps(_ledger(java="denied", kafka="confirmed"))
     )
+    # The transition tests are about states that changed. An empty
+    # permanently_denied_ids keeps the never-written check inert here so the two
+    # concerns stay separable; the tests below populate it deliberately.
+    _write_policy(tmp_path, [])
     git("add", ".")
     git("commit", "-q", "-m", "base")
     return tmp_path
+
+
+def _write_policy(root: Path, permanently_denied: list[str]) -> None:
+    config = root / "config"
+    config.mkdir(exist_ok=True)
+    (config / "policy.json").write_text(
+        json.dumps({"permanently_denied_ids": permanently_denied})
+    )
 
 
 def test_the_command_passes_when_nothing_moved(repo, capsys):
@@ -205,3 +217,90 @@ def test_an_unresolvable_base_fails_rather_than_reporting_nothing_to_check(repo,
 
 def test_an_empty_base_argument_fails(repo):
     assert main(["--base", "", "--repo", str(repo)]) == 2
+
+
+# ---------------------------------------------------------------------------
+# Permanent denials: the state that was never written down
+# ---------------------------------------------------------------------------
+
+
+def test_a_ledger_that_never_existed_fails_when_permanent_denials_are_configured(repo, capsys):
+    """The fail-open the transition check cannot reach.
+
+    A ledger that was never committed reads as empty at base and at head, finds
+    no transitions, and passes. That is the entire window before the file is
+    written, which is exactly when the six claims are unguarded.
+    """
+    _write_policy(repo, ["azure_openai", "rag"])
+    (repo / "evidence" / "ledger.json").unlink()
+    assert main(["--base", "HEAD", "--repo", str(repo)]) == 1
+    err = capsys.readouterr().err
+    assert "azure_openai: evidence/ledger.json does not exist" in err
+    assert "rag: evidence/ledger.json does not exist" in err
+
+
+def test_a_ledger_missing_one_permanently_denied_id_fails(repo, capsys):
+    _write_policy(repo, ["azure_openai", "rag"])
+    (repo / "evidence" / "ledger.json").write_text(json.dumps(_ledger(azure_openai="denied")))
+    assert main(["--base", "HEAD", "--repo", str(repo)]) == 1
+    assert "rag: absent from the ledger" in capsys.readouterr().err
+
+
+def test_a_permanently_denied_id_in_any_other_state_fails(repo, capsys):
+    _write_policy(repo, ["azure_openai"])
+    (repo / "evidence" / "ledger.json").write_text(json.dumps(_ledger(azure_openai="unconfirmed")))
+    assert main(["--base", "HEAD", "--repo", str(repo)]) == 1
+    assert "azure_openai: state 'unconfirmed', expected 'denied'" in capsys.readouterr().err
+
+
+def test_every_permanently_denied_id_recorded_as_denied_passes(repo):
+    _write_policy(repo, ["azure_openai", "rag"])
+    # java stays denied: dropping it would trip the transition check instead,
+    # and this test is about the permanent check alone.
+    (repo / "evidence" / "ledger.json").write_text(
+        json.dumps(
+            _ledger(java="denied", azure_openai="denied", rag="denied", kafka="confirmed")
+        )
+    )
+    assert main(["--base", "HEAD", "--repo", str(repo)]) == 0
+
+
+def test_an_empty_permanent_list_disables_the_check(tmp_path):
+    """Opting out is the documented behaviour. It is not how this ships."""
+    subprocess.run(["git", "init", "-q"], cwd=tmp_path, check=True, capture_output=True)
+    subprocess.run(["git", "config", "user.email", "t@e.com"], cwd=tmp_path, check=True)
+    subprocess.run(["git", "config", "user.name", "T"], cwd=tmp_path, check=True)
+    (tmp_path / "evidence").mkdir()
+    (tmp_path / "evidence" / "ledger.json").write_text(json.dumps(_ledger(kafka="confirmed")))
+    _write_policy(tmp_path, [])
+    subprocess.run(["git", "add", "."], cwd=tmp_path, check=True, capture_output=True)
+    subprocess.run(
+        ["git", "commit", "-q", "-m", "base"], cwd=tmp_path, check=True, capture_output=True
+    )
+    (tmp_path / "evidence" / "ledger.json").unlink()
+    assert main(["--base", "HEAD", "--repo", str(tmp_path)]) == 0
+
+
+def test_a_missing_policy_file_fails_rather_than_skipping_the_check(repo, capsys):
+    (repo / "config" / "policy.json").unlink()
+    assert main(["--base", "HEAD", "--repo", str(repo)]) == 2
+    assert "Refusing to report success" in capsys.readouterr().err
+
+
+def test_the_permanent_check_runs_even_when_the_base_lacks_the_file(tmp_path, capsys):
+    """No early return may precede it.
+
+    An empty repository has no base version of the ledger, which used to mean
+    an immediate pass. That is precisely the state this check exists for.
+    """
+    subprocess.run(["git", "init", "-q"], cwd=tmp_path, check=True, capture_output=True)
+    subprocess.run(["git", "config", "user.email", "t@e.com"], cwd=tmp_path, check=True)
+    subprocess.run(["git", "config", "user.name", "T"], cwd=tmp_path, check=True)
+    (tmp_path / "README.md").write_text("no evidence here")
+    _write_policy(tmp_path, ["azure_openai"])
+    subprocess.run(["git", "add", "."], cwd=tmp_path, check=True, capture_output=True)
+    subprocess.run(
+        ["git", "commit", "-q", "-m", "no ledger"], cwd=tmp_path, check=True, capture_output=True
+    )
+    assert main(["--base", "HEAD", "--repo", str(tmp_path)]) == 1
+    assert "azure_openai" in capsys.readouterr().err
