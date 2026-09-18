@@ -6,7 +6,7 @@ import pytest
 
 from app.gates import check_block
 from app.models import Block
-from tests.conftest import bullet, codes, skills, summary
+from tests.conftest import assert_rejects, bullet, codes, skills, summary
 from tests.test_taxonomy_contract import HISTORICAL_FABRICATIONS
 
 FABRICATION_SURFACES = sorted(
@@ -31,7 +31,7 @@ def test_every_historical_fabrication_is_rejected_everywhere(surface, ctx):
     included. The skills section is gated like everything else.
     """
     for block in _blocks_for(surface):
-        result = check_block(block, ctx)
+        result = assert_rejects(block, ctx, "TECH_DENIED")
         assert "TECH_DENIED" in codes(result), (
             f"{surface!r} passed G1 in a {block.block_type}: {codes(result)}"
         )
@@ -44,14 +44,14 @@ def test_confirmed_technology_passes(ctx):
 
 
 def test_unconfirmed_technology_is_rejected(ctx):
-    result = check_block(bullet("Wrote Terraform modules for the platform."), ctx)
+    result = assert_rejects(bullet("Wrote Terraform modules for the platform."), ctx, "TECH_UNCONFIRMED")
     assert "TECH_UNCONFIRMED" in codes(result)
 
 
 def test_id_absent_from_the_ledger_is_unconfirmed(ctx):
     """Absence is not permission. Redis is in the taxonomy and not in the ledger."""
     assert ctx.bundle.ledger.get("redis") is None
-    result = check_block(bullet("Wrote a Redis cache layer."), ctx)
+    result = assert_rejects(bullet("Wrote a Redis cache layer."), ctx, "TECH_UNCONFIRMED")
     assert "TECH_UNCONFIRMED" in codes(result)
 
 
@@ -71,7 +71,7 @@ def test_denied_is_never_suggestable(ctx):
 def test_jd_term_absent_from_evidence_is_rejected(ctx_with_jd):
     """The primary defence. The term need not be in the taxonomy at all."""
     ctx = ctx_with_jd("We need deep experience with Chronosphere and Bazel.")
-    result = check_block(bullet("Wrote pipelines with Chronosphere for the team."), ctx)
+    result = assert_rejects(bullet("Wrote pipelines with Chronosphere for the team."), ctx, "JD_TERM_NOT_IN_EVIDENCE")
     assert "JD_TERM_NOT_IN_EVIDENCE" in codes(result)
 
 
@@ -103,12 +103,12 @@ def test_synonym_cannot_unlock_a_denied_technology(ctx_with_jd, bundle):
     fails, synonyms.json has become a fabrication backdoor.
     """
     ctx = ctx_with_jd("Experience with Semantic Kernel required.")
-    result = check_block(bullet("Wrote services on Semantic Kernel."), ctx)
+    result = assert_rejects(bullet("Wrote services on Semantic Kernel."), ctx, "TECH_DENIED")
     assert "TECH_DENIED" in codes(result)
 
 
 def test_unknown_proper_noun_is_held_not_silently_accepted(ctx):
-    result = check_block(bullet("Wrote an integration against Quibblesnort for the team."), ctx)
+    result = assert_rejects(bullet("Wrote an integration against Quibblesnort for the team."), ctx, "UNKNOWN_TERM")
     assert "UNKNOWN_TERM" in codes(result)
     held = [r for r in result.rejections if r.code == "UNKNOWN_TERM"]
     assert all(r.blocks_render for r in held), "a held item must not render unapproved"
@@ -125,7 +125,7 @@ def test_ambiguous_acronym_matches_as_a_whole_token(ctx):
     clean = check_block(bullet("Wrote code that skews results and asked for review."), ctx)
     assert "TECH_DENIED" not in codes(clean)
 
-    hit = check_block(bullet("Wrote orchestration with SK for the agent layer."), ctx)
+    hit = assert_rejects(bullet("Wrote orchestration with SK for the agent layer."), ctx, "TECH_DENIED")
     assert "TECH_DENIED" in codes(hit)
 
 
@@ -143,14 +143,14 @@ def test_zero_width_characters_cannot_hide_a_denied_technology(ctx):
     """A soft hyphen or zero width space inside a name would otherwise split the
     token and slip past every gate."""
     sneaky = "Wrote a R​A­G pipeline for search."
-    result = check_block(bullet(sneaky), ctx)
+    result = assert_rejects(bullet(sneaky), ctx, "TECH_DENIED")
     assert "TECH_DENIED" in codes(result)
 
 
 def test_decomposed_accents_cannot_hide_a_denied_technology(ctx):
     """Both spellings of an accented character fold to the same base letter."""
-    precomposed = check_block(bullet("Wrote services on Sémantic Kernel."), ctx)
-    decomposed = check_block(bullet("Wrote services on Sémantic Kernel."), ctx)
+    precomposed = assert_rejects(bullet("Wrote services on Sémantic Kernel."), ctx, "TECH_DENIED")
+    decomposed = assert_rejects(bullet("Wrote services on Sémantic Kernel."), ctx, "TECH_DENIED")
     assert "TECH_DENIED" in codes(precomposed)
     assert "TECH_DENIED" in codes(decomposed)
 
@@ -159,5 +159,5 @@ def test_a_posting_spelling_is_watched_in_every_form(ctx_with_jd):
     """The posting says Chronosphere Metrics; the CV says Chronosphere. The
     surface differs, the claim does not."""
     ctx = ctx_with_jd("Deep experience with Chronosphere required.")
-    result = check_block(bullet("Configured Chronosphere dashboards for the team."), ctx)
+    result = assert_rejects(bullet("Configured Chronosphere dashboards for the team."), ctx, "JD_TERM_NOT_IN_EVIDENCE")
     assert "JD_TERM_NOT_IN_EVIDENCE" in codes(result)

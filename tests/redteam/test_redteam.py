@@ -45,9 +45,50 @@ def ctx():
 
 
 def _check(case: Case, ctx) -> None:
+    _assert_precondition(case, ctx)
     outcome = run_case(case, ctx)
     ok, explanation = outcome.verdict()
     assert ok, f"[{case.id}] {explanation}\n        why: {case.why}"
+
+
+def _assert_precondition(case: Case, ctx) -> None:
+    """Before asserting a case rejects, assert its input still needs to.
+
+    A case listing a code whose input has drifted out of the text would pass on
+    some other gate's finding and report nothing wrong. Applied to all 57 reject
+    cases automatically, so a fixture edit cannot quietly hollow one out.
+    """
+    if case.expect != "reject" or case.milestone == 3:
+        return
+
+    from app.models import BULLET, Block, Document
+    from tests.preconditions import check_document_precondition, check_precondition
+
+    cites = case.raw.get("cites", {})
+    facts = tuple(cites.get("fact_ids", ()))
+    metrics = tuple(cites.get("metric_ids", ()))
+
+    if case.block == "role_set":
+        document = Document(
+            blocks=tuple(
+                Block(BULLET, text, f"{case.id}-{i}", case.raw.get("role"), facts, metrics)
+                for i, text in enumerate(case.raw.get("bullets", ()))
+            )
+        )
+        for code in case.codes:
+            check_document_precondition(code, document, ctx)
+        return
+
+    block = Block(
+        block_type=harness.BLOCK_TYPES[case.block],
+        text=case.text,
+        block_id=case.id,
+        role_id=case.raw.get("role"),
+        fact_ids=facts,
+        metric_ids=metrics,
+    )
+    for code in case.codes:
+        check_precondition(code, block, ctx)
 
 
 # ---------------------------------------------------------------------------

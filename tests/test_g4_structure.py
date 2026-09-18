@@ -10,6 +10,7 @@ from app.gates import check_block, check_document
 from app.gates import g4_structure
 from app.gates.g4_structure import check_document as check_doc_level
 from tests.conftest import (
+    assert_rejects,
     bullet,
     codes,
     context_for,
@@ -60,18 +61,18 @@ def test_the_count_is_per_role_not_per_document(ctx):
     ["spearheaded", "championed", "drove alignment", "leveraged synergies", "owned the vision"],
 )
 def test_banned_phrases_are_rejected(phrase, ctx):
-    result = check_block(bullet(f"Configured the path and {phrase} the rollout."), ctx)
+    result = assert_rejects(bullet(f"Configured the path and {phrase} the rollout."), ctx, "BANNED_VERB")
     assert "BANNED_VERB" in codes(result)
 
 
 @pytest.mark.parametrize("inflection", ["spearheading", "spearheads", "spearhead"])
 def test_banned_phrase_matching_is_lemma_aware(inflection, ctx):
-    result = check_block(bullet(f"Configured the path while {inflection} the rollout."), ctx)
+    result = assert_rejects(bullet(f"Configured the path while {inflection} the rollout."), ctx, "BANNED_VERB")
     assert "BANNED_VERB" in codes(result)
 
 
 def test_banned_phrase_matching_is_case_insensitive(ctx):
-    result = check_block(bullet("Configured the path and SPEARHEADED the rollout."), ctx)
+    result = assert_rejects(bullet("Configured the path and SPEARHEADED the rollout."), ctx, "BANNED_VERB")
     assert "BANNED_VERB" in codes(result)
 
 
@@ -96,24 +97,24 @@ def test_banned_phrase_matching_is_case_insensitive(ctx):
     ],
 )
 def test_weak_openers_are_rejected(opening, ctx):
-    result = check_block(bullet(f"{opening} for order events."), ctx)
+    result = assert_rejects(bullet(f"{opening} for order events."), ctx, "WEAK_OPENING")
     assert "WEAK_OPENING" in codes(result)
 
 
 @pytest.mark.parametrize("opening", ["Building", "Quickly", "Successfully", "Managing"])
 def test_ing_and_ly_openings_are_rejected(opening, ctx):
-    result = check_block(bullet(f"{opening} configured the ingestion path."), ctx)
+    result = assert_rejects(bullet(f"{opening} configured the ingestion path."), ctx, "WEAK_OPENING")
     assert "WEAK_OPENING" in codes(result)
 
 
 @pytest.mark.parametrize("opening", ["Was", "Were", "Have", "Had", "Has"])
 def test_be_and_have_openings_are_rejected(opening, ctx):
-    result = check_block(bullet(f"{opening} configured the ingestion path."), ctx)
+    result = assert_rejects(bullet(f"{opening} configured the ingestion path."), ctx, "WEAK_OPENING")
     assert "WEAK_OPENING" in codes(result)
 
 
 def test_no_verb_in_the_first_two_tokens_is_rejected(ctx):
-    result = check_block(bullet("The ingestion path for order events."), ctx)
+    result = assert_rejects(bullet("The ingestion path for order events."), ctx, "WEAK_OPENING")
     assert "WEAK_OPENING" in codes(result)
 
 
@@ -140,7 +141,7 @@ def test_british_and_american_spelling_share_one_entry(ctx):
 
 def test_an_unlisted_verb_reports_but_never_rejects(ctx):
     """The allowlist is coverage, not enforcement."""
-    result = check_block(bullet("Untangled the ingestion path for order events."), ctx)
+    result = assert_rejects(bullet("Untangled the ingestion path for order events."), ctx, "OPENING_VERB_UNLISTED")
     assert "WEAK_OPENING" not in codes(result)
     assert "OPENING_VERB_UNLISTED" in codes(result)
 
@@ -166,13 +167,13 @@ def test_the_unlisted_finding_carries_the_exact_config_line(ctx):
     [g4_structure.EM_DASH, g4_structure.HORIZONTAL_BAR, g4_structure.DOUBLE_HYPHEN],
 )
 def test_dashes_are_rejected(dash, ctx):
-    result = check_block(bullet(f"Configured the path {dash} for order events."), ctx)
+    result = assert_rejects(bullet(f"Configured the path {dash} for order events."), ctx, "EM_DASH")
     assert "EM_DASH" in codes(result)
 
 
 def test_client_name_in_body_text_is_rejected(bundle):
     blocked = context_for(with_policy(bundle, client_blocklist=["Northwind Traders"]))
-    result = check_block(bullet("Configured the path for Northwind Traders."), blocked)
+    result = assert_rejects(bullet("Configured the path for Northwind Traders."), blocked, "CLIENT_NAME")
     assert "CLIENT_NAME" in codes(result)
 
 
@@ -213,7 +214,7 @@ def test_an_empty_client_blocklist_is_caught_at_load_not_silently_passed(bundle)
 def test_eight_shared_words_with_the_job_description_are_rejected(ctx_with_jd):
     shared = "design and operate resilient data pipelines across the platform"
     ctx = ctx_with_jd(f"You will {shared} every day.")
-    result = check_block(bullet(f"Configured {shared} for order events."), ctx)
+    result = assert_rejects(bullet(f"Configured {shared} for order events."), ctx, "JD_COPY")
     assert "JD_COPY" in codes(result)
 
 
@@ -236,13 +237,13 @@ def test_a_short_bullet_passes(ctx):
 
 def test_a_bullet_over_three_rendered_lines_is_rejected(ctx):
     long_text = "Configured the ingestion path for order events " * 8
-    result = check_block(bullet(long_text.strip() + "."), ctx)
+    result = assert_rejects(bullet(long_text.strip() + "."), ctx, "TOO_LONG")
     assert "TOO_LONG" in codes(result)
 
 
 def test_a_summary_over_four_rendered_lines_is_rejected(ctx):
     long_text = "Backend engineer working across ingestion and reporting systems " * 8
-    result = check_block(summary(long_text.strip() + "."), ctx)
+    result = assert_rejects(summary(long_text.strip() + "."), ctx, "TOO_LONG")
     assert "TOO_LONG" in codes(result)
 
 
@@ -275,17 +276,17 @@ def test_length_is_measured_on_the_marked_up_text(ctx):
     "qualifier", ["Expert", "Advanced", "Proficient", "Intermediate", "Familiar", "Basic"]
 )
 def test_proficiency_qualifiers_are_rejected_in_skills(qualifier, ctx):
-    result = check_block(skills(f"Languages: Python ({qualifier})"), ctx)
+    result = assert_rejects(skills(f"Languages: Python ({qualifier})"), ctx, "SKILLS_PROFICIENCY")
     assert "SKILLS_PROFICIENCY" in codes(result)
 
 
 def test_multiword_proficiency_qualifier_is_rejected(ctx):
-    result = check_block(skills("Languages: Python, working knowledge of Kafka"), ctx)
+    result = assert_rejects(skills("Languages: Python, working knowledge of Kafka"), ctx, "SKILLS_PROFICIENCY")
     assert "SKILLS_PROFICIENCY" in codes(result)
 
 
 def test_years_construction_is_rejected_in_skills(ctx):
-    result = check_block(skills("Languages: Python, 5 years"), ctx)
+    result = assert_rejects(skills("Languages: Python, 5 years"), ctx, "SKILLS_PROFICIENCY")
     assert "SKILLS_PROFICIENCY" in codes(result)
 
 

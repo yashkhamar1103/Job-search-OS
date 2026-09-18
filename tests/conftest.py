@@ -113,3 +113,49 @@ def document(*blocks: Block, **kwargs) -> Document:
 
 def codes(result) -> list[str]:
     return sorted(r.code for r in result.rejections)
+
+
+def assert_rejects(block, ctx, *expected_codes):
+    """Assert a gate fires, and that its input still contains what it needs.
+
+    Two claims, not one. "The gate fired" says nothing about whether the example
+    still contains the thing the gate fires on, and a test that only makes the
+    first claim goes green while checking nothing the moment its input drifts.
+    """
+    from app.gates import check_block
+    from tests.preconditions import check_precondition
+
+    for code in expected_codes:
+        check_precondition(code, block, ctx)
+
+    result = check_block(block, ctx)
+    found = codes(result)
+    for code in expected_codes:
+        assert code in found, f"expected {code}, got {found}"
+    return result
+
+
+def assert_does_not_reject(block, ctx, *forbidden_codes):
+    """The paired negative. No precondition: the point is that the input does
+    not contain what the rule needs, or contains something that excuses it."""
+    from app.gates import check_block
+
+    result = check_block(block, ctx)
+    found = codes(result)
+    for code in forbidden_codes:
+        assert code not in found, f"{code} fired unexpectedly: {found}"
+    return result
+
+
+def assert_document_rejects(document, ctx, *expected_codes):
+    from app.gates.g4_structure import check_document as check_doc_level
+    from tests.preconditions import check_document_precondition
+
+    for code in expected_codes:
+        check_document_precondition(code, document, ctx)
+
+    result = check_doc_level(document, ctx)
+    found = codes(result)
+    for code in expected_codes:
+        assert code in found, f"expected {code}, got {found}"
+    return result

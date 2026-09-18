@@ -4,12 +4,12 @@ from __future__ import annotations
 
 from app.gates import analyse, check_block
 from app.gates.g2_scope import scope_notes
-from tests.conftest import bullet, codes, skills, summary
+from tests.conftest import assert_rejects, bullet, codes, skills, summary
 
 
 def test_build_verb_with_a_used_technology_is_rejected(ctx):
     """kafka is confirmed at depth used. Wrote is a build verb."""
-    result = check_block(bullet("Wrote Kafka producers for order events.", facts=("acme-f2",)), ctx)
+    result = assert_rejects(bullet("Wrote Kafka producers for order events.", facts=("acme-f2",)), ctx, "SCOPE_DEPTH")
     assert "SCOPE_DEPTH" in codes(result)
 
 
@@ -27,8 +27,8 @@ def test_build_verb_with_a_built_technology_passes(ctx):
 
 def test_technology_under_the_wrong_role_is_rejected(ctx):
     """postgresql is confirmed under bolt only. This bullet is under acme."""
-    result = check_block(
-        bullet("Operated PostgreSQL for the reporting path.", role="acme"), ctx
+    result = assert_rejects(
+        bullet("Operated PostgreSQL for the reporting path.", role="acme"), ctx, "SCOPE_CONTEXT"
     )
     assert "SCOPE_CONTEXT" in codes(result)
 
@@ -60,7 +60,7 @@ def test_service_not_listed_on_its_platform_is_rejected(ctx):
     Two findings on purpose: G1 says it is not confirmed, G2 says precisely why.
     Each gate stays independently correct rather than relying on the other.
     """
-    result = check_block(bullet("Wrote Amazon Redshift models for reporting."), ctx)
+    result = assert_rejects(bullet("Wrote Amazon Redshift models for reporting."), ctx, "SCOPE_SERVICE", "TECH_UNCONFIRMED")
     assert "SCOPE_SERVICE" in codes(result)
     assert "TECH_UNCONFIRMED" in codes(result)
 
@@ -74,12 +74,12 @@ def test_confirmed_platform_with_no_services_list_confirms_no_sub_service(ctx):
 
 def test_exposure_may_not_appear_in_a_bullet(ctx):
     """docker is confirmed at depth exposure."""
-    result = check_block(bullet("Deployed Docker images to the cluster."), ctx)
+    result = assert_rejects(bullet("Deployed Docker images to the cluster."), ctx, "SCOPE_EXPOSURE_IN_BULLET")
     assert "SCOPE_EXPOSURE_IN_BULLET" in codes(result)
 
 
 def test_exposure_may_not_appear_in_the_skills_section(ctx):
-    result = check_block(skills("Platform: Docker, Python"), ctx)
+    result = assert_rejects(skills("Platform: Docker, Python"), ctx, "SKILLS_EXPOSURE")
     assert "SKILLS_EXPOSURE" in codes(result)
 
 
@@ -97,8 +97,8 @@ def test_technologies_from_different_roles_cannot_share_a_sentence(ctx):
     kafka is confirmed under acme, postgresql under bolt. Each is true. Put them
     in one sentence and the sentence describes work that never happened.
     """
-    result = check_block(
-        bullet("Connected Kafka topics into PostgreSQL for reporting.", role="acme"), ctx
+    result = assert_rejects(
+        bullet("Connected Kafka topics into PostgreSQL for reporting.", role="acme"), ctx, "SCOPE_COHABITATION"
     )
     assert "SCOPE_COHABITATION" in codes(result)
 
@@ -111,8 +111,8 @@ def test_a_single_technology_cannot_cohabit_with_anything(ctx):
     held one confirmed technology and an unconfirmed one. It passed on a group
     of one, which is not what it claimed to be testing.
     """
-    result = check_block(
-        bullet("Operated PostgreSQL for the reporting path.", role="acme"), ctx
+    result = assert_rejects(
+        bullet("Operated PostgreSQL for the reporting path.", role="acme"), ctx, "SCOPE_CONTEXT"
     )
     assert "SCOPE_CONTEXT" in codes(result)
     assert "SCOPE_COHABITATION" not in codes(result)
@@ -128,15 +128,16 @@ def test_technologies_sharing_a_role_may_share_a_sentence(ctx):
 
 
 def test_shared_role_must_be_the_bullets_own_role(ctx):
-    result = check_block(
+    result = assert_rejects(
         bullet("Configured Kafka producers from Python services.", role="bolt", facts=("bolt-f1",)),
         ctx,
-    )
+    "SCOPE_COHABITATION",
+)
     assert "SCOPE_COHABITATION" in codes(result)
 
 
 def test_cohabitation_applies_to_the_summary_without_a_role(ctx):
-    result = check_block(summary("Engineer across Kafka and PostgreSQL platforms."), ctx)
+    result = assert_rejects(summary("Engineer across Kafka and PostgreSQL platforms."), ctx, "SCOPE_COHABITATION")
     assert "SCOPE_COHABITATION" in codes(result)
 
 
