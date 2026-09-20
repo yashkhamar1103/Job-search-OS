@@ -211,6 +211,54 @@ def test_the_suite_and_the_ledger_check_are_separate_jobs():
     assert "ledger_ci" not in jobs["tests"]
 
 
+#: The check-run names main's ruleset requires. They are the job ids, because
+#: neither job sets a name: key and GitHub falls back to the id.
+REQUIRED_CHECKS = ("tests", "ledger")
+
+
+def test_neither_job_declares_a_name_key():
+    """A job name: would rename the check run and strand the ruleset.
+
+    Branch protection matches a required check by its check-run name, which for
+    Actions is the job's name: if it has one and the job id otherwise. main
+    requires "tests" and "ledger", which are the ids.
+
+    Adding name: Tests does not fail the build and does not fail this
+    repository's own checks. It renames the check run, so the required check
+    named "tests" is never reported at all, and GitHub does not treat a check
+    that never arrives as a failure: it waits. Every pull request then sits
+    permanently unmergeable, pending a check nobody is going to publish, and
+    the CI tick beside it is green. That is worse than a red build, because a
+    red build tells you what to fix.
+
+    The rename is the kind of edit that looks like tidying, which is why it
+    needs a test rather than a comment.
+    """
+    jobs = _jobs()
+    assert set(jobs) == set(REQUIRED_CHECKS), sorted(jobs)
+
+    for job, body in jobs.items():
+        # Self-check on the reader's assumption: a job-level key sits at four
+        # spaces. If the file is ever reindented, this fails here rather than
+        # letting the name: scan below quietly match nothing.
+        assert any(
+            line.startswith("    runs-on:") for line in body.splitlines()
+        ), f"{job}: expected a four-space-indented runs-on:, so the scan below is meaningful"
+
+        declared = [
+            line
+            for line in body.splitlines()
+            if line.startswith("    name:") and not line.strip().startswith("#")
+        ]
+        assert not declared, (
+            f"job {job!r} declares {declared[0].strip()!r}. The check run would be "
+            f"published under that string instead of {job!r}, and main's required "
+            f"check {job!r} would never report. Pull requests would wait on it "
+            f"forever rather than failing. Remove the key, or change the ruleset "
+            f"first and this test with it."
+        )
+
+
 def test_neither_job_waits_on_the_other():
     """A needs: edge would restore the masking as a job-level dependency:
     the suite would be reported as skipped whenever the ledger check failed."""
