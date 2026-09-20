@@ -634,3 +634,15 @@ The file arrived with a different shape from the schema, which stopped the load.
 **The container stays an array of four-field objects, not a mapping.** A mapping from JD term to evidence term cannot carry `approved_by_yash` or `added`. Yash's reason for keeping the array is stronger than the one originally given for choosing it: a JD term added with no record of who approved it is the exact shape of the incident this system exists to prevent. The guard is the point of the file, not an ornament on it.
 
 The file ships with `"translations": []`. An empty list is the correct state until an employer's term actually needs declaring, and the schema accepts it without the file having to claim anything.
+
+### Computed years counts elapsed months, not inclusive ones
+
+`computed.total_years_experience` counted each role's months inclusively, `end - start + 1`. It now counts `end - start` over each continuous stretch of employment.
+
+Inclusive counting treats a job starting on the 30th of its first month, and ending on the 1st of its last, as having worked both months in full. That overstates, and this number goes on a CV without a citation behind it, so the conservative reading is the right one.
+
+**The subtraction is once per continuous stretch, never once per role.** Three back to back roles at one employer are one period of employment with one partial month at each end. Discounting a month per role would invent gaps in the boundary months, which were worked. On the real evidence that is the difference between 77 months at Amnex and 75.
+
+Yash's own arithmetic, which the implementation now reproduces exactly: Amnex 2018-06 to 2024-11 is 77 elapsed months, Digiwell 2026-04 to the run date is 5, so 82 months and 6 years. The previous convention gave 84 and 7.
+
+Section 5 already said `total_years = floor(union_months / 12)`, and that is unchanged. What changed is what a month has to be to count.

@@ -53,6 +53,17 @@ class ComputedValues:
         return tuple(forms)
 
 
+def _contiguous_runs(months: set[int]) -> list[tuple[int, int]]:
+    """The month set as maximal runs of consecutive months, (first, last)."""
+    runs: list[list[int]] = []
+    for month in sorted(months):
+        if runs and month == runs[-1][1] + 1:
+            runs[-1][1] = month
+        else:
+            runs.append([month, month])
+    return [(first, last) for first, last in runs]
+
+
 def total_years_experience(experience: Experience, *, anchor: date | None = None) -> ComputedValues:
     """Years of experience, counting overlapping roles once and gaps not at all.
 
@@ -61,6 +72,17 @@ def total_years_experience(experience: Experience, *, anchor: date | None = None
 
     The union is computed over distinct months rather than by summing durations,
     so two concurrent roles contribute the months they actually span, once.
+
+    **Elapsed, not inclusive.** Each continuous stretch of employment counts
+    `last - first` months, not `last - first + 1`. Inclusive counting treats a
+    job starting on the 30th as a full month worked, which overstates, and the
+    figure this produces goes on a CV.
+
+    The subtraction is once per continuous stretch, not once per role. Three
+    back to back roles at one employer are one stretch of employment with one
+    partial month at each end, so discounting a month per role would invent two
+    gaps that were never there: the boundary months between consecutive roles
+    were worked. That is the difference between 77 months at Amnex and 75.
     """
     anchor = anchor or date.today()
     anchor_ordinal = _ordinal_of(anchor)
@@ -80,7 +102,7 @@ def total_years_experience(experience: Experience, *, anchor: date | None = None
             continue
         months.update(range(start, end + 1))
 
-    union_months = len(months)
+    union_months = sum(last - first for first, last in _contiguous_runs(months))
     return ComputedValues(
         total_years=union_months // 12,
         union_months=union_months,
