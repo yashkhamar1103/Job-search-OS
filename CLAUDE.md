@@ -592,3 +592,11 @@ Every rejection test now asserts its own input before it reads a verdict. `tests
 **`dozens of`, `hundreds of` and `thousands of` reach `NUMBER_UNSUPPORTED`, not `UNQUANTIFIED_SCALE`.** They are vague magnitude words as well as quantifiers, so they parse as a numeric span and the number gate claims them first. Accepted rather than fixed: same bucket, same budget, and the retry message is the right instruction either way. It is recorded in the reachability suite so the next reader does not treat it as a bug.
 
 **`location_allowlist` has no consumer yet.** Nothing in the code reads it, because Section 7's location rule is milestone 3. Recorded as an explicit exemption rather than left as a silent gap, so it has to be answered when the renderer is written.
+
+### CI is two jobs, not one
+
+`tests` and `ledger` run independently on every push and pull request. Neither declares `needs:`, and no step carries `continue-on-error`.
+
+One job hides its own failures. The first failing step aborts the rest, and GitHub reports what follows as skipped rather than as failed, so a red tick says only that something broke. This repository lived that for the whole of milestone 1: the ledger check failed on every push while `evidence/ledger.json` did not exist, the suite sat behind it, and pytest never ran in CI at all. The tick looked like a known expected failure, and underneath it the 982 tests were unverified on every commit.
+
+Reordering the steps is not a fix. It only chooses which failure masks the other. Two jobs mean a red tick names the thing that broke, the suite runs whatever state the ledger is in, and branch protection can require each independently. `tests/test_repo_rules.py` asserts the split, so it cannot be undone by a refactor that merely reads tidier.

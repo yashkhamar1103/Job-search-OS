@@ -156,6 +156,80 @@ def _workflow_text() -> str:
     return WORKFLOW.read_text(encoding="utf-8")
 
 
+def _jobs() -> dict[str, str]:
+    """Top-level job blocks of the workflow, keyed by job id.
+
+    Parsed by indentation rather than with a YAML library, because adding a
+    dependency to assert something about a file this repository writes itself
+    is a worse trade than a ten-line reader.
+    """
+    text = _workflow_text()
+    if "\njobs:\n" not in text:
+        return {}
+    body = text.split("\njobs:\n", 1)[1]
+    jobs: dict[str, list[str]] = {}
+    current: str | None = None
+    for line in body.splitlines():
+        if line and not line.startswith(" ") and not line.startswith("#"):
+            break  # a new top-level key ends the jobs block
+        stripped = line.strip()
+        if (
+            line.startswith("  ")
+            and not line.startswith("   ")
+            and stripped.endswith(":")
+            and not stripped.startswith("#")
+        ):
+            current = stripped[:-1]
+            jobs[current] = []
+        elif current is not None:
+            jobs[current].append(line)
+    return {name: "\n".join(lines) for name, lines in jobs.items()}
+
+
+def test_the_suite_and_the_ledger_check_are_separate_jobs():
+    """One job means the first failure hides everything behind it.
+
+    GitHub reports the steps after a failed step as skipped, not as failures,
+    so a red tick says only that something broke. This repository lived that:
+    the ledger check failed on every push while evidence/ledger.json did not
+    exist, so pytest never ran in CI at all and nothing said so.
+
+    Reordering the steps does not fix it, it only swaps which failure masks
+    the other. The fix is two jobs, and this test is what stops them being
+    merged back into one.
+    """
+    jobs = _jobs()
+    assert set(jobs) == {"tests", "ledger"}, sorted(jobs)
+
+    assert "pytest" in jobs["tests"]
+    assert "confirmed_aliases" in jobs["tests"]
+    assert "ledger_ci" in jobs["ledger"]
+
+    # The suite must not be reachable from the ledger job, or the masking
+    # comes back through the other door.
+    assert "pytest" not in jobs["ledger"]
+    assert "ledger_ci" not in jobs["tests"]
+
+
+def test_neither_job_waits_on_the_other():
+    """A needs: edge would restore the masking as a job-level dependency:
+    the suite would be reported as skipped whenever the ledger check failed."""
+    for name, body in _jobs().items():
+        assert "needs:" not in body, f"{name} declares a dependency"
+
+
+def test_no_step_swallows_its_own_failure():
+    """Comment lines are excluded: the workflow explains in prose why it does
+    not use continue-on-error, and a naive substring search reads its own
+    reasoning as the violation."""
+    offenders = [
+        line
+        for line in _workflow_text().splitlines()
+        if "continue-on-error:" in line and not line.strip().startswith("#")
+    ]
+    assert not offenders, offenders
+
+
 def test_the_checkout_is_not_shallow():
     """The ledger check needs the merge base, which a shallow clone lacks."""
     assert "fetch-depth: 0" in _workflow_text()

@@ -1,12 +1,72 @@
 name: CI
 
+# Two independent jobs, deliberately. Do not merge them back into one.
+#
+# In a single job the first failing step aborts the rest, and GitHub reports
+# the remaining steps as "skipped" rather than as failures. A red tick then
+# says only that something broke, not what, and the steps behind the failure
+# are silently not running. That is exactly how this repository spent its
+# first milestone: the ledger check failed on every push because
+# evidence/ledger.json did not exist yet, so pytest never ran in CI at all
+# while the tick looked like an expected known failure.
+#
+# Reordering the steps does not fix it. It only changes which failure masks
+# the other. Two jobs mean the tick names the thing that broke, the suite runs
+# on every push whatever state the ledger is in, and branch protection can
+# require each one independently.
+#
+# Neither job depends on the other, and no step swallows its own failure.
+# tests/test_repo_rules.py asserts all of that, so this cannot be undone by a
+# refactor that only reads tidier.
+
 on:
   push:
     branches: ["**"]
   pull_request:
 
 jobs:
-  test:
+  tests:
+    runs-on: ubuntu-latest
+    steps:
+      # No fetch-depth here. This job compares generated output against the
+      # working tree and never needs history.
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: requirements-dev.txt
+
+      - name: Install
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements-dev.txt
+
+      - name: Tests
+        run: python -m pytest -q
+
+      - name: Review file is current
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m app.cli.confirmed_aliases
+          # The review file is generated from the taxonomy and the ledger, so it
+          # is current or stale with respect to the working tree, not with
+          # respect to any base commit. There is no merge base to resolve here.
+          #
+          # intent-to-add is what makes a newly generated file visible to
+          # git diff. Without it an untracked review file reads as no change,
+          # and a first-time generation would land uncommitted.
+          git add --intent-to-add review/
+          if ! git diff --quiet -- review/; then
+            echo "review/confirmed_aliases.md is stale." >&2
+            echo "Run: python -m app.cli.confirmed_aliases" >&2
+            git --no-pager diff -- review/ >&2
+            exit 1
+          fi
+
+  ledger:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -98,26 +158,3 @@ jobs:
         run: |
           set -euo pipefail
           python -m app.cli.ledger_ci --base "${{ steps.base.outputs.sha }}"
-
-      - name: Tests
-        run: python -m pytest -q
-
-      - name: Review file is current
-        shell: bash
-        run: |
-          set -euo pipefail
-          python -m app.cli.confirmed_aliases
-          # The review file is generated from the taxonomy and the ledger, so it
-          # is current or stale with respect to the working tree, not with
-          # respect to any base commit. There is no merge base to resolve here.
-          #
-          # intent-to-add is what makes a newly generated file visible to
-          # git diff. Without it an untracked review file reads as no change,
-          # and a first-time generation would land uncommitted.
-          git add --intent-to-add review/
-          if ! git diff --quiet -- review/; then
-            echo "review/confirmed_aliases.md is stale." >&2
-            echo "Run: python -m app.cli.confirmed_aliases" >&2
-            git --no-pager diff -- review/ >&2
-            exit 1
-          fi
