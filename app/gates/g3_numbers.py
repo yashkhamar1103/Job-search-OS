@@ -252,7 +252,12 @@ def _unquantified_scale(analysis: BlockAnalysis, ctx: GateContext):
 
 
 def _inside_alias(analysis: BlockAnalysis, start: int, end: int) -> bool:
-    return any(m.start <= start and end <= m.end for m in analysis.matches)
+    """A product name or a measurement label owns these characters.
+
+    Delegated to the claim chain rather than recomputed, so the digits the
+    chain ruled out are exactly the digits this gate ignores.
+    """
+    return analysis.inside_a_name(start, end)
 
 
 def _version_owner(analysis: BlockAnalysis, start: int) -> MatchedTech | None:
@@ -411,6 +416,22 @@ def _hedged_numbers(analysis: BlockAnalysis, ctx: GateContext, exempt: set[tuple
 
     for start, end in analysis.numeric_spans:
         _number_start, number_end = _token_bounds(analysis, start, end)
+
+        # A hedge welded onto the number as a suffix. "40ish" is one token, so
+        # the token-after check never sees the hedge and the entry sat in the
+        # config doing nothing. Strip the suffix from the numeric token, then
+        # apply the same rule.
+        suffix = text[end:number_end]
+        if suffix and _collapse(suffix) in {h.casefold() for h in word_trailing}:
+            if not _recorded_verbatim(analysis, metrics, start, number_end):
+                yield analysis.reject(
+                    "VAGUE_METRIC",
+                    analysis.span(start, number_end),
+                    f"{suffix!r} is welded onto {text[start:end]!r} and widens it "
+                    f"beyond what the metric records",
+                    hedge=suffix,
+                )
+                continue
 
         # A tilde immediately before the number, which is not a token.
         before = text[:start].rstrip()

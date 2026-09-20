@@ -158,7 +158,17 @@
     "failed over",
     "rolled back",
     "archived",
-    "purged"
+    "purged",
+    "raised",
+    "lowered",
+    "doubled",
+    "halved",
+    "trimmed",
+    "compacted",
+    "pinned",
+    "gated",
+    "staged",
+    "rehearsed"
   ],
   "be_have_openers": [
     "was",
@@ -361,8 +371,8 @@
     "web",
     "database",
     "integration",
-    "machine learning",
-    "ai"
+    "ai",
+    "ml"
   ],
   "leading_hedges": [
     "roughly",
@@ -422,5 +432,13 @@
     "a handful of",
     "large number of",
     "significant number of"
+  ],
+  "measurement_labels": [
+    "p50",
+    "p75",
+    "p90",
+    "p95",
+    "p99",
+    "p99.9"
   ]
 }

@@ -150,6 +150,21 @@ def test_a_plus_inside_a_language_name_is_not_a_trailing_hedge(ctx):
     assert "VAGUE_METRIC" not in codes(result)
 
 
+@pytest.mark.parametrize("text", ["Cut latency by 40ish percent.", "Cut latency by 40-odd percent."])
+def test_a_hedge_welded_onto_the_number_is_still_a_hedge(text, ctx):
+    """B4. "40ish" is one token, so the token-after check never saw the hedge
+    and the config entry did nothing. The suffix is stripped from the numeric
+    token and the same rule applied."""
+    result = assert_rejects(bullet(text, metrics=("acme-m1",)), ctx, "VAGUE_METRIC")
+    assert "VAGUE_METRIC" in codes(result)
+
+
+def test_a_unit_welded_onto_a_number_is_not_a_hedge(ctx):
+    """The paired negative: "200ms" is a unit, not a widening."""
+    result = check_block(bullet("Configured 200ms timeouts.", metrics=("acme-m3",)), ctx)
+    assert "VAGUE_METRIC" not in codes(result)
+
+
 def test_a_plus_attached_to_a_number_is_still_a_trailing_hedge(ctx):
     """F2. The paired positive, so F1 cannot be satisfied by switching the
     rule off."""
@@ -202,22 +217,45 @@ def test_a_different_hedge_on_the_same_metric_is_still_rejected(ctx):
     assert "VAGUE_METRIC" in codes(result)
 
 
-def test_a_percentile_label_is_currently_read_as_a_number(ctx):
-    """Characterisation, not endorsement. Open question for Yash.
+@pytest.mark.parametrize("label", ["p50", "p75", "p90", "p95", "p99", "p99.9"])
+def test_a_measurement_label_carries_no_quantity(label, ctx):
+    """A label names which measurement was taken, not how much of anything.
 
-    p95 and p99 are labels for which measurement was taken, not claims about
-    scale, but the digits inside them parse as a number like any other and the
-    only exemption the spec grants is for digits inside a matched taxonomy
-    alias. So a truthful latency bullet is rejected today, and the remedy is a
-    spec decision about identifier-internal digits, not a quiet edit here.
+    Claimed before the number gate and before the proper-noun heuristic, so it
+    raises neither NUMBER_UNSUPPORTED nor UNKNOWN_TERM.
+    """
+    result = check_block(
+        bullet(f"Tuned the reporting queries to hold {label} under 200ms.", metrics=("acme-m3",)),
+        ctx,
+    )
+    assert "NUMBER_UNSUPPORTED" not in codes(result)
+    assert "UNKNOWN_TERM" not in codes(result)
+
+
+def test_a_label_grants_no_exemption_to_the_rest_of_the_clause(ctx):
+    """The paired negative. The label is exempt, the bound beside it is not.
+
+    Without this, "claimed before G3" could quietly mean "the clause holding a
+    label is not gated", which is the opposite of the rule.
     """
     result = assert_rejects(
-        bullet("Tuned the reporting queries to hold p95 under 200ms.", metrics=("acme-m3",)),
+        bullet("Tuned the reporting queries to hold p95 under 150ms.", metrics=("acme-m3",)),
+        ctx,
+        "NUMBER_UNSUPPORTED",
+    )
+    assert [r.span.text for r in result.rejections if r.code == "NUMBER_UNSUPPORTED"] == ["150"]
+
+
+def test_a_letter_then_digit_token_is_not_a_label(ctx):
+    """The allowlist is the whole rule. x1000 has the same shape as p95 and is
+    a claim about scale, so a general letter-then-digit exemption would let a
+    multiplier through untouched."""
+    result = assert_rejects(
+        bullet("Raised ingest throughput x1000 across the pipeline.", metrics=("acme-m1",)),
         ctx,
         "NUMBER_UNSUPPORTED",
     )
     assert "NUMBER_UNSUPPORTED" in codes(result)
-    assert [r.span.text for r in result.rejections if r.code == "NUMBER_UNSUPPORTED"] == ["95"]
 
 
 def test_the_exemption_does_not_reach_a_block_with_no_citations(ctx):

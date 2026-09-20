@@ -11,6 +11,7 @@
     "client_blocklist", "location_allowlist", "default_location",
     "permanently_denied_ids", "unverifiable_labels", "title_nouns",
     "title_modifiers", "leading_hedges", "trailing_hedges", "vague_quantifiers",
+    "measurement_labels",
     "max_bullets_per_role", "jd_copy_ngram", "max_pages", "retry_limits",
     "cooling_off_hours", "fit_threshold", "fit_ceiling_divergence_points",
     "number_coverage_min", "number_coverage_target", "model_id",
@@ -37,6 +38,10 @@
     "leading_hedges": {
       "$ref": "#/$defs/phrase_list",
       "description": "Hedges that modify a number only when they precede it. Position is what distinguishes a hedge from a preposition: 'over 6 years' hedges, '3x over the prior pipeline' compares."
+    },
+    "measurement_labels": {
+      "$ref": "#/$defs/phrase_list",
+      "description": "Tokens naming which measurement was taken, such as p95. Matched whole and case-insensitively, and claimed as a label span before the number gate and before the proper-noun heuristic. A label carries no quantity and grants no exemption to anything else in its clause. An allowlist rather than a letter-then-digit rule on purpose: x1000 fits that shape and is a multiplier claim, so a new identifier joins this list by an explicit edit."
     },
     "vague_quantifiers": {
       "$ref": "#/$defs/phrase_list",

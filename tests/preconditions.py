@@ -159,6 +159,22 @@ def _numeric_span(f: Facts) -> tuple[bool, str]:
     )
 
 
+def _welded_hedge(f: Facts) -> bool:
+    """A hedge sitting inside the numeric token, as in "40ish".
+
+    Read off the raw text: the characters between the end of a numeric span and
+    the end of the token holding it. A phrase search cannot see this, because
+    the hedge is not a token of its own.
+    """
+    trailing = {h.casefold() for h in f.ctx.bundle.policy.list_of("trailing_hedges")}
+    for start, end in f.analysis.numeric_spans:
+        for token in f.analysis.tokens:
+            if token.start <= start and end <= token.end and end < token.end:
+                if f.text[end : token.end].strip().casefold() in trailing:
+                    return True
+    return False
+
+
 def _vague_input(f: Facts) -> tuple[bool, str]:
     if f.has_any_phrase("vague_intensity_words"):
         return True, ""
@@ -166,6 +182,8 @@ def _vague_input(f: Facts) -> tuple[bool, str]:
     if hedged and f.analysis.numeric_spans:
         return True, ""
     if re.search(r"[~+]", f.text) and f.analysis.numeric_spans:
+        return True, ""
+    if _welded_hedge(f):
         return True, ""
     return False, (
         f"{f.text!r} carries neither a vague intensity word nor a hedge beside a "

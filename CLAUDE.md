@@ -156,6 +156,7 @@ Not an evidence file and not under `evidence/`: none of it is a claim about what
 - the build-verb list, the weak-opener denylist, and the opening-verb coverage list
 - ambiguous acronyms
 - vague intensity words, vague quantifiers, proficiency qualifiers, and duration hedges
+- measurement labels
 - the location allowlist and default location
 - retry limits, split by bucket
 - `cooling_off_hours`
@@ -185,8 +186,9 @@ Each gate returns either `pass` or a list of rejections. Each rejection carries 
 **Gate precedence.** One ordered claim over spans:
 
 ```
-G0 hygiene  ->  G3 numeric and version spans  ->  client blocklist
-            ->  taxonomy match  ->  proper-noun residue heuristic
+G0 hygiene  ->  measurement labels  ->  G3 numeric and version spans
+            ->  client blocklist  ->  taxonomy match
+            ->  proper-noun residue heuristic
 ```
 
 A span claimed earlier is invisible to everything later. Longest match wins inside the blocklist, so "Northwind Retail" consumes "Northwind" and one name is named once. Findings are deduplicated by (code, span) before the run report.
@@ -248,10 +250,14 @@ The homoglyph fold in `app/normalise.py` runs **after** tokenisation, never inst
   - A magnitude is multiplied out, so `2.5M` and `2,500,000` are the same number.
 - **Versions:** a number attached directly to a technology term (`.NET 8`, `Angular 16`) is a version. It is allowed only if listed in that entry's `versions`; otherwise `VERSION_UNSUPPORTED`. Only nothing or a single space may sit between the name and the number: anything else, a comma above all, means the number belongs to the next item in a list.
   - A number **inside** a matched alias is part of the product name and is not a claim about scale. `OAuth 2.0`, `Route 53`, and `SOC 2` are names.
+- **Measurement labels:** a token in `policy.measurement_labels` (`p50`, `p75`, `p90`, `p95`, `p99`, `p99.9`), matched whole and case-insensitively, names which measurement was taken rather than how much of anything there was. Its digits are claimed as a label span before the number gate and before the proper-noun heuristic, so it raises neither `NUMBER_UNSUPPORTED` nor `UNKNOWN_TERM`.
+  - A label carries no quantity, so a bullet naming one needs no metric for it. It also grants **no** exemption to anything else in its clause: the bound beside `p95` is gated exactly as it would be alone.
+  - An allowlist, never a general letter-then-digit rule. `x1000` has that shape and is a multiplier claim. A future identifier joins the list by an explicit edit, which is a decision someone makes rather than a pattern that quietly widens what the number gate cannot see.
 - **Vague intensity words:** words such as "significantly", "dramatically", "substantially", and "massively" are rejected with `VAGUE_METRIC`, because they imply a number that does not exist.
 - **Hedged numbers:** position is the rule, not presence. The same word hedges in one place and does not in another.
   - A `policy.leading_hedges` entry **preceding** a number, within two tokens, is `VAGUE_METRIC`. "roughly 40%" widens a measured value.
   - A `policy.trailing_hedges` entry **following** a numeric span is `VAGUE_METRIC`. "12+ services" and "40% or more" widen a number the metric records exactly.
+  - A trailing hedge welded onto the number is the same hedge. "40ish" and "40-odd" are one token and two tokens respectively, so the suffix is stripped from the numeric token and the same rule applied. Checking only for a separate token left the entries in the config matching nothing anybody writes.
   - Neither fires otherwise. "3x over the prior pipeline" compares; "over the weekend window" is a preposition with no number in sight. Checking presence rather than position blocked all three.
   - The computed years rendering `N+ years` is exempt from the **trailing** rule only, being code-generated from the role dates. A leading hedge on a computed value is still the model widening a number it was handed, so "over 6 years" is rejected.
   - **Bounds are measurements.** A hedged phrase is legal when it appears **verbatim** in the `value` of a metric the bullet cites. A p95 latency recorded as `under 200ms` is a measured value whose form contains the word "under", and rewriting it as "200ms" would state something the measurement does not support. The comparison is the metric's exact text, case and spacing aside: "under 250ms" is a different claim and stays rejected, and the same phrase in a block citing nothing has nothing to stand on. With the computed years form, this is the only hedge exemption.
@@ -489,6 +495,14 @@ A golden test pins expected line counts for a fixture set of blocks. Any geometr
 
 `app/gates/buckets.py` pins every code to a bucket, a severity and a retry budget, as a literal table. Moving a code between buckets requires editing that file, so a truth gate cannot be downgraded to advisory as a side effect of a refactor. A test asserts the table and the registry in `app/errors.py` agree in both directions, so neither a new code nor a changed one can slip through unlisted.
 
+`python tools/bucket_table.py` prints it for review, with the retry budget resolved through `config/policy.json`. A structure finding prints `n/a` rather than `0`, because it is not a per-block retry at all and a zero there reads as a budget that was spent.
+
+### Policy lists must be reachable
+
+Every entry in every list in `config/policy.json` is probed by `tests/test_policy_reachability.py`: a probe is built from the entry, the gate that consumes that list is run, and the finding must name the entry. An entry no probe can trip is config that looks like coverage and enforces nothing, and three of them were found by reading rather than by running. A list added to the policy file with no probe and no recorded reason fails the suite.
+
+Reachability is an existence claim, which is its limit: "40% ish" matching proved the hedge reachable while the only shape anyone writes it, "40ish", was dead. So a single-word hedge is asserted in both shapes.
+
 ## 12. Decision log
 
 Amendments to the original spec, with the reason each one was made. Every entry was decided by Yash under Section 11, except where marked.
@@ -566,3 +580,15 @@ Every rejection test now asserts its own input before it reads a verdict. `tests
 **The policy key is `vague_intensity_words`, not `intensity_words`.** Same four words, different name from the one the directive used.
 
 **Open, not decided: digits inside an identifier.** `p95` and `p99` label which measurement was taken rather than claiming a scale, but their digits parse as numbers and the only exemption the spec grants is for digits inside a matched taxonomy alias. A truthful latency bullet is rejected today. Pinned by a characterisation test rather than patched, because the remedy is a spec decision about identifier-internal digits.
+
+### Round 5, fixture version 5
+
+**Measurement labels, closing p15.** An allowlist of percentile tokens, claimed ahead of the number gate and the residue heuristic. The general letter-then-digit rule was considered and refused: `x1000` fits that shape and is a multiplier claim, so a new identifier joins the list by an explicit edit instead.
+
+**Reachability is now asserted, not reviewed.** Every policy entry is probed by the matcher that consumes its list, and the finding must name the entry. Asserting the code alone would have passed for every weak opener, since "Part of the ..." is both a listed opener and a bullet with no verb in its first two tokens, and the code cannot say which rule spoke.
+
+**Trailing hedges handle a welded suffix.** "40ish" is one token, so the token-after check never saw the hedge. Stripping the suffix from the numeric token and applying the same rule brings two dead entries back into force.
+
+**`dozens of`, `hundreds of` and `thousands of` reach `NUMBER_UNSUPPORTED`, not `UNQUANTIFIED_SCALE`.** They are vague magnitude words as well as quantifiers, so they parse as a numeric span and the number gate claims them first. Accepted rather than fixed: same bucket, same budget, and the retry message is the right instruction either way. It is recorded in the reachability suite so the next reader does not treat it as a bug.
+
+**`location_allowlist` has no consumer yet.** Nothing in the code reads it, because Section 7's location rule is milestone 3. Recorded as an explicit exemption rather than left as a silent gap, so it has to be answered when the renderer is written.

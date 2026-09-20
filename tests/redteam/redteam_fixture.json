@@ -1,5 +1,5 @@
 {
-  "fixture_version": 4,
+  "fixture_version": 5,
   "purpose": "Independent adversarial cases for the gate suite. Authored outside the session that wrote the gates. The harness must load the evidence block below instead of evidence/ so this file runs before the real evidence exists and never depends on it.",
   "rules_for_harness": [
     "Do not edit a case to make it pass. A failing case is a finding: report it.",
@@ -867,6 +867,63 @@
       "why": "Expert in is a self-assessment no evidence can support or refute."
     },
     {
+      "id": "n17",
+      "block": "bullet",
+      "role": "r_alpha",
+      "text": "Tuned PostgreSQL indexes to hold p95 under 150ms.",
+      "cites": {
+        "fact_ids": [
+          "a-f2"
+        ],
+        "metric_ids": [
+          "a-m3"
+        ]
+      },
+      "expect": "reject",
+      "codes": [
+        "NUMBER_UNSUPPORTED"
+      ],
+      "why": "The label is exempt, the bound is not, and 150 is not the cited value."
+    },
+    {
+      "id": "n18",
+      "block": "bullet",
+      "role": "r_alpha",
+      "text": "Raised ingest throughput x1000 across the telemetry pipeline.",
+      "cites": {
+        "fact_ids": [
+          "a-f1"
+        ],
+        "metric_ids": [
+          "a-m2"
+        ]
+      },
+      "expect": "reject",
+      "codes": [
+        "NUMBER_UNSUPPORTED"
+      ],
+      "why": "Letter then digit is not a label. x1000 is a multiplier claim."
+    },
+    {
+      "id": "n19",
+      "block": "bullet",
+      "role": "r_alpha",
+      "text": "Cut report query latency by 40ish percent.",
+      "cites": {
+        "fact_ids": [
+          "a-f2"
+        ],
+        "metric_ids": [
+          "a-m1"
+        ]
+      },
+      "expect": "reject",
+      "codes": [
+        "VAGUE_METRIC"
+      ],
+      "why": "A hedge welded onto the number still widens it."
+    },
+    {
       "id": "f01",
       "block": "bullet",
       "role": "r_alpha",
@@ -1303,6 +1360,19 @@
       },
       "expect": "pass",
       "why": "American spelling folds to the listed optimised and raises no advisory."
+    },
+    {
+      "id": "p18",
+      "block": "bullet",
+      "role": "r_alpha",
+      "text": "Tuned PostgreSQL indexes to hold p99 latency steady for the reporting screens.",
+      "cites": {
+        "fact_ids": [
+          "a-f2"
+        ]
+      },
+      "expect": "pass",
+      "why": "A measurement label carries no quantity, so it needs no citation."
     },
     {
       "id": "m01",

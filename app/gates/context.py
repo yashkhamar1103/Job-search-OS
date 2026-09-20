@@ -165,6 +165,13 @@ class BlockAnalysis:
         # product name are part of the name, not a claim about scale: Route 53
         # and OAuth 2.0 are names. Resolving that question first is what makes
         # the rest of the chain well defined.
+        #
+        # A measurement label is claimed ahead of both the number gate and the
+        # residue heuristic for the same reason: p95 names which measurement was
+        # taken rather than how much of anything there was.
+        self.label_spans: tuple[tuple[int, int], ...] = self._label_spans(ctx)
+        self.label_token_indices: frozenset[int] = self._tokens_in(self.label_spans)
+
         self.numeric_spans: tuple[tuple[int, int], ...] = self._numeric_spans()
         self.numeric_token_indices: frozenset[int] = self._tokens_in(self.numeric_spans)
 
@@ -172,7 +179,10 @@ class BlockAnalysis:
         self.client_token_indices: frozenset[int] = self._tokens_in(self.client_spans)
 
         self.claimed_token_indices: frozenset[int] = (
-            self.covered | self.numeric_token_indices | self.client_token_indices
+            self.covered
+            | self.label_token_indices
+            | self.numeric_token_indices
+            | self.client_token_indices
         )
 
     def _tokens_in(self, spans: tuple[tuple[int, int], ...]) -> frozenset[int]:
@@ -183,11 +193,42 @@ class BlockAnalysis:
             if token.start < end and start < token.end
         )
 
+    def _label_spans(self, ctx: "GateContext") -> tuple[tuple[int, int], ...]:
+        """Tokens naming which measurement was taken, such as p95.
+
+        A whole-token match against an explicit allowlist, never a
+        letter-then-digit rule: x1000 has exactly that shape and is a claim
+        about scale. A new identifier joins the list by an edit to the policy
+        file, which is a decision somebody makes rather than a pattern that
+        quietly widens what the number gate cannot see.
+
+        An alias wins over a label for the same reason it wins over a number:
+        digits inside a product name belong to the name.
+        """
+        labels = {l.casefold() for l in ctx.bundle.policy.list_of("measurement_labels")}
+        if not labels:
+            return ()
+        return tuple(
+            (token.start, token.end)
+            for token in self.tokens
+            if token.index not in self.covered and token.folded in labels
+        )
+
+    def inside_a_name(self, start: int, end: int) -> bool:
+        """Do these characters belong to a product name or a measurement label?
+
+        One answer, read by the chain and by G3 alike. Two implementations of
+        "is this number part of a name" is two chances to disagree about the
+        same digits.
+        """
+        if any(m.start <= start and end <= m.end for m in self.matches):
+            return True
+        return any(ls <= start and end <= le for ls, le in self.label_spans)
+
     def _numeric_spans(self) -> tuple[tuple[int, int], ...]:
         from app.numbers import extract, word_value
 
-        def inside_a_name(start: int, end: int) -> bool:
-            return any(m.start <= start and end <= m.end for m in self.matches)
+        inside_a_name = self.inside_a_name
 
         spans: list[tuple[int, int]] = []
         for expression in extract(self.norm.text):
