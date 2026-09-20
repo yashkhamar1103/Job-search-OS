@@ -602,3 +602,25 @@ One job hides its own failures. The first failing step aborts the rest, and GitH
 Reordering the steps is not a fix. It only chooses which failure masks the other. Two jobs mean a red tick names the thing that broke, the suite runs whatever state the ledger is in, and branch protection can require each independently. `tests/test_repo_rules.py` asserts the split, so it cannot be undone by a refactor that merely reads tidier.
 
 **The job ids are the check-run names, and the ruleset matches on those strings.** Neither job sets a `name:` key, so GitHub publishes each check run under its job id, and main requires exactly `tests` and `ledger`. Adding `name: Tests` would not fail anything: it renames the check run, the required check is never reported, and GitHub waits for a check that will never arrive rather than treating it as failed. Every pull request would sit permanently unmergeable beside a green tick. `tests/test_repo_rules.py` asserts the absence of the key for that reason, and its message says to change the ruleset first.
+
+### Taxonomy splits, decided under Section 11
+
+Four alias sets in `vocab/taxonomy.json` conflated products that the ledger needs to hold apart. Each split moves aliases off an existing canonical id onto a new one, which changes what a phrase in a CV is checked against. Yash decided each one.
+
+**`tsql` split from `sql_server`.** Writing T-SQL is not operating SQL Server. The ledger records `tsql` at depth `built` and `sql_server` at depth `used`, with the scope note "operated the platform, wrote T-SQL against it; did not administer or build the engine". While `T-SQL` resolved to `sql_server` that distinction could not survive into the gates. `T-SQL` and `Transact-SQL` moved.
+
+**Consequence, expected and correct:** "Designed schemas in SQL Server" now raises `SCOPE_DEPTH`, because `sql_server` is `used` and "designed" is a build verb. The remedy is to write what was actually built, which is the T-SQL, not the engine.
+
+**`angularjs` split from `angular`.** AngularJS 1.x and Angular 2+ are different frameworks that happen to share a name. The ledger confirms both. `AngularJS` moved.
+
+**`aspnet_core`, `aspnet_mvc` and `aspnet_web_api` split from `aspnet`.** ASP.NET Core is not ASP.NET Framework MVC. One id holding all three meant a bullet naming any of them was checked against whichever entry happened to exist. `aspnet` keeps `ASP.NET` alone.
+
+**`swagger` split from `openapi`.** Swagger tooling is not the OpenAPI specification. The ledger confirms `swagger` at depth `used`, which is a claim about the tooling.
+
+**`azure_pipelines` and `azure_repos` added with `parent: azure_devops`.** They were aliases of the platform. They are sub-services, and `parent` is the field for that, the way `azure_aks` already carries `parent: azure`. An explicit ledger entry resolves before a parent lookup, so neither can raise `SCOPE_SERVICE` against a platform that lists no services.
+
+**`pytest_tool` renamed to `pytest`.** The suffix was working around a collision that did not exist.
+
+**Not split, decided against.** `oauth2` stays folded into `oauth`: nobody writing a CV means OAuth 1.0, so the version split would carry no information. `pyspark` stays folded into `spark`: PySpark is the Python API of one product, not a second product, and the ledger records that as a scope note instead.
+
+`vocab/confusables.json` was re-pointed to match. Three pins asserted the old conflation and now assert the split, and eleven more were added so each new distinction is pinned the way the originals were. A pin is what stops an alias drifting back, so the pins move with the decision rather than after it.

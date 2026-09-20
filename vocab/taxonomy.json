@@ -350,12 +350,26 @@
       "category": "devops",
       "aliases": [
         "Azure DevOps",
-        "Azure Pipelines",
-        "Azure Repos",
         "Azure Boards",
         "VSTS",
         "Team Foundation Server",
         "TFS"
+      ]
+    },
+    "azure_pipelines": {
+      "display": "Azure Pipelines",
+      "category": "devops",
+      "parent": "azure_devops",
+      "aliases": [
+        "Azure Pipelines"
+      ]
+    },
+    "azure_repos": {
+      "display": "Azure Repos",
+      "category": "devops",
+      "parent": "azure_devops",
+      "aliases": [
+        "Azure Repos"
       ]
     },
     "azure_data_factory": {
@@ -1237,7 +1251,13 @@
       "aliases": [
         "SQL Server",
         "Microsoft SQL Server",
-        "MSSQL",
+        "MSSQL"
+      ]
+    },
+    "tsql": {
+      "display": "T-SQL",
+      "category": "language",
+      "aliases": [
         "T-SQL",
         "Transact-SQL"
       ]
@@ -1402,10 +1422,31 @@
       "display": "ASP.NET",
       "category": "backend",
       "aliases": [
-        "ASP.NET",
+        "ASP.NET"
+      ]
+    },
+    "aspnet_core": {
+      "display": "ASP.NET Core",
+      "category": "backend",
+      "aliases": [
         "ASP.NET Core",
+        "ASPNET Core"
+      ]
+    },
+    "aspnet_mvc": {
+      "display": "ASP.NET MVC",
+      "category": "backend",
+      "aliases": [
         "ASP.NET MVC",
-        "ASP.NET Web API"
+        "ASPNET MVC"
+      ]
+    },
+    "aspnet_web_api": {
+      "display": "ASP.NET Web API",
+      "category": "backend",
+      "aliases": [
+        "ASP.NET Web API",
+        "ASPNET Web API"
       ]
     },
     "golang": {
@@ -1620,8 +1661,15 @@
       "display": "OpenAPI",
       "category": "backend",
       "aliases": [
-        "OpenAPI",
-        "Swagger"
+        "OpenAPI"
+      ]
+    },
+    "swagger": {
+      "display": "Swagger",
+      "category": "backend",
+      "aliases": [
+        "Swagger",
+        "Swagger UI"
       ]
     },
     "microservices": {
@@ -1699,8 +1747,15 @@
       "display": "Angular",
       "category": "frontend",
       "aliases": [
-        "Angular",
-        "AngularJS"
+        "Angular"
+      ]
+    },
+    "angularjs": {
+      "display": "AngularJS",
+      "category": "frontend",
+      "aliases": [
+        "AngularJS",
+        "Angular.js"
       ]
     },
     "vue": {
@@ -2093,7 +2148,7 @@
         "PagerDuty"
       ]
     },
-    "pytest_tool": {
+    "pytest": {
       "display": "pytest",
       "category": "testing",
       "aliases": [
