@@ -2635,6 +2635,136 @@
       "aliases": [
         "Mapbox"
       ]
+    },
+    "d3js": {
+      "display": "D3.js",
+      "category": "frontend",
+      "aliases": [
+        "D3.js",
+        "D3js",
+        "D3"
+      ]
+    },
+    "angular_material": {
+      "display": "Angular Material",
+      "category": "frontend",
+      "aliases": [
+        "Angular Material"
+      ]
+    },
+    "rxjs": {
+      "display": "RxJS",
+      "category": "frontend",
+      "aliases": [
+        "RxJS",
+        "Rx.js",
+        "Reactive Extensions for JavaScript"
+      ]
+    },
+    "entity_framework": {
+      "display": "Entity Framework",
+      "category": "backend",
+      "aliases": [
+        "Entity Framework",
+        "Entity Framework 6",
+        "EF6"
+      ]
+    },
+    "ef_core": {
+      "display": "Entity Framework Core",
+      "category": "backend",
+      "aliases": [
+        "Entity Framework Core",
+        "EF Core"
+      ]
+    },
+    "adonet": {
+      "display": "ADO.NET",
+      "category": "backend",
+      "aliases": [
+        "ADO.NET",
+        "ADONET",
+        "ADO NET"
+      ]
+    },
+    "linq": {
+      "display": "LINQ",
+      "category": "backend",
+      "aliases": [
+        "LINQ"
+      ]
+    },
+    "dependency_injection": {
+      "display": "Dependency Injection",
+      "category": "methodology",
+      "aliases": [
+        "Dependency Injection"
+      ]
+    },
+    "pydantic": {
+      "display": "Pydantic",
+      "category": "backend",
+      "aliases": [
+        "Pydantic"
+      ]
+    },
+    "mstest": {
+      "display": "MSTest",
+      "category": "testing",
+      "aliases": [
+        "MSTest",
+        "MS Test"
+      ]
+    },
+    "jasmine": {
+      "display": "Jasmine",
+      "category": "testing",
+      "aliases": [
+        "Jasmine"
+      ]
+    },
+    "karma": {
+      "display": "Karma",
+      "category": "testing",
+      "aliases": [
+        "Karma",
+        "Karma test runner"
+      ]
+    },
+    "github_copilot": {
+      "display": "GitHub Copilot",
+      "category": "ai",
+      "parent": "github",
+      "aliases": [
+        "GitHub Copilot",
+        "GH Copilot"
+      ]
+    },
+    "claude_code": {
+      "display": "Claude Code",
+      "category": "ai",
+      "aliases": [
+        "Claude Code"
+      ]
+    },
+    "azure_document_intelligence": {
+      "display": "Azure Document Intelligence",
+      "category": "ai",
+      "parent": "azure",
+      "aliases": [
+        "Azure Document Intelligence",
+        "Document Intelligence",
+        "Azure Form Recognizer",
+        "Form Recognizer"
+      ]
+    },
+    "mongodb_atlas": {
+      "display": "MongoDB Atlas",
+      "category": "database",
+      "aliases": [
+        "MongoDB Atlas",
+        "Mongo Atlas"
+      ]
     }
   }
 }
