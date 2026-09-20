@@ -19,7 +19,7 @@ from __future__ import annotations
 from app.errors import GateResult, Rejection
 from app.gates.context import BlockAnalysis, GateContext, MatchedTech
 from app.models import BULLET, CLAIM_BLOCKS
-from app.normalise import token_texts
+from app.normalise import Token, token_texts
 from app.numbers import extract, supported_keys, word_value
 
 #: What may sit between a technology name and its version: nothing, or a single
@@ -38,6 +38,7 @@ def check(analysis: BlockAnalysis, ctx: GateContext) -> GateResult:
         citation_errors = list(_citations(analysis, ctx))
         rejections.extend(citation_errors)
     rejections.extend(_vague_words(analysis, ctx))
+    rejections.extend(_unquantified_scale(analysis, ctx))
     rejections.extend(_numbers(analysis, ctx))
     return GateResult(tuple(rejections))
 
@@ -102,6 +103,146 @@ def _vague_words(analysis: BlockAnalysis, ctx: GateContext):
             analysis.token_span(token),
             f"{token.raw!r} implies a number that does not exist",
             word=token.raw,
+        )
+
+
+# ---------------------------------------------------------------------------
+# Unquantified scale
+# ---------------------------------------------------------------------------
+
+#: What separates one clause from the next. Punctuation, plus the conjunctions
+#: that start a new predicate. A number in a different clause is a number about
+#: something else, so it cannot be the missing quantity.
+_CLAUSE_PUNCTUATION = frozenset(",;:()[]")
+_CLAUSE_CONJUNCTIONS = frozenset({"and", "or", "but", "while", "whereas", "then", "which"})
+
+#: How far after the quantifier its noun may sit. Enough for an adjective or
+#: two, not so far that a noun at the far end of the clause counts as modified.
+_QUANTIFIER_REACH = 4
+
+#: A preposition ends the quantifier's noun phrase. Without this the reach
+#: jumped the phrase boundary: "various tooling for order events" has a mass
+#: noun in the quantified slot and a plural three tokens later, and counting
+#: that plural rejected a bullet claiming no scale at all. The one exception is
+#: an "of" sitting immediately after the quantifier, which belongs to it.
+_PHRASE_END = frozenset(
+    {
+        "for", "in", "on", "onto", "into", "across", "with", "to", "at", "by",
+        "from", "under", "over", "through", "within", "during", "after",
+        "before", "against", "about", "around", "per", "via", "between",
+        "among", "without", "beyond", "upon", "of",
+    }
+)
+
+#: Whole words ending in s that are not plural nouns. Short function words
+#: mostly; anything longer is either caught by the -ss, -us and -is rule below
+#: or is genuinely a noun.
+_NOT_A_PLURAL_NOUN = frozenset(
+    {
+        "as", "its", "this", "thus", "yes", "always", "perhaps", "across",
+        "towards", "toward", "besides", "unless", "versus", "sometimes",
+        "otherwise", "whereas", "hers", "theirs", "ours", "yours", "was",
+        "has", "is", "does", "goes", "plus",
+    }
+)
+
+
+def _clause_ids(analysis: BlockAnalysis) -> dict[int, int]:
+    """Which clause each token belongs to.
+
+    Deterministic and crude on purpose: clause punctuation, a sentence end, or
+    one of a short list of conjunctions starts a new clause. A parser would be
+    more accurate and would also be a second opinion about where a sentence
+    divides, which is the kind of disagreement this codebase keeps out of gates.
+    """
+    ids: dict[int, int] = {}
+    clause = 0
+    previous: Token | None = None
+    for token in analysis.tokens:
+        if previous is not None:
+            between = analysis.norm.text[previous.norm_end : token.norm_start]
+            if any(ch in _CLAUSE_PUNCTUATION for ch in between) or any(
+                ch in ".!?" for ch in between
+            ):
+                clause += 1
+            elif token.folded in _CLAUSE_CONJUNCTIONS:
+                clause += 1
+        ids[token.index] = clause
+        previous = token
+    return ids
+
+
+def _is_plural_noun(token: Token, ctx: GateContext) -> bool:
+    """A countable noun in the position after a quantifier is a plural one.
+
+    English leaves no other option: "several service" is not a sentence. So a
+    plural test is the whole countable test here, and a mass noun ("various
+    tooling") correctly does not fire, because a quantifier over a mass noun
+    asserts no count.
+
+    A word ending in -ss, -us or -is is singular only when English actually has
+    it: analysis and status are words, apis and kpis are not, and excluding
+    every -is ending would have let the plural most likely to appear in a CV
+    through untouched.
+    """
+    word = ctx.bundle.lexicon.spell(token.folded)
+    if word in _NOT_A_PLURAL_NOUN or len(word) < 4 or not word.endswith("s"):
+        return False
+    if word.endswith(("ss", "us", "is")) and word in ctx.bundle.lexicon.wordlist:
+        return False
+    return True
+
+
+def _noun_after(
+    analysis: BlockAnalysis, last: Token, clauses: dict[int, int], ctx: GateContext
+) -> Token | None:
+    clause = clauses[last.index]
+    window = analysis.tokens[last.index + 1 : last.index + 1 + _QUANTIFIER_REACH]
+    for position, token in enumerate(window):
+        if clauses.get(token.index) != clause:
+            return None
+        if _is_plural_noun(token, ctx):
+            return token
+        if token.folded in _PHRASE_END and not (position == 0 and token.folded == "of"):
+            return None
+    return None
+
+
+def _unquantified_scale(analysis: BlockAnalysis, ctx: GateContext):
+    """A quantifier standing where a number belongs.
+
+    "Migrated numerous services" asserts a scale nothing in the evidence
+    records. The remedy is not a smaller word: it is the count, or no claim
+    about count at all, which is what the retry is told.
+
+    A number anywhere in the same clause excuses the quantifier, because the
+    claim then carries its own quantity. That also settles the overlap with the
+    vague magnitude words: "dozens of records" parses as a numeric span, so this
+    rule stays quiet and the number gate rejects it as unsupported, exactly as
+    gate precedence says it should.
+    """
+    quantifiers = tuple(ctx.bundle.policy.list_of("vague_quantifiers"))
+    if not quantifiers or not analysis.tokens:
+        return
+
+    clauses = _clause_ids(analysis)
+    numeric_clauses = {
+        clauses[index] for index in analysis.numeric_token_indices if index in clauses
+    }
+
+    for first, last, phrase in _phrase_positions(analysis, quantifiers):
+        if clauses[first.index] in numeric_clauses:
+            continue
+        noun = _noun_after(analysis, last, clauses, ctx)
+        if noun is None:
+            continue
+        yield analysis.reject(
+            "UNQUANTIFIED_SCALE",
+            analysis.span(first.start, noun.end),
+            f"{phrase!r} claims a scale for {noun.raw!r} that no number in this "
+            f"clause supports. Name the count or drop the word.",
+            quantifier=phrase,
+            noun=noun.raw,
         )
 
 
@@ -208,6 +349,43 @@ def _tokens_between(analysis: BlockAnalysis, left_end: int, right_start: int) ->
     return sum(1 for t in analysis.tokens if left_end <= t.start and t.end <= right_start)
 
 
+def _collapse(text: str) -> str:
+    return " ".join(text.split()).casefold()
+
+
+def _metric_texts(analysis: BlockAnalysis, ctx: GateContext) -> frozenset[str]:
+    return frozenset(_collapse(v) for v in cited_metric_values(analysis, ctx))
+
+
+def _token_bounds(analysis: BlockAnalysis, start: int, end: int) -> tuple[int, int]:
+    """The char range of every token the span (start, end) touches.
+
+    A numeric span stops at the digits, so 200 inside 200ms ends before the
+    unit. Comparing a hedged phrase against a metric value has to see the whole
+    token or "under 200ms" would be read as "under 200" and never match the
+    metric that records it.
+    """
+    touching = [t for t in analysis.tokens if t.start < end and start < t.end]
+    if not touching:
+        return start, end
+    return min(t.start for t in touching), max(t.end for t in touching)
+
+
+def _recorded_verbatim(
+    analysis: BlockAnalysis, metrics: frozenset[str], start: int, end: int
+) -> bool:
+    """Is this hedged phrase exactly what a cited metric records?
+
+    A bound can be the measurement. A p95 latency recorded as "under 200ms" is
+    a measured value whose form happens to contain the word under, and
+    rewriting it as "200ms" would state something the measurement does not
+    support. So the phrase is legal where the metric says it, character for
+    character, and nowhere else: "under 250ms" is a different claim, and the
+    same phrase in a block that cites nothing has nothing to stand on.
+    """
+    return bool(metrics) and _collapse(analysis.block.text[start:end]) in metrics
+
+
 def _hedged_numbers(analysis: BlockAnalysis, ctx: GateContext, exempt: set[tuple[int, int]]):
     """A hedge attached to a number, by position.
 
@@ -216,11 +394,15 @@ def _hedged_numbers(analysis: BlockAnalysis, ctx: GateContext, exempt: set[tuple
     compares one thing to another, and "over the weekend window" is a
     preposition with no number in sight. Checking presence rather than position
     blocked all three.
+
+    Two exemptions exist and no others: the computed years rendering, passed in
+    as `exempt`, and a hedged phrase a cited metric records verbatim.
     """
     if not analysis.numeric_spans:
         return
 
     text = analysis.block.text
+    metrics = _metric_texts(analysis, ctx)
     leading = tuple(ctx.bundle.policy.list_of("leading_hedges"))
     trailing = tuple(ctx.bundle.policy.list_of("trailing_hedges"))
 
@@ -228,16 +410,19 @@ def _hedged_numbers(analysis: BlockAnalysis, ctx: GateContext, exempt: set[tuple
     word_trailing = tuple(h for h in trailing if h != _PLUS)
 
     for start, end in analysis.numeric_spans:
+        _number_start, number_end = _token_bounds(analysis, start, end)
+
         # A tilde immediately before the number, which is not a token.
         before = text[:start].rstrip()
         if before.endswith(_TILDE):
-            yield analysis.reject(
-                "VAGUE_METRIC",
-                analysis.span(len(before) - 1, end),
-                f"{_TILDE!r} hedges {text[start:end]!r}",
-                hedge=_TILDE,
-            )
-            continue
+            if not _recorded_verbatim(analysis, metrics, len(before) - 1, number_end):
+                yield analysis.reject(
+                    "VAGUE_METRIC",
+                    analysis.span(len(before) - 1, end),
+                    f"{_TILDE!r} hedges {text[start:end]!r}",
+                    hedge=_TILDE,
+                )
+                continue
 
         # A trailing plus carried inside the numeric token itself.
         #
@@ -248,17 +433,21 @@ def _hedged_numbers(analysis: BlockAnalysis, ctx: GateContext, exempt: set[tuple
         if (start, end) in exempt:
             pass
         elif text[start:end].rstrip().endswith(_PLUS):
-            yield analysis.reject(
-                "VAGUE_METRIC",
-                analysis.span(start, end),
-                f"{text[start:end]!r} widens a number that a metric records exactly",
-                hedge=_PLUS,
-            )
-            continue
+            if not _recorded_verbatim(analysis, metrics, start, number_end):
+                yield analysis.reject(
+                    "VAGUE_METRIC",
+                    analysis.span(start, end),
+                    f"{text[start:end]!r} widens a number that a metric records exactly",
+                    hedge=_PLUS,
+                )
+                continue
 
         hedged = False
         for first, last, phrase in _phrase_positions(analysis, word_leading):
             if 0 <= _tokens_between(analysis, last.end, start) <= _LEADING_HEDGE_GAP:
+                if _recorded_verbatim(analysis, metrics, first.start, number_end):
+                    hedged = True
+                    break
                 yield analysis.reject(
                     "VAGUE_METRIC",
                     analysis.span(first.start, end),
@@ -276,6 +465,8 @@ def _hedged_numbers(analysis: BlockAnalysis, ctx: GateContext, exempt: set[tuple
 
         for first, last, phrase in _phrase_positions(analysis, word_trailing):
             if 0 <= _tokens_between(analysis, end, first.start) <= 0:
+                if _recorded_verbatim(analysis, metrics, _number_start, last.end):
+                    break
                 yield analysis.reject(
                     "VAGUE_METRIC",
                     analysis.span(start, last.end),

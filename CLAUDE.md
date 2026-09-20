@@ -155,7 +155,7 @@ Not an evidence file and not under `evidence/`: none of it is a claim about what
 - banned phrases
 - the build-verb list, the weak-opener denylist, and the opening-verb coverage list
 - ambiguous acronyms
-- vague intensity words, proficiency qualifiers, and duration hedges
+- vague intensity words, vague quantifiers, proficiency qualifiers, and duration hedges
 - the location allowlist and default location
 - retry limits, split by bucket
 - `cooling_off_hours`
@@ -254,6 +254,11 @@ The homoglyph fold in `app/normalise.py` runs **after** tokenisation, never inst
   - A `policy.trailing_hedges` entry **following** a numeric span is `VAGUE_METRIC`. "12+ services" and "40% or more" widen a number the metric records exactly.
   - Neither fires otherwise. "3x over the prior pipeline" compares; "over the weekend window" is a preposition with no number in sight. Checking presence rather than position blocked all three.
   - The computed years rendering `N+ years` is exempt from the **trailing** rule only, being code-generated from the role dates. A leading hedge on a computed value is still the model widening a number it was handed, so "over 6 years" is rejected.
+  - **Bounds are measurements.** A hedged phrase is legal when it appears **verbatim** in the `value` of a metric the bullet cites. A p95 latency recorded as `under 200ms` is a measured value whose form contains the word "under", and rewriting it as "200ms" would state something the measurement does not support. The comparison is the metric's exact text, case and spacing aside: "under 250ms" is a different claim and stays rejected, and the same phrase in a block citing nothing has nothing to stand on. With the computed years form, this is the only hedge exemption.
+- **Unquantified scale:** a `policy.vague_quantifiers` entry ("several", "numerous", "a handful of") modifying a countable noun, with no numeric span anywhere in the same clause, is rejected with `UNQUANTIFIED_SCALE`. It asserts a scale the evidence does not carry, and the retry fixes it by naming the number or dropping the word.
+  - A countable noun after a quantifier is a plural one, so a plural test is the whole countable test. A mass noun ("various tooling") asserts no count and does not fire.
+  - A preposition ends the quantifier's phrase. Without that boundary, "various tooling for order events" reaches past its own mass noun to a plural three tokens later and rejects a bullet claiming no scale at all.
+  - A number in the same clause excuses the quantifier, because the claim then carries its own quantity. That also settles the overlap with the vague magnitude words: "dozens of records" parses as a numeric span, so this rule stays quiet and the number gate rejects it as unsupported, which is what gate precedence already says.
 - **Form mismatch:** a value that matches a cited metric but not its form is `NUMBER_FORM_MISMATCH`, not `NUMBER_UNSUPPORTED`. Plain 3 against a multiplier of 3x, "three times" against "3x", "40 percent" against "40%". They are different defects: one means the model invented a number, the other means it has the right metric and rendered it wrong, and a retry told which form to use converges instead of guessing at a number it already has.
 - **Summary and skills:** no citation exists, so every number and every vague intensity word is rejected with `SUMMARY_NUMBER_UNCITED`, together with every duration hedge ("nearly", "almost", "over", "more than", "half a decade", "a decade").
   - The one exception is the computed-values registry below.
@@ -545,3 +550,19 @@ Three findings from the first adjudication were themselves adjudicated.
 **`NUMBER_FORM_MISMATCH` split from `NUMBER_UNSUPPORTED`.** An invented number and a correctly cited number in the wrong form are different defects and a retry should be told which.
 
 **`SCOPE_COHABITATION` requires two participants.** The guard immediately exposed a test of this project's own that had been passing for the wrong reason: it read "Kafka streams" as the product Kafka Streams, so its sentence held one confirmed technology, not two.
+
+### Round 3, preconditions
+
+Every rejection test now asserts its own input before it reads a verdict. `tests/preconditions.py` holds one predicate per code, computed from structural facts or from the raw text and never from a gate's answer, because "the gate fired, therefore its input was present" is circular and restores exactly the blind spot the module exists to remove. Ten codes gained a paired "does not fire" case: a gate with only a firing test is half specified, and one that rejected everything would pass it.
+
+### Round 4, fixture version 4
+
+**`UNQUANTIFIED_SCALE` added, truth bucket.** A quantifier standing where a count belongs asserts a scale the evidence does not carry. Two boundaries were needed to keep it from rejecting truthful text: a countable noun in that position is a plural one, and a preposition ends the quantifier's phrase. The second was found by a test of this project's own, which caught "various tooling for order events" being rejected because the reach ran past the mass noun it modified and landed on a plural three tokens later.
+
+**Bounds are measurements.** A hedged phrase a cited metric records verbatim is legal, and illegal everywhere else. Without it, a measured latency bound such as `under 200ms` could only be written by dropping the word that makes it true. It is the only hedge exemption besides the computed years form.
+
+**`WEAK_OPENING` was already style bucket, 1 retry.** Checked rather than changed: the table said so already, and a cosmetic edit that looked like work would have been the wrong answer.
+
+**The policy key is `vague_intensity_words`, not `intensity_words`.** Same four words, different name from the one the directive used.
+
+**Open, not decided: digits inside an identifier.** `p95` and `p99` label which measurement was taken rather than claiming a scale, but their digits parse as numbers and the only exemption the spec grants is for digits inside a matched taxonomy alias. A truthful latency bullet is rejected today. Pinned by a characterisation test rather than patched, because the remedy is a spec decision about identifier-internal digits.

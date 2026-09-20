@@ -1,5 +1,5 @@
 {
-  "fixture_version": 3,
+  "fixture_version": 4,
   "purpose": "Independent adversarial cases for the gate suite. Authored outside the session that wrote the gates. The harness must load the evidence block below instead of evidence/ so this file runs before the real evidence exists and never depends on it.",
   "rules_for_harness": [
     "Do not edit a case to make it pass. A failing case is a finding: report it.",
@@ -150,6 +150,12 @@
               "value": "3x",
               "what": "ingest throughput increase",
               "source": "recalled"
+            },
+            {
+              "id": "a-m3",
+              "value": "under 200ms",
+              "what": "p95 report query latency",
+              "source": "measured"
             }
           ]
         },
@@ -835,6 +841,32 @@
       "why": "Trailing hedge phrase widens a measured value."
     },
     {
+      "id": "n15",
+      "block": "bullet",
+      "role": "r_beta",
+      "text": "Migrated numerous services onto the new portal platform.",
+      "cites": {
+        "fact_ids": [
+          "b-f1"
+        ]
+      },
+      "expect": "reject",
+      "codes": [
+        "UNQUANTIFIED_SCALE"
+      ],
+      "why": "A quantifier standing where a count belongs, with no number in the clause."
+    },
+    {
+      "id": "n16",
+      "block": "summary",
+      "text": "Expert in PostgreSQL and .NET across data platforms.",
+      "expect": "reject",
+      "codes": [
+        "UNVERIFIABLE_LABEL"
+      ],
+      "why": "Expert in is a self-assessment no evidence can support or refute."
+    },
+    {
       "id": "f01",
       "block": "bullet",
       "role": "r_alpha",
@@ -1242,6 +1274,35 @@
       },
       "expect": "pass",
       "why": "Over with no number in sight is a preposition."
+    },
+    {
+      "id": "p15",
+      "block": "bullet",
+      "role": "r_alpha",
+      "text": "Tuned PostgreSQL indexes to hold p95 under 200ms.",
+      "cites": {
+        "fact_ids": [
+          "a-f2"
+        ],
+        "metric_ids": [
+          "a-m3"
+        ]
+      },
+      "expect": "pass",
+      "why": "The bound is the measurement: the metric records under 200ms verbatim."
+    },
+    {
+      "id": "p17",
+      "block": "bullet",
+      "role": "r_alpha",
+      "text": "Optimized report queries against the existing schema.",
+      "cites": {
+        "fact_ids": [
+          "a-f2"
+        ]
+      },
+      "expect": "pass",
+      "why": "American spelling folds to the listed optimised and raises no advisory."
     },
     {
       "id": "m01",

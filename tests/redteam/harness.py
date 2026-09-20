@@ -49,10 +49,10 @@ from app.models import BULLET, SKILLS_LINE, SUMMARY, Block, Document
 
 FIXTURE_PATH = Path(__file__).parent / "redteam_fixture.json"
 
-#: Asserted at load, fixture version 3. A fixture that grew or shrank silently
+#: Asserted at load, fixture version 4. A fixture that grew or shrank silently
 #: is a fixture whose coverage nobody is tracking.
-EXPECTED_TOTAL = 74
-EXPECTED_BY_EXPECT = {"reject": 57, "pass": 15, "report": 2}
+EXPECTED_TOTAL = 78
+EXPECTED_BY_EXPECT = {"reject": 59, "pass": 17, "report": 2}
 EXPECTED_MILESTONE_3 = 3
 
 #: Every key the harness understands. An unrecognised key is a hard error: the
@@ -170,7 +170,7 @@ KNOWN_FIXTURE_KEYS = frozenset(
     {"fixture_version", "amended_by", "purpose", "rules_for_harness", "evidence",
      "cases", "behavioural_checks"}
 )
-SUPPORTED_FIXTURE_VERSION = 3
+SUPPORTED_FIXTURE_VERSION = 4
 
 
 def load_fixture(path: Path = FIXTURE_PATH) -> dict[str, Any]:

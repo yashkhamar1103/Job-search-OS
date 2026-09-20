@@ -241,6 +241,16 @@ _ALL: tuple[CodeSpec, ...] = (
         "A vague intensity word implies a number that does not exist.",
     ),
     _spec(
+        "UNQUANTIFIED_SCALE",
+        Gate.G3,
+        Severity.REJECT,
+        Bucket.TRUTH,
+        Exhaustion.DROP,
+        "A vague quantifier modifies a countable noun with no number anywhere in "
+        "the same clause. It asserts a scale the evidence does not carry, and the "
+        "retry fixes it by naming the number or dropping the word.",
+    ),
+    _spec(
         "VERSION_UNSUPPORTED",
         Gate.G3,
         Severity.REJECT,

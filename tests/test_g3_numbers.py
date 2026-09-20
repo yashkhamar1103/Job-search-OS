@@ -138,6 +138,159 @@ def test_a_hedge_word_after_the_number_or_with_no_number_is_not_a_hedge(text, ct
     assert "VAGUE_METRIC" not in codes(result)
 
 
+def test_a_plus_inside_a_language_name_is_not_a_trailing_hedge(ctx):
+    """F1. C++ carries two plus signs and neither widens anything.
+
+    The bullet also carries a real number, so the hedge check is reached rather
+    than skipped for want of anything to hedge.
+    """
+    result = check_block(
+        bullet("Configured 40% of the C++ build pipeline.", metrics=("acme-m1",)), ctx
+    )
+    assert "VAGUE_METRIC" not in codes(result)
+
+
+def test_a_plus_attached_to_a_number_is_still_a_trailing_hedge(ctx):
+    """F2. The paired positive, so F1 cannot be satisfied by switching the
+    rule off."""
+    result = assert_rejects(bullet("Configured 12+ ingestion partitions."), ctx, "VAGUE_METRIC")
+    assert "VAGUE_METRIC" in codes(result)
+
+
+# ---------------------------------------------------------------------------
+# Bounds are measurements
+# ---------------------------------------------------------------------------
+
+
+def test_a_hedge_a_cited_metric_records_verbatim_is_legal(ctx):
+    """acme-m3 is recorded as "under 200ms". A latency bound is a measured
+    value whose form contains the word under, and rewriting it as 200ms would
+    claim something the measurement does not support."""
+    result = check_block(
+        bullet("Tuned the reporting queries to hold read latency under 200ms.", metrics=("acme-m3",)), ctx
+    )
+    assert "VAGUE_METRIC" not in codes(result)
+
+
+def test_the_same_hedge_with_a_different_number_is_still_rejected(ctx):
+    """The exemption is the metric's exact text, not the word under."""
+    result = assert_rejects(
+        bullet("Tuned the reporting queries to hold read latency under 250ms.", metrics=("acme-m3",)),
+        ctx,
+        "VAGUE_METRIC",
+    )
+    assert "VAGUE_METRIC" in codes(result)
+
+
+def test_the_hedge_exemption_needs_the_metric_to_be_cited(ctx):
+    """Legal where the metric says it, illegal everywhere else."""
+    result = assert_rejects(
+        bullet("Tuned the reporting queries to hold read latency under 200ms.", metrics=("acme-m1",)),
+        ctx,
+        "VAGUE_METRIC",
+    )
+    assert "VAGUE_METRIC" in codes(result)
+
+
+def test_a_different_hedge_on_the_same_metric_is_still_rejected(ctx):
+    """"roughly 200ms" is not what the metric records, so it widens it."""
+    result = assert_rejects(
+        bullet("Tuned the reporting queries to roughly 200ms.", metrics=("acme-m3",)),
+        ctx,
+        "VAGUE_METRIC",
+    )
+    assert "VAGUE_METRIC" in codes(result)
+
+
+def test_a_percentile_label_is_currently_read_as_a_number(ctx):
+    """Characterisation, not endorsement. Open question for Yash.
+
+    p95 and p99 are labels for which measurement was taken, not claims about
+    scale, but the digits inside them parse as a number like any other and the
+    only exemption the spec grants is for digits inside a matched taxonomy
+    alias. So a truthful latency bullet is rejected today, and the remedy is a
+    spec decision about identifier-internal digits, not a quiet edit here.
+    """
+    result = assert_rejects(
+        bullet("Tuned the reporting queries to hold p95 under 200ms.", metrics=("acme-m3",)),
+        ctx,
+        "NUMBER_UNSUPPORTED",
+    )
+    assert "NUMBER_UNSUPPORTED" in codes(result)
+    assert [r.span.text for r in result.rejections if r.code == "NUMBER_UNSUPPORTED"] == ["95"]
+
+
+def test_the_exemption_does_not_reach_a_block_with_no_citations(ctx):
+    """A summary cites nothing, so no metric can make a bound legal there."""
+    result = assert_rejects(summary("Backend engineer holding read latency under 200ms."), ctx, "UNCITED_NUMBER")
+    assert "UNCITED_NUMBER" in codes(result)
+
+
+# ---------------------------------------------------------------------------
+# Unquantified scale
+# ---------------------------------------------------------------------------
+
+
+@pytest.mark.parametrize(
+    "text",
+    [
+        "Configured numerous ingestion partitions for order events.",
+        "Configured several ingestion partitions for order events.",
+        "Configured a handful of ingestion partitions for order events.",
+    ],
+)
+def test_a_quantifier_with_no_number_in_the_clause_is_rejected(text, ctx):
+    result = assert_rejects(bullet(text), ctx, "UNQUANTIFIED_SCALE")
+    assert "UNQUANTIFIED_SCALE" in codes(result)
+
+
+def test_a_number_in_the_same_clause_excuses_the_quantifier(ctx):
+    """The claim then carries its own quantity, which G3 checks as a number."""
+    result = check_block(
+        bullet("Configured 40% of the several ingestion partitions.", metrics=("acme-m1",)), ctx
+    )
+    assert "UNQUANTIFIED_SCALE" not in codes(result)
+
+
+def test_a_number_in_a_different_clause_does_not_excuse_it(ctx):
+    """A number about something else is not the missing count."""
+    result = assert_rejects(
+        bullet("Cut latency by 40%, then tuned several ingestion partitions.", metrics=("acme-m1",)),
+        ctx,
+        "UNQUANTIFIED_SCALE",
+    )
+    assert "UNQUANTIFIED_SCALE" in codes(result)
+
+
+def test_a_quantifier_over_a_mass_noun_does_not_fire(ctx):
+    """"various tooling" asserts no count, so there is no count to be missing."""
+    result = check_block(bullet("Configured various tooling for order events."), ctx)
+    assert "UNQUANTIFIED_SCALE" not in codes(result)
+
+
+def test_a_plural_noun_with_no_quantifier_does_not_fire(ctx):
+    result = check_block(bullet("Configured the ingestion partitions for order events."), ctx)
+    assert "UNQUANTIFIED_SCALE" not in codes(result)
+
+
+def test_a_vague_magnitude_word_is_read_as_a_number_not_a_quantifier(ctx):
+    """"thousands of" is both a quantifier and a vague magnitude word. Gate
+    precedence gives the span to the number gate, which rejects it as
+    unsupported, so the claim is caught once rather than named twice."""
+    result = assert_rejects(bullet("Ingested thousands of records each day."), ctx, "NUMBER_UNSUPPORTED")
+    assert "NUMBER_UNSUPPORTED" in codes(result)
+    assert "UNQUANTIFIED_SCALE" not in codes(result)
+
+
+def test_a_quantifier_in_the_summary_is_rejected_too(ctx):
+    """The summary carries no citations at all, so a quantifier there has even
+    less to stand on than one in a bullet."""
+    result = assert_rejects(
+        summary("Backend engineer who built numerous data platforms."), ctx, "UNQUANTIFIED_SCALE"
+    )
+    assert "UNQUANTIFIED_SCALE" in codes(result)
+
+
 def test_number_words_are_extracted(ctx):
     result = assert_rejects(bullet("Configured three ingestion partitions."), ctx, "NUMBER_UNSUPPORTED")
     assert "NUMBER_UNSUPPORTED" in codes(result)

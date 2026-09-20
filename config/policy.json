@@ -30,7 +30,17 @@
     "duties included",
     "in charge of",
     "leveraged",
-    "worked"
+    "worked",
+    "supported",
+    "aided",
+    "served as",
+    "acted as",
+    "engaged in",
+    "took part in",
+    "used",
+    "exposure to",
+    "familiar with",
+    "gained experience"
   ],
   "opening_verbs": [
     "built",
@@ -131,7 +141,24 @@
     "batched",
     "cached",
     "versioned",
-    "seeded"
+    "seeded",
+    "provisioned",
+    "configured",
+    "packaged",
+    "published",
+    "replicated",
+    "paginated",
+    "sanitised",
+    "parallelised",
+    "bootstrapped",
+    "reconciled",
+    "extracted",
+    "transformed",
+    "loaded",
+    "failed over",
+    "rolled back",
+    "archived",
+    "purged"
   ],
   "be_have_openers": [
     "was",
@@ -259,9 +286,29 @@
     "rockstar",
     "ninja",
     "guru",
-    "passionate about technology",
+    "passionate about",
     "extensive experience",
-    "deep expertise"
+    "deep expertise",
+    "expert in",
+    "expert at",
+    "well-versed",
+    "adept at",
+    "versatile",
+    "innovative",
+    "dynamic",
+    "strategic thinker",
+    "excellent communicator",
+    "strong communicator",
+    "fast learner",
+    "quick learner",
+    "hit the ground running",
+    "wear many hats",
+    "proven ability",
+    "demonstrated ability",
+    "exceptional",
+    "outstanding",
+    "top-tier",
+    "go-to person"
   ],
   "title_nouns": [
     "engineer",
@@ -277,7 +324,11 @@
     "specialist",
     "officer",
     "designer",
-    "programmer"
+    "programmer",
+    "owner",
+    "technologist",
+    "strategist",
+    "advisor"
   ],
   "title_modifiers": [
     "senior",
@@ -298,7 +349,20 @@
     "frontend",
     "platform",
     "cloud",
-    "systems"
+    "systems",
+    "sr",
+    "jr",
+    "vp",
+    "technical",
+    "enterprise",
+    "devops",
+    "security",
+    "mobile",
+    "web",
+    "database",
+    "integration",
+    "machine learning",
+    "ai"
   ],
   "leading_hedges": [
     "roughly",
@@ -319,7 +383,13 @@
     "in excess of",
     "north of",
     "circa",
-    "~"
+    "~",
+    "just over",
+    "just under",
+    "close to",
+    "in the region of",
+    "as many as",
+    "as much as"
   ],
   "trailing_hedges": [
     "or more",
@@ -329,6 +399,28 @@
     "plus",
     "and up",
     "and change",
-    "+"
+    "+",
+    "or thereabouts",
+    "give or take",
+    "odd",
+    "ish"
+  ],
+  "vague_quantifiers": [
+    "several",
+    "numerous",
+    "multiple",
+    "many",
+    "various",
+    "countless",
+    "myriad",
+    "dozens of",
+    "hundreds of",
+    "thousands of",
+    "a number of",
+    "a range of",
+    "a variety of",
+    "a handful of",
+    "large number of",
+    "significant number of"
   ]
 }

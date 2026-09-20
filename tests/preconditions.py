@@ -173,6 +173,35 @@ def _vague_input(f: Facts) -> tuple[bool, str]:
     )
 
 
+def _quantifier_and_plural_noun(f: Facts) -> tuple[bool, str]:
+    """A quantifier from policy, with a plural noun inside its reach.
+
+    Both halves, because either alone is a different input: "several" with no
+    noun after it modifies nothing, and a plural noun with no quantifier is
+    ordinary prose.
+    """
+    from app.gates.g3_numbers import _QUANTIFIER_REACH, _is_plural_noun
+
+    quantifiers = f.ctx.bundle.policy.list_of("vague_quantifiers")
+    hits = [q for q in quantifiers if f.has_phrase(q)]
+    if not hits:
+        return False, f"no quantifier from policy.vague_quantifiers in {f.text!r}"
+
+    tokens = f.analysis.tokens
+    for quantifier in hits:
+        wanted = token_texts(quantifier)
+        for i in range(0, max(0, len(tokens) - len(wanted) + 1)):
+            if tuple(t.folded for t in tokens[i : i + len(wanted)]) != wanted:
+                continue
+            window = tokens[i + len(wanted) : i + len(wanted) + _QUANTIFIER_REACH]
+            if any(_is_plural_noun(t, f.ctx) for t in window):
+                return True, ""
+    return False, (
+        f"{hits} appears in {f.text!r} but no plural noun follows within "
+        f"{_QUANTIFIER_REACH} tokens, so nothing countable is being quantified"
+    )
+
+
 def _version_shaped(f: Facts) -> tuple[bool, str]:
     for start, _end in f.analysis.numeric_spans:
         for match in f.analysis.matches:
@@ -328,6 +357,7 @@ PRECONDITIONS = {
     "NUMBER_FORM_MISMATCH": _numeric_span,
     "UNCITED_NUMBER": _uncited_block,
     "VAGUE_METRIC": _vague_input,
+    "UNQUANTIFIED_SCALE": _quantifier_and_plural_noun,
     "VERSION_UNSUPPORTED": _version_shaped,
     "CITATION_MISSING": _is_bullet,
     "CITATION_UNKNOWN": _cites_something,

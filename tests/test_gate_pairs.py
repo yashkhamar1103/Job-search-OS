@@ -178,6 +178,23 @@ def test_a_single_capitalised_word_is_not_a_title_claim(ctx):
     )
 
 
+def test_unquantified_scale_pair(ctx):
+    assert_rejects(
+        bullet("Configured numerous ingestion partitions."), ctx, "UNQUANTIFIED_SCALE"
+    )
+    assert_does_not_reject(
+        bullet("Configured the ingestion partitions."), ctx, "UNQUANTIFIED_SCALE"
+    )
+
+
+def test_unquantified_scale_does_not_fire_when_the_clause_carries_its_number(ctx):
+    assert_does_not_reject(
+        bullet("Configured 40% of the several ingestion partitions.", metrics=("acme-m1",)),
+        ctx,
+        "UNQUANTIFIED_SCALE",
+    )
+
+
 def test_client_name_pair(bundle):
     blocked = context_for(with_policy(bundle, client_blocklist=["Northwind Traders"]))
     assert_rejects(bullet("Configured the path for Northwind Traders."), blocked, "CLIENT_NAME")

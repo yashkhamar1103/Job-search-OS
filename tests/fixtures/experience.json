@@ -33,6 +33,13 @@
           "what": "records processed per day at peak",
           "source": "recalled",
           "note": "Fictional. Remembered, not measured, so it caps its bullet at Thin."
+        },
+        {
+          "id": "acme-m3",
+          "value": "under 200ms",
+          "what": "p99 read latency on the reporting queries",
+          "source": "measured",
+          "note": "Fictional. A bound is what the measurement produced, so the word under is part of the value."
         }
       ]
     },

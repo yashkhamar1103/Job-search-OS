@@ -10,7 +10,7 @@
     "proficiency_qualifiers", "duration_hedges", "ambiguous_acronyms",
     "client_blocklist", "location_allowlist", "default_location",
     "permanently_denied_ids", "unverifiable_labels", "title_nouns",
-    "title_modifiers", "leading_hedges", "trailing_hedges",
+    "title_modifiers", "leading_hedges", "trailing_hedges", "vague_quantifiers",
     "max_bullets_per_role", "jd_copy_ngram", "max_pages", "retry_limits",
     "cooling_off_hours", "fit_threshold", "fit_ceiling_divergence_points",
     "number_coverage_min", "number_coverage_target", "model_id",
@@ -37,6 +37,10 @@
     "leading_hedges": {
       "$ref": "#/$defs/phrase_list",
       "description": "Hedges that modify a number only when they precede it. Position is what distinguishes a hedge from a preposition: 'over 6 years' hedges, '3x over the prior pipeline' compares."
+    },
+    "vague_quantifiers": {
+      "$ref": "#/$defs/phrase_list",
+      "description": "Words asserting scale without a number. Rejected when they modify a countable noun and no numeric span sits in the same clause: the retry fixes it by naming the number or dropping the word."
     },
     "trailing_hedges": {
       "$ref": "#/$defs/phrase_list",
