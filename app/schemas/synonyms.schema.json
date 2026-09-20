@@ -1,0 +1,39 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "synonyms.schema.json",
+  "title": "evidence/synonyms.json",
+  "description": "Approved vocabulary translations. This file resolves the tension between using the employer's exact terminology and only claiming what the evidence supports. Only an entry here lets a JD term appear in output when the literal term is absent from the evidence. The model cannot add entries.",
+  "type": "object",
+  "required": ["schema_version", "translations"],
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {"const": 1},
+    "_note": {"type": "string"},
+    "translations": {"type": "array", "items": {"$ref": "#/$defs/translation"}}
+  },
+  "$defs": {
+    "translation": {
+      "type": "object",
+      "required": ["jd_term", "evidence_term", "approved_by_yash", "added"],
+      "additionalProperties": false,
+      "properties": {
+        "jd_term": {
+          "type": "string",
+          "minLength": 1,
+          "description": "The employer's wording, for example RESTful microservices."
+        },
+        "evidence_term": {
+          "type": "string",
+          "minLength": 1,
+          "description": "The wording in the evidence that this JD term describes. Becomes part of the evidence corpus, so it is what makes the JD term permissible in output."
+        },
+        "scope_note": {"type": "string"},
+        "approved_by_yash": {
+          "const": true,
+          "description": "Present and true on every entry. The field exists so that an entry added by anything other than a deliberate hand edit is invalid rather than merely suspicious."
+        },
+        "added": {"type": "string", "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$"}
+      }
+    }
+  }
+}

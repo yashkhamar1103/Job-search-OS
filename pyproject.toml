@@ -1,0 +1,24 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "resume-tailoring-system"
+version = "0.1.0"
+description = "Evidence-gated CV tailoring. Milestone 1: gates and tests."
+requires-python = ">=3.11"
+dependencies = [
+    "reportlab==5.0.1",
+    "jsonschema==4.26.0",
+]
+
+[tool.setuptools]
+packages = ["app", "app.gates", "app.cli"]
+
+[tool.setuptools.package-data]
+app = ["schemas/*.json"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
+filterwarnings = ["error::DeprecationWarning:app.*"]

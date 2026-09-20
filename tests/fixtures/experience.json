@@ -1,0 +1,70 @@
+{
+  "schema_version": 1,
+  "_note": "Test fixture. Fictional employers and fictional facts. Nothing here is a claim about Yash.",
+  "roles": [
+    {
+      "id": "acme",
+      "employer": "Acme Fictional Systems",
+      "title": "Backend Engineer",
+      "start": "2022-06",
+      "end": "2024-05",
+      "location": "Toronto",
+      "facts": [
+        {
+          "id": "acme-f1",
+          "text": "Wrote the serverless ingestion platform that replaced a nightly batch job with an event driven flow."
+        },
+        {
+          "id": "acme-f2",
+          "text": "Wrote Kafka producers that published order events onto an existing cluster."
+        }
+      ],
+      "metrics": [
+        {
+          "id": "acme-m1",
+          "value": "40%",
+          "what": "reduction in end to end ingestion latency",
+          "source": "measured",
+          "note": "Fictional. Taken from the dashboard before and after cutover."
+        },
+        {
+          "id": "acme-m2",
+          "value": "2.5M records",
+          "what": "records processed per day at peak",
+          "source": "recalled",
+          "note": "Fictional. Remembered, not measured, so it caps its bullet at Thin."
+        },
+        {
+          "id": "acme-m3",
+          "value": "under 200ms",
+          "what": "p99 read latency on the reporting queries",
+          "source": "measured",
+          "note": "Fictional. A bound is what the measurement produced, so the word under is part of the value."
+        }
+      ]
+    },
+    {
+      "id": "bolt",
+      "employer": "Bolt Fictional Labs",
+      "title": "Software Engineer",
+      "start": "2024-06",
+      "end": "2026-03",
+      "location": "Remote, Canada",
+      "facts": [
+        {
+          "id": "bolt-f1",
+          "text": "Wrote the reporting service and operated the database behind it."
+        }
+      ],
+      "metrics": [
+        {
+          "id": "bolt-m1",
+          "value": "3x",
+          "what": "improvement in report generation throughput",
+          "source": "measured",
+          "note": "Fictional. Benchmarked before and after."
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "_note": "TEMPLATE, NOT EVIDENCE. Obviously fake. An entry here lets an employer's wording appear in output when the literal term is absent from the evidence. It never unlocks a technology: G1's taxonomy check runs independently, so a synonym pointing at an unconfirmed or denied canonical id is still rejected. The model cannot add entries.",
+  "translations": [
+    {
+      "jd_term": "fake employer wording",
+      "evidence_term": "the wording actually used in experience.json",
+      "scope_note": "Why these describe the same real work.",
+      "approved_by_yash": true,
+      "added": "2025-01-01"
+    }
+  ]
+}

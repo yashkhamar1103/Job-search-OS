@@ -1,0 +1,24 @@
+{
+  "schema_version": 1,
+  "_note": "British to American spellings that the -ise and -yse rules in app.normalise do not cover. One config entry therefore covers both spellings, as required, without a doubled-consonant rule. A doubled-consonant rule is not used because it would fold filled to filed, colliding two distinct verbs.",
+  "variants": {
+    "modelled": "modeled",
+    "modelling": "modeling",
+    "cancelled": "canceled",
+    "labelled": "labeled",
+    "signalled": "signaled",
+    "travelled": "traveled",
+    "catalogued": "cataloged",
+    "programmed": "programmed",
+    "benefitted": "benefited",
+    "focussed": "focused",
+    "licenced": "licensed",
+    "practised": "practiced",
+    "enrolled": "enrolled",
+    "fulfilled": "fulfilled",
+    "instilled": "instilled",
+    "totalled": "totaled",
+    "levelled": "leveled",
+    "fuelled": "fueled"
+  }
+}

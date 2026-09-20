@@ -1,0 +1,45 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "taxonomy.schema.json",
+  "title": "vocab/taxonomy.json",
+  "description": "Known technology vocabulary. Not an evidence file: it holds no claim about what Yash has done, only what each term is called. It lives in vocab/ so that evidence/ contains nothing but ledger.json, experience.json, and synonyms.json.",
+  "type": "object",
+  "required": ["schema_version", "technologies"],
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {"const": 1},
+    "_note": {"type": "string"},
+    "technologies": {
+      "type": "object",
+      "minProperties": 1,
+      "propertyNames": {"type": "string", "pattern": "^[a-z][a-z0-9_]*$"},
+      "additionalProperties": {
+        "type": "object",
+        "required": ["display", "category", "aliases"],
+        "additionalProperties": false,
+        "properties": {
+          "display": {"type": "string", "minLength": 1},
+          "parent": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9_]*$",
+            "description": "The platform this is a sub-service of. G2's services check needs it: without a parent link there is no way to tell that Lambda is a sub-service of AWS, and a bullet naming a service the ledger never listed would pass. The loader checks the parent exists and that no entry is its own ancestor."
+          },
+          "category": {
+            "enum": [
+              "ai", "cloud", "data", "database", "messaging", "language",
+              "backend", "frontend", "devops", "observability", "testing",
+              "security", "bi", "integration", "methodology", "mobile",
+              "os", "gis"
+            ]
+          },
+          "aliases": {
+            "type": "array",
+            "minItems": 1,
+            "uniqueItems": true,
+            "items": {"type": "string", "minLength": 1}
+          }
+        }
+      }
+    }
+  }
+}

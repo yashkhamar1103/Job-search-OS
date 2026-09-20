@@ -1,0 +1,7 @@
+-r requirements.txt
+
+pytest==9.1.1
+
+# Build-time only. Used by tools/build_wordlist.py to regenerate
+# vocab/wordlist_en.txt. Not imported by app/ and not needed at runtime.
+wordfreq==3.1.1

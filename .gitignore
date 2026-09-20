@@ -1,0 +1,19 @@
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.coverage
+htmlcov/
+*.egg-info/
+build/
+dist/
+
+.env
+.env.local
+
+# Run artefacts. Never committed.
+runs/
+out/
+
+# Generated review artefacts are committed on purpose, so they are not listed
+# here. See review/README.md.

@@ -1,0 +1,75 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "ledger.schema.json",
+  "title": "evidence/ledger.json",
+  "type": "object",
+  "required": ["schema_version", "technologies"],
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {"const": 1},
+    "_note": {"type": "string"},
+    "technologies": {
+      "type": "object",
+      "propertyNames": {"$ref": "#/$defs/canonical_id"},
+      "additionalProperties": {"$ref": "#/$defs/entry"}
+    }
+  },
+  "$defs": {
+    "canonical_id": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9_]*$",
+      "description": "Must also exist in vocab/taxonomy.json. Enforced by the loader, not by this schema."
+    },
+    "date": {"type": "string", "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$"},
+    "entry": {
+      "type": "object",
+      "required": ["state"],
+      "additionalProperties": false,
+      "properties": {
+        "state": {"enum": ["confirmed", "unconfirmed", "denied"]},
+        "depth": {
+          "enum": ["built", "used", "exposure"],
+          "description": "built: designed it or wrote it. used: configured, integrated, or operated it. exposure: worked on a system that had it."
+        },
+        "contexts": {
+          "type": "array",
+          "items": {"type": "string"},
+          "description": "Role ids from experience.json. A confirmed technology under any other role is rejected."
+        },
+        "scope_note": {
+          "type": "string",
+          "description": "Free text. Cannot be enforced in code. Shown next to the bullet in Step 4 for human review."
+        },
+        "versions": {"type": "array", "items": {"type": "string"}},
+        "services": {
+          "type": "array",
+          "items": {"type": "string"},
+          "description": "For platforms. Any sub-service a bullet names must be in this list."
+        },
+        "evidence": {"type": "string"},
+        "added": {"$ref": "#/$defs/date"},
+        "origin": {"enum": ["unprompted", "after_gap"]}
+      },
+      "allOf": [
+        {
+          "if": {"properties": {"state": {"const": "confirmed"}}, "required": ["state"]},
+          "then": {
+            "required": ["depth", "contexts", "evidence", "added", "origin"],
+            "properties": {
+              "contexts": {"minItems": 1},
+              "evidence": {"minLength": 1}
+            },
+            "description": "A confirmed entry may reach output, so it must say how deeply, where, what proves it, when it was added, and whether it followed a gap."
+          }
+        },
+        {
+          "if": {"properties": {"state": {"enum": ["unconfirmed", "denied"]}}, "required": ["state"]},
+          "then": {
+            "not": {"anyOf": [{"required": ["depth"]}, {"required": ["contexts"]}, {"required": ["services"]}]},
+            "description": "An entry that cannot reach output must not carry depth, contexts, or services. Those fields would be claims with no gate reading them."
+          }
+        }
+      ]
+    }
+  }
+}

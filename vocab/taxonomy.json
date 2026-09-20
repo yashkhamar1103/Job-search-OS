@@ -1,0 +1,2640 @@
+{
+  "schema_version": 1,
+  "_note": "Known technology vocabulary. Deliberately much larger than the ledger: it lists technologies Yash does not have, because a term the taxonomy does not know cannot be classified and G1 cannot reject it by name. Historical and current product names are both listed, because renames defeat naive matching. A canonical id here that is absent from evidence/ledger.json is treated as unconfirmed for gating, and is never suggested as a gap to verify. Hyphenated spellings are not listed separately: a hyphen is not a token character, so retrieval-augmented and retrieval augmented already match the same alias.",
+  "technologies": {
+    "azure_openai": {
+      "display": "Azure OpenAI Service",
+      "category": "ai",
+      "parent": "azure",
+      "aliases": [
+        "Azure OpenAI Service",
+        "Azure OpenAI",
+        "AOAI",
+        "Azure Open AI"
+      ]
+    },
+    "semantic_kernel": {
+      "display": "Semantic Kernel",
+      "category": "ai",
+      "aliases": [
+        "Semantic Kernel",
+        "SK",
+        "Microsoft Semantic Kernel"
+      ]
+    },
+    "azure_ai_foundry": {
+      "display": "Azure AI Foundry",
+      "category": "ai",
+      "parent": "azure",
+      "aliases": [
+        "Azure AI Foundry",
+        "AI Foundry",
+        "Azure AI Studio",
+        "Microsoft Foundry",
+        "Azure Foundry"
+      ]
+    },
+    "azure_ai_search": {
+      "display": "Azure AI Search",
+      "category": "ai",
+      "parent": "azure",
+      "aliases": [
+        "Azure AI Search",
+        "Azure Cognitive Search",
+        "Cognitive Search",
+        "Azure Search",
+        "AI Search"
+      ]
+    },
+    "mcp": {
+      "display": "Model Context Protocol",
+      "category": "ai",
+      "aliases": [
+        "MCP",
+        "Model Context Protocol"
+      ]
+    },
+    "rag": {
+      "display": "Retrieval Augmented Generation",
+      "category": "ai",
+      "aliases": [
+        "RAG",
+        "Retrieval Augmented Generation"
+      ]
+    },
+    "openai": {
+      "display": "OpenAI",
+      "category": "ai",
+      "aliases": [
+        "OpenAI",
+        "OpenAI API",
+        "GPT-4",
+        "GPT-4o",
+        "GPT-3.5",
+        "ChatGPT"
+      ]
+    },
+    "anthropic_claude": {
+      "display": "Anthropic Claude",
+      "category": "ai",
+      "aliases": [
+        "Claude",
+        "Anthropic",
+        "Anthropic Claude",
+        "Claude API"
+      ]
+    },
+    "langchain": {
+      "display": "LangChain",
+      "category": "ai",
+      "aliases": [
+        "LangChain"
+      ]
+    },
+    "llamaindex": {
+      "display": "LlamaIndex",
+      "category": "ai",
+      "aliases": [
+        "LlamaIndex",
+        "GPT Index"
+      ]
+    },
+    "azure_ml": {
+      "display": "Azure Machine Learning",
+      "category": "ai",
+      "parent": "azure",
+      "aliases": [
+        "Azure Machine Learning",
+        "Azure ML",
+        "AzureML",
+        "Azure Machine Learning Studio"
+      ]
+    },
+    "azure_cognitive_services": {
+      "display": "Azure Cognitive Services",
+      "category": "ai",
+      "parent": "azure",
+      "aliases": [
+        "Azure Cognitive Services",
+        "Cognitive Services",
+        "Azure AI Services"
+      ]
+    },
+    "aws_bedrock": {
+      "display": "Amazon Bedrock",
+      "category": "ai",
+      "parent": "aws",
+      "aliases": [
+        "Amazon Bedrock",
+        "AWS Bedrock",
+        "Bedrock"
+      ]
+    },
+    "aws_sagemaker": {
+      "display": "Amazon SageMaker",
+      "category": "ai",
+      "parent": "aws",
+      "aliases": [
+        "Amazon SageMaker",
+        "AWS SageMaker",
+        "SageMaker"
+      ]
+    },
+    "vertex_ai": {
+      "display": "Vertex AI",
+      "category": "ai",
+      "parent": "gcp",
+      "aliases": [
+        "Vertex AI",
+        "Google Vertex AI"
+      ]
+    },
+    "hugging_face": {
+      "display": "Hugging Face",
+      "category": "ai",
+      "aliases": [
+        "Hugging Face",
+        "HuggingFace"
+      ]
+    },
+    "pytorch": {
+      "display": "PyTorch",
+      "category": "ai",
+      "aliases": [
+        "PyTorch"
+      ]
+    },
+    "tensorflow": {
+      "display": "TensorFlow",
+      "category": "ai",
+      "aliases": [
+        "TensorFlow"
+      ]
+    },
+    "keras": {
+      "display": "Keras",
+      "category": "ai",
+      "aliases": [
+        "Keras"
+      ]
+    },
+    "scikit_learn": {
+      "display": "scikit-learn",
+      "category": "ai",
+      "aliases": [
+        "scikit-learn",
+        "sklearn"
+      ]
+    },
+    "pandas_lib": {
+      "display": "pandas",
+      "category": "ai",
+      "aliases": [
+        "pandas"
+      ]
+    },
+    "numpy": {
+      "display": "NumPy",
+      "category": "ai",
+      "aliases": [
+        "NumPy"
+      ]
+    },
+    "spacy": {
+      "display": "spaCy",
+      "category": "ai",
+      "aliases": [
+        "spaCy"
+      ]
+    },
+    "nltk": {
+      "display": "NLTK",
+      "category": "ai",
+      "aliases": [
+        "NLTK"
+      ]
+    },
+    "pinecone": {
+      "display": "Pinecone",
+      "category": "ai",
+      "aliases": [
+        "Pinecone"
+      ]
+    },
+    "weaviate": {
+      "display": "Weaviate",
+      "category": "ai",
+      "aliases": [
+        "Weaviate"
+      ]
+    },
+    "chroma_db": {
+      "display": "ChromaDB",
+      "category": "ai",
+      "aliases": [
+        "ChromaDB",
+        "Chroma DB"
+      ]
+    },
+    "faiss": {
+      "display": "FAISS",
+      "category": "ai",
+      "aliases": [
+        "FAISS"
+      ]
+    },
+    "qdrant": {
+      "display": "Qdrant",
+      "category": "ai",
+      "aliases": [
+        "Qdrant"
+      ]
+    },
+    "milvus": {
+      "display": "Milvus",
+      "category": "ai",
+      "aliases": [
+        "Milvus"
+      ]
+    },
+    "vector_database": {
+      "display": "vector database",
+      "category": "ai",
+      "aliases": [
+        "vector database",
+        "vector store",
+        "vector DB"
+      ]
+    },
+    "prompt_engineering": {
+      "display": "prompt engineering",
+      "category": "ai",
+      "aliases": [
+        "prompt engineering"
+      ]
+    },
+    "fine_tuning": {
+      "display": "fine-tuning",
+      "category": "ai",
+      "aliases": [
+        "fine-tuning"
+      ]
+    },
+    "llm": {
+      "display": "large language model",
+      "category": "ai",
+      "aliases": [
+        "LLM",
+        "large language model"
+      ]
+    },
+    "embeddings": {
+      "display": "embeddings",
+      "category": "ai",
+      "aliases": [
+        "embeddings",
+        "text embeddings"
+      ]
+    },
+    "mlops": {
+      "display": "MLOps",
+      "category": "ai",
+      "aliases": [
+        "MLOps"
+      ]
+    },
+    "mlflow": {
+      "display": "MLflow",
+      "category": "ai",
+      "aliases": [
+        "MLflow"
+      ]
+    },
+    "azure": {
+      "display": "Microsoft Azure",
+      "category": "cloud",
+      "aliases": [
+        "Azure",
+        "Microsoft Azure"
+      ]
+    },
+    "azure_functions": {
+      "display": "Azure Functions",
+      "category": "cloud",
+      "parent": "azure",
+      "aliases": [
+        "Azure Functions",
+        "Azure Function App"
+      ]
+    },
+    "azure_app_service": {
+      "display": "Azure App Service",
+      "category": "cloud",
+      "parent": "azure",
+      "aliases": [
+        "Azure App Service",
+        "App Service"
+      ]
+    },
+    "azure_aks": {
+      "display": "Azure Kubernetes Service",
+      "category": "cloud",
+      "parent": "azure",
+      "aliases": [
+        "Azure Kubernetes Service",
+        "AKS"
+      ]
+    },
+    "azure_devops": {
+      "display": "Azure DevOps",
+      "category": "devops",
+      "aliases": [
+        "Azure DevOps",
+        "Azure Pipelines",
+        "Azure Repos",
+        "Azure Boards",
+        "VSTS",
+        "Team Foundation Server",
+        "TFS"
+      ]
+    },
+    "azure_data_factory": {
+      "display": "Azure Data Factory",
+      "category": "data",
+      "parent": "azure",
+      "aliases": [
+        "Azure Data Factory",
+        "ADF"
+      ]
+    },
+    "azure_databricks": {
+      "display": "Azure Databricks",
+      "category": "data",
+      "parent": "azure",
+      "aliases": [
+        "Azure Databricks"
+      ]
+    },
+    "databricks": {
+      "display": "Databricks",
+      "category": "data",
+      "aliases": [
+        "Databricks"
+      ]
+    },
+    "azure_synapse": {
+      "display": "Azure Synapse Analytics",
+      "category": "data",
+      "parent": "azure",
+      "aliases": [
+        "Azure Synapse Analytics",
+        "Azure Synapse",
+        "Synapse",
+        "SQL Data Warehouse"
+      ]
+    },
+    "azure_sql": {
+      "display": "Azure SQL Database",
+      "category": "database",
+      "parent": "azure",
+      "aliases": [
+        "Azure SQL Database",
+        "Azure SQL"
+      ]
+    },
+    "cosmos_db": {
+      "display": "Azure Cosmos DB",
+      "category": "database",
+      "parent": "azure",
+      "aliases": [
+        "Azure Cosmos DB",
+        "Cosmos DB",
+        "CosmosDB",
+        "DocumentDB"
+      ]
+    },
+    "azure_blob_storage": {
+      "display": "Azure Blob Storage",
+      "category": "cloud",
+      "parent": "azure",
+      "aliases": [
+        "Azure Blob Storage",
+        "Blob Storage",
+        "Azure Storage Account"
+      ]
+    },
+    "azure_data_lake": {
+      "display": "Azure Data Lake Storage",
+      "category": "data",
+      "parent": "azure",
+      "aliases": [
+        "Azure Data Lake Storage",
+        "Azure Data Lake",
+        "ADLS"
+      ]
+    },
+    "azure_service_bus": {
+      "display": "Azure Service Bus",
+      "category": "messaging",
+      "parent": "azure",
+      "aliases": [
+        "Azure Service Bus",
+        "Service Bus"
+      ]
+    },
+    "azure_event_hubs": {
+      "display": "Azure Event Hubs",
+      "category": "messaging",
+      "parent": "azure",
+      "aliases": [
+        "Azure Event Hubs",
+        "Event Hubs"
+      ]
+    },
+    "azure_event_grid": {
+      "display": "Azure Event Grid",
+      "category": "messaging",
+      "parent": "azure",
+      "aliases": [
+        "Azure Event Grid",
+        "Event Grid"
+      ]
+    },
+    "azure_key_vault": {
+      "display": "Azure Key Vault",
+      "category": "security",
+      "parent": "azure",
+      "aliases": [
+        "Azure Key Vault",
+        "Key Vault"
+      ]
+    },
+    "azure_monitor": {
+      "display": "Azure Monitor",
+      "category": "observability",
+      "parent": "azure",
+      "aliases": [
+        "Azure Monitor"
+      ]
+    },
+    "application_insights": {
+      "display": "Application Insights",
+      "category": "observability",
+      "parent": "azure",
+      "aliases": [
+        "Application Insights",
+        "App Insights"
+      ]
+    },
+    "azure_logic_apps": {
+      "display": "Azure Logic Apps",
+      "category": "integration",
+      "parent": "azure",
+      "aliases": [
+        "Azure Logic Apps",
+        "Logic Apps"
+      ]
+    },
+    "azure_api_management": {
+      "display": "Azure API Management",
+      "category": "integration",
+      "parent": "azure",
+      "aliases": [
+        "Azure API Management",
+        "APIM"
+      ]
+    },
+    "entra_id": {
+      "display": "Microsoft Entra ID",
+      "category": "security",
+      "parent": "azure",
+      "aliases": [
+        "Microsoft Entra ID",
+        "Entra ID",
+        "Entra",
+        "Azure Active Directory",
+        "Azure AD",
+        "AAD"
+      ]
+    },
+    "azure_managed_identity": {
+      "display": "Azure managed identity",
+      "category": "security",
+      "parent": "azure",
+      "aliases": [
+        "managed identity",
+        "Azure Managed Identity"
+      ]
+    },
+    "azure_container_apps": {
+      "display": "Azure Container Apps",
+      "category": "cloud",
+      "parent": "azure",
+      "aliases": [
+        "Azure Container Apps",
+        "ACA"
+      ]
+    },
+    "azure_container_registry": {
+      "display": "Azure Container Registry",
+      "category": "cloud",
+      "parent": "azure",
+      "aliases": [
+        "Azure Container Registry",
+        "ACR"
+      ]
+    },
+    "azure_static_web_apps": {
+      "display": "Azure Static Web Apps",
+      "category": "cloud",
+      "parent": "azure",
+      "aliases": [
+        "Azure Static Web Apps"
+      ]
+    },
+    "azure_front_door": {
+      "display": "Azure Front Door",
+      "category": "cloud",
+      "parent": "azure",
+      "aliases": [
+        "Azure Front Door",
+        "Front Door"
+      ]
+    },
+    "azure_cdn": {
+      "display": "Azure CDN",
+      "category": "cloud",
+      "parent": "azure",
+      "aliases": [
+        "Azure CDN"
+      ]
+    },
+    "azure_stream_analytics": {
+      "display": "Azure Stream Analytics",
+      "category": "data",
+      "parent": "azure",
+      "aliases": [
+        "Azure Stream Analytics",
+        "Stream Analytics"
+      ]
+    },
+    "purview": {
+      "display": "Microsoft Purview",
+      "category": "data",
+      "aliases": [
+        "Microsoft Purview",
+        "Azure Purview",
+        "Purview"
+      ]
+    },
+    "power_bi": {
+      "display": "Power BI",
+      "category": "bi",
+      "aliases": [
+        "Power BI",
+        "PowerBI"
+      ]
+    },
+    "power_automate": {
+      "display": "Power Automate",
+      "category": "integration",
+      "aliases": [
+        "Power Automate",
+        "Microsoft Flow"
+      ]
+    },
+    "power_apps": {
+      "display": "Power Apps",
+      "category": "integration",
+      "aliases": [
+        "Power Apps",
+        "PowerApps"
+      ]
+    },
+    "microsoft_fabric": {
+      "display": "Microsoft Fabric",
+      "category": "data",
+      "aliases": [
+        "Microsoft Fabric"
+      ]
+    },
+    "bicep": {
+      "display": "Bicep",
+      "category": "devops",
+      "aliases": [
+        "Bicep",
+        "Azure Bicep"
+      ]
+    },
+    "arm_templates": {
+      "display": "ARM templates",
+      "category": "devops",
+      "aliases": [
+        "ARM templates",
+        "Azure Resource Manager"
+      ]
+    },
+    "aws": {
+      "display": "Amazon Web Services",
+      "category": "cloud",
+      "aliases": [
+        "AWS",
+        "Amazon Web Services"
+      ]
+    },
+    "aws_lambda": {
+      "display": "AWS Lambda",
+      "category": "cloud",
+      "parent": "aws",
+      "aliases": [
+        "AWS Lambda",
+        "Lambda"
+      ]
+    },
+    "aws_s3": {
+      "display": "Amazon S3",
+      "category": "cloud",
+      "parent": "aws",
+      "aliases": [
+        "Amazon S3",
+        "AWS S3",
+        "S3"
+      ]
+    },
+    "dynamodb": {
+      "display": "Amazon DynamoDB",
+      "category": "database",
+      "parent": "aws",
+      "aliases": [
+        "Amazon DynamoDB",
+        "DynamoDB"
+      ]
+    },
+    "aws_api_gateway": {
+      "display": "Amazon API Gateway",
+      "category": "cloud",
+      "parent": "aws",
+      "aliases": [
+        "Amazon API Gateway",
+        "AWS API Gateway",
+        "API Gateway"
+      ]
+    },
+    "cloudwatch": {
+      "display": "Amazon CloudWatch",
+      "category": "observability",
+      "parent": "aws",
+      "aliases": [
+        "Amazon CloudWatch",
+        "CloudWatch"
+      ]
+    },
+    "aws_ec2": {
+      "display": "Amazon EC2",
+      "category": "cloud",
+      "parent": "aws",
+      "aliases": [
+        "Amazon EC2",
+        "EC2"
+      ]
+    },
+    "aws_ecs": {
+      "display": "Amazon ECS",
+      "category": "cloud",
+      "parent": "aws",
+      "aliases": [
+        "Amazon ECS",
+        "ECS",
+        "Elastic Container Service"
+      ]
+    },
+    "aws_eks": {
+      "display": "Amazon EKS",
+      "category": "cloud",
+      "parent": "aws",
+      "aliases": [
+        "Amazon EKS",
+        "EKS",
+        "Elastic Kubernetes Service"
+      ]
+    },
+    "aws_rds": {
+      "display": "Amazon RDS",
+      "category": "database",
+      "parent": "aws",
+      "aliases": [
+        "Amazon RDS",
+        "RDS",
+        "Relational Database Service"
+      ]
+    },
+    "aws_redshift": {
+      "display": "Amazon Redshift",
+      "category": "data",
+      "parent": "aws",
+      "aliases": [
+        "Amazon Redshift",
+        "Redshift"
+      ]
+    },
+    "aws_glue": {
+      "display": "AWS Glue",
+      "category": "data",
+      "parent": "aws",
+      "aliases": [
+        "AWS Glue",
+        "Glue"
+      ]
+    },
+    "aws_athena": {
+      "display": "Amazon Athena",
+      "category": "data",
+      "parent": "aws",
+      "aliases": [
+        "Amazon Athena",
+        "Athena"
+      ]
+    },
+    "aws_kinesis": {
+      "display": "Amazon Kinesis",
+      "category": "messaging",
+      "parent": "aws",
+      "aliases": [
+        "Amazon Kinesis",
+        "Kinesis"
+      ]
+    },
+    "aws_sqs": {
+      "display": "Amazon SQS",
+      "category": "messaging",
+      "parent": "aws",
+      "aliases": [
+        "Amazon SQS",
+        "SQS",
+        "Simple Queue Service"
+      ]
+    },
+    "aws_sns": {
+      "display": "Amazon SNS",
+      "category": "messaging",
+      "parent": "aws",
+      "aliases": [
+        "Amazon SNS",
+        "SNS",
+        "Simple Notification Service"
+      ]
+    },
+    "aws_step_functions": {
+      "display": "AWS Step Functions",
+      "category": "cloud",
+      "parent": "aws",
+      "aliases": [
+        "AWS Step Functions",
+        "Step Functions"
+      ]
+    },
+    "aws_cloudformation": {
+      "display": "AWS CloudFormation",
+      "category": "devops",
+      "parent": "aws",
+      "aliases": [
+        "AWS CloudFormation",
+        "CloudFormation"
+      ]
+    },
+    "aws_iam": {
+      "display": "AWS IAM",
+      "category": "security",
+      "parent": "aws",
+      "aliases": [
+        "AWS IAM",
+        "IAM"
+      ]
+    },
+    "aws_secrets_manager": {
+      "display": "AWS Secrets Manager",
+      "category": "security",
+      "parent": "aws",
+      "aliases": [
+        "AWS Secrets Manager",
+        "Secrets Manager"
+      ]
+    },
+    "aws_emr": {
+      "display": "Amazon EMR",
+      "category": "data",
+      "parent": "aws",
+      "aliases": [
+        "Amazon EMR",
+        "EMR"
+      ]
+    },
+    "aws_cloudfront": {
+      "display": "Amazon CloudFront",
+      "category": "cloud",
+      "parent": "aws",
+      "aliases": [
+        "Amazon CloudFront",
+        "CloudFront"
+      ]
+    },
+    "aws_route53": {
+      "display": "Amazon Route 53",
+      "category": "cloud",
+      "parent": "aws",
+      "aliases": [
+        "Amazon Route 53",
+        "Route 53"
+      ]
+    },
+    "aws_elasticache": {
+      "display": "Amazon ElastiCache",
+      "category": "database",
+      "parent": "aws",
+      "aliases": [
+        "Amazon ElastiCache",
+        "ElastiCache"
+      ]
+    },
+    "aws_eventbridge": {
+      "display": "Amazon EventBridge",
+      "category": "messaging",
+      "parent": "aws",
+      "aliases": [
+        "Amazon EventBridge",
+        "EventBridge"
+      ]
+    },
+    "aws_msk": {
+      "display": "Amazon MSK",
+      "category": "messaging",
+      "parent": "aws",
+      "aliases": [
+        "Amazon MSK",
+        "MSK",
+        "Managed Streaming for Kafka"
+      ]
+    },
+    "aws_cdk": {
+      "display": "AWS CDK",
+      "category": "devops",
+      "parent": "aws",
+      "aliases": [
+        "AWS CDK",
+        "Cloud Development Kit"
+      ]
+    },
+    "gcp": {
+      "display": "Google Cloud Platform",
+      "category": "cloud",
+      "aliases": [
+        "Google Cloud Platform",
+        "GCP",
+        "Google Cloud"
+      ]
+    },
+    "bigquery": {
+      "display": "BigQuery",
+      "category": "data",
+      "parent": "gcp",
+      "aliases": [
+        "BigQuery",
+        "Google BigQuery"
+      ]
+    },
+    "gcs": {
+      "display": "Google Cloud Storage",
+      "category": "cloud",
+      "parent": "gcp",
+      "aliases": [
+        "Google Cloud Storage",
+        "GCS"
+      ]
+    },
+    "cloud_run": {
+      "display": "Cloud Run",
+      "category": "cloud",
+      "parent": "gcp",
+      "aliases": [
+        "Cloud Run",
+        "Google Cloud Run"
+      ]
+    },
+    "gcp_cloud_functions": {
+      "display": "Google Cloud Functions",
+      "category": "cloud",
+      "parent": "gcp",
+      "aliases": [
+        "Google Cloud Functions",
+        "Cloud Functions"
+      ]
+    },
+    "pubsub": {
+      "display": "Google Pub/Sub",
+      "category": "messaging",
+      "parent": "gcp",
+      "aliases": [
+        "Google Pub/Sub",
+        "Cloud Pub/Sub",
+        "Pub/Sub"
+      ]
+    },
+    "dataflow": {
+      "display": "Google Dataflow",
+      "category": "data",
+      "parent": "gcp",
+      "aliases": [
+        "Google Dataflow",
+        "Cloud Dataflow"
+      ]
+    },
+    "firebase": {
+      "display": "Firebase",
+      "category": "cloud",
+      "aliases": [
+        "Firebase"
+      ]
+    },
+    "gke": {
+      "display": "Google Kubernetes Engine",
+      "category": "cloud",
+      "parent": "gcp",
+      "aliases": [
+        "Google Kubernetes Engine",
+        "GKE"
+      ]
+    },
+    "looker": {
+      "display": "Looker",
+      "category": "bi",
+      "aliases": [
+        "Looker"
+      ]
+    },
+    "kafka": {
+      "display": "Apache Kafka",
+      "category": "messaging",
+      "aliases": [
+        "Apache Kafka",
+        "Kafka"
+      ]
+    },
+    "kafka_connect": {
+      "display": "Kafka Connect",
+      "category": "messaging",
+      "aliases": [
+        "Kafka Connect"
+      ]
+    },
+    "kafka_streams": {
+      "display": "Kafka Streams",
+      "category": "messaging",
+      "aliases": [
+        "Kafka Streams"
+      ]
+    },
+    "schema_registry": {
+      "display": "Schema Registry",
+      "category": "messaging",
+      "aliases": [
+        "Confluent Schema Registry",
+        "Schema Registry"
+      ]
+    },
+    "confluent": {
+      "display": "Confluent",
+      "category": "messaging",
+      "aliases": [
+        "Confluent",
+        "Confluent Cloud"
+      ]
+    },
+    "spark": {
+      "display": "Apache Spark",
+      "category": "data",
+      "aliases": [
+        "Apache Spark",
+        "Spark",
+        "PySpark"
+      ]
+    },
+    "flink": {
+      "display": "Apache Flink",
+      "category": "data",
+      "aliases": [
+        "Apache Flink",
+        "Flink"
+      ]
+    },
+    "airflow": {
+      "display": "Apache Airflow",
+      "category": "data",
+      "aliases": [
+        "Apache Airflow",
+        "Airflow"
+      ]
+    },
+    "dbt": {
+      "display": "dbt",
+      "category": "data",
+      "aliases": [
+        "dbt",
+        "data build tool"
+      ]
+    },
+    "hadoop": {
+      "display": "Apache Hadoop",
+      "category": "data",
+      "aliases": [
+        "Apache Hadoop",
+        "Hadoop",
+        "HDFS"
+      ]
+    },
+    "hive": {
+      "display": "Apache Hive",
+      "category": "data",
+      "aliases": [
+        "Apache Hive",
+        "Hive"
+      ]
+    },
+    "presto": {
+      "display": "Presto",
+      "category": "data",
+      "aliases": [
+        "Presto"
+      ]
+    },
+    "trino": {
+      "display": "Trino",
+      "category": "data",
+      "aliases": [
+        "Trino"
+      ]
+    },
+    "snowflake": {
+      "display": "Snowflake",
+      "category": "data",
+      "aliases": [
+        "Snowflake"
+      ]
+    },
+    "nifi": {
+      "display": "Apache NiFi",
+      "category": "data",
+      "aliases": [
+        "Apache NiFi",
+        "NiFi"
+      ]
+    },
+    "beam": {
+      "display": "Apache Beam",
+      "category": "data",
+      "aliases": [
+        "Apache Beam"
+      ]
+    },
+    "delta_lake": {
+      "display": "Delta Lake",
+      "category": "data",
+      "aliases": [
+        "Delta Lake"
+      ]
+    },
+    "iceberg": {
+      "display": "Apache Iceberg",
+      "category": "data",
+      "aliases": [
+        "Apache Iceberg",
+        "Iceberg"
+      ]
+    },
+    "parquet": {
+      "display": "Parquet",
+      "category": "data",
+      "aliases": [
+        "Parquet",
+        "Apache Parquet"
+      ]
+    },
+    "avro": {
+      "display": "Avro",
+      "category": "data",
+      "aliases": [
+        "Avro",
+        "Apache Avro"
+      ]
+    },
+    "etl": {
+      "display": "ETL",
+      "category": "data",
+      "aliases": [
+        "ETL",
+        "extract transform load"
+      ]
+    },
+    "elt": {
+      "display": "ELT",
+      "category": "data",
+      "aliases": [
+        "ELT"
+      ]
+    },
+    "data_lake": {
+      "display": "data lake",
+      "category": "data",
+      "aliases": [
+        "data lake"
+      ]
+    },
+    "data_warehouse": {
+      "display": "data warehouse",
+      "category": "data",
+      "aliases": [
+        "data warehouse",
+        "data warehousing"
+      ]
+    },
+    "data_mesh": {
+      "display": "data mesh",
+      "category": "data",
+      "aliases": [
+        "data mesh"
+      ]
+    },
+    "cdc": {
+      "display": "change data capture",
+      "category": "data",
+      "aliases": [
+        "change data capture",
+        "CDC"
+      ]
+    },
+    "debezium": {
+      "display": "Debezium",
+      "category": "data",
+      "aliases": [
+        "Debezium"
+      ]
+    },
+    "talend": {
+      "display": "Talend",
+      "category": "data",
+      "aliases": [
+        "Talend"
+      ]
+    },
+    "informatica": {
+      "display": "Informatica",
+      "category": "data",
+      "aliases": [
+        "Informatica"
+      ]
+    },
+    "ssis": {
+      "display": "SSIS",
+      "category": "data",
+      "aliases": [
+        "SSIS",
+        "SQL Server Integration Services"
+      ]
+    },
+    "ssrs": {
+      "display": "SSRS",
+      "category": "bi",
+      "aliases": [
+        "SSRS",
+        "SQL Server Reporting Services"
+      ]
+    },
+    "ssas": {
+      "display": "SSAS",
+      "category": "bi",
+      "aliases": [
+        "SSAS",
+        "SQL Server Analysis Services"
+      ]
+    },
+    "postgresql": {
+      "display": "PostgreSQL",
+      "category": "database",
+      "aliases": [
+        "PostgreSQL",
+        "Postgres"
+      ]
+    },
+    "mysql": {
+      "display": "MySQL",
+      "category": "database",
+      "aliases": [
+        "MySQL"
+      ]
+    },
+    "sql_server": {
+      "display": "Microsoft SQL Server",
+      "category": "database",
+      "aliases": [
+        "SQL Server",
+        "Microsoft SQL Server",
+        "MSSQL",
+        "T-SQL",
+        "Transact-SQL"
+      ]
+    },
+    "oracle_db": {
+      "display": "Oracle Database",
+      "category": "database",
+      "aliases": [
+        "Oracle Database",
+        "Oracle DB",
+        "Oracle",
+        "PL/SQL"
+      ]
+    },
+    "mongodb": {
+      "display": "MongoDB",
+      "category": "database",
+      "aliases": [
+        "MongoDB",
+        "Mongo"
+      ]
+    },
+    "redis": {
+      "display": "Redis",
+      "category": "database",
+      "aliases": [
+        "Redis"
+      ]
+    },
+    "cassandra": {
+      "display": "Apache Cassandra",
+      "category": "database",
+      "aliases": [
+        "Apache Cassandra",
+        "Cassandra"
+      ]
+    },
+    "elasticsearch": {
+      "display": "Elasticsearch",
+      "category": "database",
+      "aliases": [
+        "Elasticsearch",
+        "Elastic Search",
+        "ELK stack"
+      ]
+    },
+    "opensearch": {
+      "display": "OpenSearch",
+      "category": "database",
+      "aliases": [
+        "OpenSearch",
+        "Amazon OpenSearch"
+      ]
+    },
+    "neo4j": {
+      "display": "Neo4j",
+      "category": "database",
+      "aliases": [
+        "Neo4j"
+      ]
+    },
+    "sqlite": {
+      "display": "SQLite",
+      "category": "database",
+      "aliases": [
+        "SQLite"
+      ]
+    },
+    "mariadb": {
+      "display": "MariaDB",
+      "category": "database",
+      "aliases": [
+        "MariaDB"
+      ]
+    },
+    "couchbase": {
+      "display": "Couchbase",
+      "category": "database",
+      "aliases": [
+        "Couchbase"
+      ]
+    },
+    "influxdb": {
+      "display": "InfluxDB",
+      "category": "database",
+      "aliases": [
+        "InfluxDB"
+      ]
+    },
+    "clickhouse": {
+      "display": "ClickHouse",
+      "category": "database",
+      "aliases": [
+        "ClickHouse"
+      ]
+    },
+    "sql": {
+      "display": "SQL",
+      "category": "database",
+      "aliases": [
+        "SQL"
+      ]
+    },
+    "nosql": {
+      "display": "NoSQL",
+      "category": "database",
+      "aliases": [
+        "NoSQL"
+      ]
+    },
+    "python": {
+      "display": "Python",
+      "category": "language",
+      "aliases": [
+        "Python"
+      ]
+    },
+    "java": {
+      "display": "Java",
+      "category": "language",
+      "aliases": [
+        "Java"
+      ]
+    },
+    "javascript": {
+      "display": "JavaScript",
+      "category": "language",
+      "aliases": [
+        "JavaScript",
+        "JS",
+        "ECMAScript"
+      ]
+    },
+    "typescript": {
+      "display": "TypeScript",
+      "category": "language",
+      "aliases": [
+        "TypeScript",
+        "TS"
+      ]
+    },
+    "csharp": {
+      "display": "C#",
+      "category": "language",
+      "aliases": [
+        "C#",
+        "CSharp",
+        "C Sharp"
+      ]
+    },
+    "dotnet": {
+      "display": ".NET",
+      "category": "language",
+      "aliases": [
+        ".NET",
+        ".NET Core",
+        ".NET Framework",
+        "dotnet"
+      ]
+    },
+    "aspnet": {
+      "display": "ASP.NET",
+      "category": "backend",
+      "aliases": [
+        "ASP.NET",
+        "ASP.NET Core",
+        "ASP.NET MVC",
+        "ASP.NET Web API"
+      ]
+    },
+    "golang": {
+      "display": "Go",
+      "category": "language",
+      "aliases": [
+        "Golang",
+        "Go language"
+      ]
+    },
+    "rust_lang": {
+      "display": "Rust",
+      "category": "language",
+      "aliases": [
+        "Rust"
+      ]
+    },
+    "scala": {
+      "display": "Scala",
+      "category": "language",
+      "aliases": [
+        "Scala"
+      ]
+    },
+    "kotlin": {
+      "display": "Kotlin",
+      "category": "language",
+      "aliases": [
+        "Kotlin"
+      ]
+    },
+    "ruby": {
+      "display": "Ruby",
+      "category": "language",
+      "aliases": [
+        "Ruby"
+      ]
+    },
+    "rails": {
+      "display": "Ruby on Rails",
+      "category": "backend",
+      "aliases": [
+        "Ruby on Rails",
+        "Rails"
+      ]
+    },
+    "php": {
+      "display": "PHP",
+      "category": "language",
+      "aliases": [
+        "PHP"
+      ]
+    },
+    "swift_lang": {
+      "display": "Swift",
+      "category": "language",
+      "aliases": [
+        "Swift"
+      ]
+    },
+    "cpp": {
+      "display": "C++",
+      "category": "language",
+      "aliases": [
+        "C++"
+      ]
+    },
+    "c_lang": {
+      "display": "C",
+      "category": "language",
+      "aliases": [
+        "C language"
+      ]
+    },
+    "r_lang": {
+      "display": "R",
+      "category": "language",
+      "aliases": [
+        "R language"
+      ]
+    },
+    "bash": {
+      "display": "Bash",
+      "category": "language",
+      "aliases": [
+        "Bash",
+        "shell scripting",
+        "shell script"
+      ]
+    },
+    "powershell": {
+      "display": "PowerShell",
+      "category": "language",
+      "aliases": [
+        "PowerShell"
+      ]
+    },
+    "groovy": {
+      "display": "Groovy",
+      "category": "language",
+      "aliases": [
+        "Groovy"
+      ]
+    },
+    "perl": {
+      "display": "Perl",
+      "category": "language",
+      "aliases": [
+        "Perl"
+      ]
+    },
+    "log4j": {
+      "display": "Log4j",
+      "category": "backend",
+      "aliases": [
+        "Log4j"
+      ]
+    },
+    "spring": {
+      "display": "Spring Framework",
+      "category": "backend",
+      "aliases": [
+        "Spring Framework",
+        "Spring"
+      ]
+    },
+    "spring_boot": {
+      "display": "Spring Boot",
+      "category": "backend",
+      "aliases": [
+        "Spring Boot"
+      ]
+    },
+    "django": {
+      "display": "Django",
+      "category": "backend",
+      "aliases": [
+        "Django"
+      ]
+    },
+    "flask": {
+      "display": "Flask",
+      "category": "backend",
+      "aliases": [
+        "Flask"
+      ]
+    },
+    "fastapi": {
+      "display": "FastAPI",
+      "category": "backend",
+      "aliases": [
+        "FastAPI"
+      ]
+    },
+    "express": {
+      "display": "Express.js",
+      "category": "backend",
+      "aliases": [
+        "Express.js",
+        "ExpressJS"
+      ]
+    },
+    "nodejs": {
+      "display": "Node.js",
+      "category": "backend",
+      "aliases": [
+        "Node.js",
+        "NodeJS"
+      ]
+    },
+    "nestjs": {
+      "display": "NestJS",
+      "category": "backend",
+      "aliases": [
+        "NestJS",
+        "Nest.js"
+      ]
+    },
+    "graphql": {
+      "display": "GraphQL",
+      "category": "backend",
+      "aliases": [
+        "GraphQL"
+      ]
+    },
+    "rest_api": {
+      "display": "REST API",
+      "category": "backend",
+      "aliases": [
+        "REST API",
+        "RESTful API",
+        "RESTful",
+        "RESTful services",
+        "RESTful web services"
+      ]
+    },
+    "grpc": {
+      "display": "gRPC",
+      "category": "backend",
+      "aliases": [
+        "gRPC"
+      ]
+    },
+    "soap": {
+      "display": "SOAP",
+      "category": "backend",
+      "aliases": [
+        "SOAP"
+      ]
+    },
+    "openapi": {
+      "display": "OpenAPI",
+      "category": "backend",
+      "aliases": [
+        "OpenAPI",
+        "Swagger"
+      ]
+    },
+    "microservices": {
+      "display": "microservices",
+      "category": "backend",
+      "aliases": [
+        "microservices",
+        "microservice architecture"
+      ]
+    },
+    "event_driven": {
+      "display": "event-driven architecture",
+      "category": "backend",
+      "aliases": [
+        "event-driven architecture",
+        "event driven"
+      ]
+    },
+    "serverless": {
+      "display": "serverless",
+      "category": "backend",
+      "aliases": [
+        "serverless"
+      ]
+    },
+    "websockets": {
+      "display": "WebSocket",
+      "category": "backend",
+      "aliases": [
+        "WebSocket"
+      ]
+    },
+    "oauth": {
+      "display": "OAuth",
+      "category": "security",
+      "aliases": [
+        "OAuth",
+        "OAuth2",
+        "OAuth 2.0"
+      ]
+    },
+    "jwt": {
+      "display": "JWT",
+      "category": "security",
+      "aliases": [
+        "JWT",
+        "JSON Web Token"
+      ]
+    },
+    "saml": {
+      "display": "SAML",
+      "category": "security",
+      "aliases": [
+        "SAML"
+      ]
+    },
+    "openid_connect": {
+      "display": "OpenID Connect",
+      "category": "security",
+      "aliases": [
+        "OpenID Connect",
+        "OIDC"
+      ]
+    },
+    "react": {
+      "display": "React",
+      "category": "frontend",
+      "aliases": [
+        "React",
+        "React.js",
+        "ReactJS"
+      ]
+    },
+    "angular": {
+      "display": "Angular",
+      "category": "frontend",
+      "aliases": [
+        "Angular",
+        "AngularJS"
+      ]
+    },
+    "vue": {
+      "display": "Vue.js",
+      "category": "frontend",
+      "aliases": [
+        "Vue.js",
+        "Vue",
+        "VueJS"
+      ]
+    },
+    "svelte": {
+      "display": "Svelte",
+      "category": "frontend",
+      "aliases": [
+        "Svelte"
+      ]
+    },
+    "nextjs": {
+      "display": "Next.js",
+      "category": "frontend",
+      "aliases": [
+        "Next.js",
+        "NextJS"
+      ]
+    },
+    "redux": {
+      "display": "Redux",
+      "category": "frontend",
+      "aliases": [
+        "Redux"
+      ]
+    },
+    "html": {
+      "display": "HTML",
+      "category": "frontend",
+      "aliases": [
+        "HTML",
+        "HTML5"
+      ]
+    },
+    "css": {
+      "display": "CSS",
+      "category": "frontend",
+      "aliases": [
+        "CSS",
+        "CSS3"
+      ]
+    },
+    "sass": {
+      "display": "Sass",
+      "category": "frontend",
+      "aliases": [
+        "Sass",
+        "SCSS"
+      ]
+    },
+    "tailwind": {
+      "display": "Tailwind CSS",
+      "category": "frontend",
+      "aliases": [
+        "Tailwind CSS",
+        "TailwindCSS"
+      ]
+    },
+    "bootstrap": {
+      "display": "Bootstrap",
+      "category": "frontend",
+      "aliases": [
+        "Bootstrap"
+      ]
+    },
+    "jquery": {
+      "display": "jQuery",
+      "category": "frontend",
+      "aliases": [
+        "jQuery"
+      ]
+    },
+    "webpack": {
+      "display": "Webpack",
+      "category": "frontend",
+      "aliases": [
+        "Webpack"
+      ]
+    },
+    "vite": {
+      "display": "Vite",
+      "category": "frontend",
+      "aliases": [
+        "Vite"
+      ]
+    },
+    "docker": {
+      "display": "Docker",
+      "category": "devops",
+      "aliases": [
+        "Docker"
+      ]
+    },
+    "kubernetes": {
+      "display": "Kubernetes",
+      "category": "devops",
+      "aliases": [
+        "Kubernetes",
+        "K8s"
+      ]
+    },
+    "helm": {
+      "display": "Helm",
+      "category": "devops",
+      "aliases": [
+        "Helm"
+      ]
+    },
+    "terraform": {
+      "display": "Terraform",
+      "category": "devops",
+      "aliases": [
+        "Terraform",
+        "HashiCorp Terraform"
+      ]
+    },
+    "ansible": {
+      "display": "Ansible",
+      "category": "devops",
+      "aliases": [
+        "Ansible"
+      ]
+    },
+    "jenkins": {
+      "display": "Jenkins",
+      "category": "devops",
+      "aliases": [
+        "Jenkins"
+      ]
+    },
+    "github_actions": {
+      "display": "GitHub Actions",
+      "category": "devops",
+      "aliases": [
+        "GitHub Actions"
+      ]
+    },
+    "gitlab_ci": {
+      "display": "GitLab CI",
+      "category": "devops",
+      "aliases": [
+        "GitLab CI"
+      ]
+    },
+    "circleci": {
+      "display": "CircleCI",
+      "category": "devops",
+      "aliases": [
+        "CircleCI"
+      ]
+    },
+    "argocd": {
+      "display": "Argo CD",
+      "category": "devops",
+      "aliases": [
+        "Argo CD",
+        "ArgoCD"
+      ]
+    },
+    "git": {
+      "display": "Git",
+      "category": "devops",
+      "aliases": [
+        "Git"
+      ]
+    },
+    "github": {
+      "display": "GitHub",
+      "category": "devops",
+      "aliases": [
+        "GitHub"
+      ]
+    },
+    "gitlab": {
+      "display": "GitLab",
+      "category": "devops",
+      "aliases": [
+        "GitLab"
+      ]
+    },
+    "bitbucket": {
+      "display": "Bitbucket",
+      "category": "devops",
+      "aliases": [
+        "Bitbucket"
+      ]
+    },
+    "cicd": {
+      "display": "CI/CD",
+      "category": "devops",
+      "aliases": [
+        "CI/CD",
+        "continuous integration",
+        "continuous delivery",
+        "continuous deployment"
+      ]
+    },
+    "nginx": {
+      "display": "Nginx",
+      "category": "devops",
+      "aliases": [
+        "Nginx"
+      ]
+    },
+    "apache_httpd": {
+      "display": "Apache HTTP Server",
+      "category": "devops",
+      "aliases": [
+        "Apache HTTP Server",
+        "Apache httpd"
+      ]
+    },
+    "linux": {
+      "display": "Linux",
+      "category": "os",
+      "aliases": [
+        "Linux"
+      ]
+    },
+    "ubuntu": {
+      "display": "Ubuntu",
+      "category": "os",
+      "aliases": [
+        "Ubuntu"
+      ]
+    },
+    "rhel": {
+      "display": "Red Hat Enterprise Linux",
+      "category": "os",
+      "aliases": [
+        "Red Hat Enterprise Linux",
+        "RHEL",
+        "Red Hat"
+      ]
+    },
+    "centos": {
+      "display": "CentOS",
+      "category": "os",
+      "aliases": [
+        "CentOS"
+      ]
+    },
+    "windows_server": {
+      "display": "Windows Server",
+      "category": "os",
+      "aliases": [
+        "Windows Server",
+        "IIS"
+      ]
+    },
+    "hashicorp_vault": {
+      "display": "HashiCorp Vault",
+      "category": "security",
+      "aliases": [
+        "HashiCorp Vault"
+      ]
+    },
+    "consul": {
+      "display": "Consul",
+      "category": "devops",
+      "aliases": [
+        "Consul"
+      ]
+    },
+    "packer": {
+      "display": "Packer",
+      "category": "devops",
+      "aliases": [
+        "Packer"
+      ]
+    },
+    "istio": {
+      "display": "Istio",
+      "category": "devops",
+      "aliases": [
+        "Istio"
+      ]
+    },
+    "openshift": {
+      "display": "OpenShift",
+      "category": "devops",
+      "aliases": [
+        "OpenShift",
+        "Red Hat OpenShift"
+      ]
+    },
+    "rabbitmq": {
+      "display": "RabbitMQ",
+      "category": "messaging",
+      "aliases": [
+        "RabbitMQ"
+      ]
+    },
+    "activemq": {
+      "display": "ActiveMQ",
+      "category": "messaging",
+      "aliases": [
+        "ActiveMQ"
+      ]
+    },
+    "celery": {
+      "display": "Celery",
+      "category": "backend",
+      "aliases": [
+        "Celery"
+      ]
+    },
+    "prometheus": {
+      "display": "Prometheus",
+      "category": "observability",
+      "aliases": [
+        "Prometheus"
+      ]
+    },
+    "grafana": {
+      "display": "Grafana",
+      "category": "observability",
+      "aliases": [
+        "Grafana"
+      ]
+    },
+    "datadog": {
+      "display": "Datadog",
+      "category": "observability",
+      "aliases": [
+        "Datadog"
+      ]
+    },
+    "splunk": {
+      "display": "Splunk",
+      "category": "observability",
+      "aliases": [
+        "Splunk"
+      ]
+    },
+    "new_relic": {
+      "display": "New Relic",
+      "category": "observability",
+      "aliases": [
+        "New Relic"
+      ]
+    },
+    "opentelemetry": {
+      "display": "OpenTelemetry",
+      "category": "observability",
+      "aliases": [
+        "OpenTelemetry",
+        "OTel"
+      ]
+    },
+    "sentry": {
+      "display": "Sentry",
+      "category": "observability",
+      "aliases": [
+        "Sentry"
+      ]
+    },
+    "kibana": {
+      "display": "Kibana",
+      "category": "observability",
+      "aliases": [
+        "Kibana"
+      ]
+    },
+    "logstash": {
+      "display": "Logstash",
+      "category": "observability",
+      "aliases": [
+        "Logstash"
+      ]
+    },
+    "jaeger": {
+      "display": "Jaeger",
+      "category": "observability",
+      "aliases": [
+        "Jaeger"
+      ]
+    },
+    "pagerduty": {
+      "display": "PagerDuty",
+      "category": "observability",
+      "aliases": [
+        "PagerDuty"
+      ]
+    },
+    "pytest_tool": {
+      "display": "pytest",
+      "category": "testing",
+      "aliases": [
+        "pytest"
+      ]
+    },
+    "junit": {
+      "display": "JUnit",
+      "category": "testing",
+      "aliases": [
+        "JUnit"
+      ]
+    },
+    "jest": {
+      "display": "Jest",
+      "category": "testing",
+      "aliases": [
+        "Jest"
+      ]
+    },
+    "selenium": {
+      "display": "Selenium",
+      "category": "testing",
+      "aliases": [
+        "Selenium"
+      ]
+    },
+    "cypress": {
+      "display": "Cypress",
+      "category": "testing",
+      "aliases": [
+        "Cypress"
+      ]
+    },
+    "playwright": {
+      "display": "Playwright",
+      "category": "testing",
+      "aliases": [
+        "Playwright"
+      ]
+    },
+    "postman": {
+      "display": "Postman",
+      "category": "testing",
+      "aliases": [
+        "Postman"
+      ]
+    },
+    "jmeter": {
+      "display": "Apache JMeter",
+      "category": "testing",
+      "aliases": [
+        "Apache JMeter",
+        "JMeter"
+      ]
+    },
+    "locust": {
+      "display": "Locust",
+      "category": "testing",
+      "aliases": [
+        "Locust"
+      ]
+    },
+    "sonarqube": {
+      "display": "SonarQube",
+      "category": "testing",
+      "aliases": [
+        "SonarQube"
+      ]
+    },
+    "tdd": {
+      "display": "TDD",
+      "category": "testing",
+      "aliases": [
+        "TDD",
+        "test-driven development"
+      ]
+    },
+    "bdd": {
+      "display": "BDD",
+      "category": "testing",
+      "aliases": [
+        "BDD",
+        "behaviour-driven development"
+      ]
+    },
+    "unit_testing": {
+      "display": "unit testing",
+      "category": "testing",
+      "aliases": [
+        "unit testing",
+        "unit test"
+      ]
+    },
+    "integration_testing": {
+      "display": "integration testing",
+      "category": "testing",
+      "aliases": [
+        "integration testing",
+        "integration test"
+      ]
+    },
+    "load_testing": {
+      "display": "load testing",
+      "category": "testing",
+      "aliases": [
+        "load testing",
+        "performance testing"
+      ]
+    },
+    "mockito": {
+      "display": "Mockito",
+      "category": "testing",
+      "aliases": [
+        "Mockito"
+      ]
+    },
+    "moq": {
+      "display": "Moq",
+      "category": "testing",
+      "aliases": [
+        "Moq"
+      ]
+    },
+    "xunit": {
+      "display": "xUnit",
+      "category": "testing",
+      "aliases": [
+        "xUnit"
+      ]
+    },
+    "nunit": {
+      "display": "NUnit",
+      "category": "testing",
+      "aliases": [
+        "NUnit"
+      ]
+    },
+    "owasp": {
+      "display": "OWASP",
+      "category": "security",
+      "aliases": [
+        "OWASP",
+        "OWASP Top 10"
+      ]
+    },
+    "penetration_testing": {
+      "display": "penetration testing",
+      "category": "security",
+      "aliases": [
+        "penetration testing",
+        "pen testing"
+      ]
+    },
+    "tls": {
+      "display": "TLS",
+      "category": "security",
+      "aliases": [
+        "TLS",
+        "SSL",
+        "HTTPS"
+      ]
+    },
+    "rbac": {
+      "display": "RBAC",
+      "category": "security",
+      "aliases": [
+        "RBAC",
+        "role-based access control"
+      ]
+    },
+    "sso": {
+      "display": "SSO",
+      "category": "security",
+      "aliases": [
+        "SSO",
+        "single sign-on"
+      ]
+    },
+    "mfa": {
+      "display": "MFA",
+      "category": "security",
+      "aliases": [
+        "MFA",
+        "multi-factor authentication"
+      ]
+    },
+    "soc2": {
+      "display": "SOC 2",
+      "category": "security",
+      "aliases": [
+        "SOC 2"
+      ]
+    },
+    "gdpr": {
+      "display": "GDPR",
+      "category": "security",
+      "aliases": [
+        "GDPR"
+      ]
+    },
+    "hipaa": {
+      "display": "HIPAA",
+      "category": "security",
+      "aliases": [
+        "HIPAA"
+      ]
+    },
+    "pci_dss": {
+      "display": "PCI DSS",
+      "category": "security",
+      "aliases": [
+        "PCI DSS"
+      ]
+    },
+    "snyk": {
+      "display": "Snyk",
+      "category": "security",
+      "aliases": [
+        "Snyk"
+      ]
+    },
+    "sast": {
+      "display": "SAST",
+      "category": "security",
+      "aliases": [
+        "SAST",
+        "static application security testing"
+      ]
+    },
+    "dast": {
+      "display": "DAST",
+      "category": "security",
+      "aliases": [
+        "DAST"
+      ]
+    },
+    "tableau": {
+      "display": "Tableau",
+      "category": "bi",
+      "aliases": [
+        "Tableau"
+      ]
+    },
+    "qlik": {
+      "display": "Qlik",
+      "category": "bi",
+      "aliases": [
+        "Qlik",
+        "QlikView"
+      ]
+    },
+    "excel": {
+      "display": "Microsoft Excel",
+      "category": "bi",
+      "aliases": [
+        "Microsoft Excel"
+      ]
+    },
+    "dax": {
+      "display": "DAX",
+      "category": "bi",
+      "aliases": [
+        "DAX"
+      ]
+    },
+    "superset": {
+      "display": "Apache Superset",
+      "category": "bi",
+      "aliases": [
+        "Apache Superset",
+        "Superset"
+      ]
+    },
+    "metabase": {
+      "display": "Metabase",
+      "category": "bi",
+      "aliases": [
+        "Metabase"
+      ]
+    },
+    "salesforce": {
+      "display": "Salesforce",
+      "category": "integration",
+      "aliases": [
+        "Salesforce"
+      ]
+    },
+    "sap": {
+      "display": "SAP",
+      "category": "integration",
+      "aliases": [
+        "SAP"
+      ]
+    },
+    "dynamics_365": {
+      "display": "Dynamics 365",
+      "category": "integration",
+      "aliases": [
+        "Dynamics 365",
+        "Microsoft Dynamics"
+      ]
+    },
+    "sharepoint": {
+      "display": "SharePoint",
+      "category": "integration",
+      "aliases": [
+        "SharePoint"
+      ]
+    },
+    "servicenow": {
+      "display": "ServiceNow",
+      "category": "integration",
+      "aliases": [
+        "ServiceNow"
+      ]
+    },
+    "jira": {
+      "display": "Jira",
+      "category": "integration",
+      "aliases": [
+        "Jira",
+        "Atlassian Jira"
+      ]
+    },
+    "confluence_wiki": {
+      "display": "Confluence",
+      "category": "integration",
+      "aliases": [
+        "Confluence"
+      ]
+    },
+    "mulesoft": {
+      "display": "MuleSoft",
+      "category": "integration",
+      "aliases": [
+        "MuleSoft"
+      ]
+    },
+    "boomi": {
+      "display": "Boomi",
+      "category": "integration",
+      "aliases": [
+        "Dell Boomi",
+        "Boomi"
+      ]
+    },
+    "zapier": {
+      "display": "Zapier",
+      "category": "integration",
+      "aliases": [
+        "Zapier"
+      ]
+    },
+    "twilio": {
+      "display": "Twilio",
+      "category": "integration",
+      "aliases": [
+        "Twilio"
+      ]
+    },
+    "stripe": {
+      "display": "Stripe",
+      "category": "integration",
+      "aliases": [
+        "Stripe"
+      ]
+    },
+    "agile": {
+      "display": "Agile",
+      "category": "methodology",
+      "aliases": [
+        "Agile"
+      ]
+    },
+    "scrum": {
+      "display": "Scrum",
+      "category": "methodology",
+      "aliases": [
+        "Scrum"
+      ]
+    },
+    "kanban": {
+      "display": "Kanban",
+      "category": "methodology",
+      "aliases": [
+        "Kanban"
+      ]
+    },
+    "safe_framework": {
+      "display": "SAFe",
+      "category": "methodology",
+      "aliases": [
+        "SAFe",
+        "Scaled Agile Framework"
+      ]
+    },
+    "waterfall": {
+      "display": "Waterfall",
+      "category": "methodology",
+      "aliases": [
+        "Waterfall"
+      ]
+    },
+    "ddd": {
+      "display": "Domain-Driven Design",
+      "category": "methodology",
+      "aliases": [
+        "Domain-Driven Design",
+        "DDD"
+      ]
+    },
+    "cqrs": {
+      "display": "CQRS",
+      "category": "methodology",
+      "aliases": [
+        "CQRS"
+      ]
+    },
+    "event_sourcing": {
+      "display": "event sourcing",
+      "category": "methodology",
+      "aliases": [
+        "event sourcing"
+      ]
+    },
+    "solid_principles": {
+      "display": "SOLID principles",
+      "category": "methodology",
+      "aliases": [
+        "SOLID principles"
+      ]
+    },
+    "design_patterns": {
+      "display": "design patterns",
+      "category": "methodology",
+      "aliases": [
+        "design patterns"
+      ]
+    },
+    "android": {
+      "display": "Android",
+      "category": "mobile",
+      "aliases": [
+        "Android"
+      ]
+    },
+    "ios": {
+      "display": "iOS",
+      "category": "mobile",
+      "aliases": [
+        "iOS"
+      ]
+    },
+    "react_native": {
+      "display": "React Native",
+      "category": "mobile",
+      "aliases": [
+        "React Native"
+      ]
+    },
+    "flutter": {
+      "display": "Flutter",
+      "category": "mobile",
+      "aliases": [
+        "Flutter"
+      ]
+    },
+    "xamarin": {
+      "display": "Xamarin",
+      "category": "mobile",
+      "aliases": [
+        "Xamarin"
+      ]
+    },
+    "arcgis": {
+      "display": "ArcGIS",
+      "category": "gis",
+      "aliases": [
+        "ArcGIS",
+        "Esri ArcGIS",
+        "Esri"
+      ]
+    },
+    "qgis": {
+      "display": "QGIS",
+      "category": "gis",
+      "aliases": [
+        "QGIS"
+      ]
+    },
+    "postgis": {
+      "display": "PostGIS",
+      "category": "gis",
+      "aliases": [
+        "PostGIS"
+      ]
+    },
+    "geoserver": {
+      "display": "GeoServer",
+      "category": "gis",
+      "aliases": [
+        "GeoServer"
+      ]
+    },
+    "gis": {
+      "display": "GIS",
+      "category": "gis",
+      "aliases": [
+        "GIS",
+        "geographic information system"
+      ]
+    },
+    "gtfs": {
+      "display": "GTFS",
+      "category": "gis",
+      "aliases": [
+        "GTFS"
+      ]
+    },
+    "openstreetmap": {
+      "display": "OpenStreetMap",
+      "category": "gis",
+      "aliases": [
+        "OpenStreetMap",
+        "OSM"
+      ]
+    },
+    "leaflet": {
+      "display": "Leaflet",
+      "category": "gis",
+      "aliases": [
+        "Leaflet"
+      ]
+    },
+    "mapbox": {
+      "display": "Mapbox",
+      "category": "gis",
+      "aliases": [
+        "Mapbox"
+      ]
+    }
+  }
+}

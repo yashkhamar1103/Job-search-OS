@@ -1,0 +1,8 @@
+# Milestone 1 runtime dependencies. Pinned to the versions the test suite runs
+# against.
+#
+# reportlab is a milestone 1 dependency even though rendering is milestone 3,
+# because G4 TOO_LONG measures rendered line counts with the real font metrics
+# through the shared style registry in app/layout.py.
+reportlab==5.0.1
+jsonschema==4.26.0

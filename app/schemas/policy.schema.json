@@ -1,0 +1,99 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "policy.schema.json",
+  "title": "config/policy.json",
+  "description": "Verbs, banned phrases, blocklists, thresholds, retry limits, model id, and token budget. Not an evidence file and not under evidence/: none of it is a claim about what Yash has done.",
+  "type": "object",
+  "required": [
+    "schema_version", "build_verbs", "weak_openers", "opening_verbs",
+    "be_have_openers", "banned_phrases", "vague_intensity_words",
+    "proficiency_qualifiers", "duration_hedges", "ambiguous_acronyms",
+    "client_blocklist", "location_allowlist", "default_location",
+    "permanently_denied_ids", "unverifiable_labels", "title_nouns",
+    "title_modifiers", "leading_hedges", "trailing_hedges", "vague_quantifiers",
+    "measurement_labels",
+    "max_bullets_per_role", "jd_copy_ngram", "max_pages", "retry_limits",
+    "cooling_off_hours", "fit_threshold", "fit_ceiling_divergence_points",
+    "number_coverage_min", "number_coverage_target", "model_id",
+    "token_budget_per_run"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {"const": 1},
+    "_note": {"type": "string"},
+
+    "build_verbs": {"$ref": "#/$defs/phrase_list", "minItems": 1},
+    "weak_openers": {"$ref": "#/$defs/phrase_list"},
+    "opening_verbs": {"$ref": "#/$defs/phrase_list", "minItems": 1},
+    "be_have_openers": {"$ref": "#/$defs/phrase_list"},
+    "banned_phrases": {"$ref": "#/$defs/phrase_list"},
+    "vague_intensity_words": {"$ref": "#/$defs/phrase_list"},
+    "proficiency_qualifiers": {"$ref": "#/$defs/phrase_list"},
+    "duration_hedges": {"$ref": "#/$defs/phrase_list"},
+    "ambiguous_acronyms": {"$ref": "#/$defs/phrase_list"},
+    "client_blocklist": {"$ref": "#/$defs/phrase_list"},
+    "unverifiable_labels": {"$ref": "#/$defs/phrase_list"},
+    "title_nouns": {"$ref": "#/$defs/phrase_list"},
+    "title_modifiers": {"$ref": "#/$defs/phrase_list"},
+    "leading_hedges": {
+      "$ref": "#/$defs/phrase_list",
+      "description": "Hedges that modify a number only when they precede it. Position is what distinguishes a hedge from a preposition: 'over 6 years' hedges, '3x over the prior pipeline' compares."
+    },
+    "measurement_labels": {
+      "$ref": "#/$defs/phrase_list",
+      "description": "Tokens naming which measurement was taken, such as p95. Matched whole and case-insensitively, and claimed as a label span before the number gate and before the proper-noun heuristic. A label carries no quantity and grants no exemption to anything else in its clause. An allowlist rather than a letter-then-digit rule on purpose: x1000 fits that shape and is a multiplier claim, so a new identifier joins this list by an explicit edit."
+    },
+    "vague_quantifiers": {
+      "$ref": "#/$defs/phrase_list",
+      "description": "Words asserting scale without a number. Rejected when they modify a countable noun and no numeric span sits in the same clause: the retry fixes it by naming the number or dropping the word."
+    },
+    "trailing_hedges": {
+      "$ref": "#/$defs/phrase_list",
+      "description": "Hedges that follow a numeric span. The computed years rendering N+ years is exempt: it is code-generated from the role dates, not a claim the model widened."
+    },
+    "location_allowlist": {"$ref": "#/$defs/phrase_list"},
+
+    "permanently_denied_ids": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {"type": "string", "pattern": "^[a-z][a-z0-9_]*$"},
+      "description": "Canonical ids that must be present in evidence/ledger.json in state denied, checked at loader startup and in CI. Without this list, a ledger that was never committed at all reads as empty at both base and head, finds no transitions, and passes forever: the transition check can only see a state that changed, never a state that was never written down."
+    },
+
+    "default_location": {
+      "type": "string",
+      "description": "Yash's home location. Empty until he sets it. Never a location he does not live in or is not relocating to."
+    },
+
+    "max_bullets_per_role": {"type": "integer", "minimum": 1},
+    "jd_copy_ngram": {"type": "integer", "minimum": 2},
+    "max_pages": {"type": "integer", "minimum": 1},
+
+    "retry_limits": {
+      "type": "object",
+      "required": ["truth", "style", "schema"],
+      "additionalProperties": false,
+      "properties": {
+        "truth": {"type": "integer", "minimum": 0},
+        "style": {"type": "integer", "minimum": 0},
+        "schema": {"type": "integer", "minimum": 0}
+      },
+      "description": "Separate budgets. A style finding must never consume the budget that would have saved a factually clean bullet, and must never drop one."
+    },
+
+    "cooling_off_hours": {"type": "integer", "minimum": 0},
+    "fit_threshold": {"type": "number", "minimum": 0, "maximum": 100},
+    "fit_ceiling_divergence_points": {"type": "number", "minimum": 0, "maximum": 100},
+    "number_coverage_min": {"type": "number", "minimum": 0, "maximum": 1},
+    "number_coverage_target": {"type": "number", "minimum": 0, "maximum": 1},
+
+    "model_id": {
+      "type": ["string", "null"],
+      "description": "Pinned here and nowhere else. Null until milestone 2, which is the first milestone that calls a model."
+    },
+    "token_budget_per_run": {"type": ["integer", "null"], "minimum": 1}
+  },
+  "$defs": {
+    "phrase_list": {"type": "array", "items": {"type": "string", "minLength": 1}}
+  }
+}

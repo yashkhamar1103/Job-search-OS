@@ -1,0 +1,123 @@
+name: CI
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # The ledger check needs the merge base, which a shallow clone does
+          # not contain. The default depth is one commit, so the base would be
+          # unreachable and the check would pass without comparing anything.
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: requirements-dev.txt
+
+      - name: Install
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements-dev.txt
+
+      # The base is resolved to a commit, never to a branch name.
+      #
+      # A branch name is the wrong handle for two reasons. The repository's
+      # default branch is a setting that can point anywhere, and if it ever
+      # points at the branch under test then the ledger check compares that
+      # branch against itself and passes while comparing nothing. And on a pull
+      # request the branch tip moves independently of the commit the PR was
+      # opened against, so the diff shown to a reviewer and the diff the check
+      # reads are not the same diff.
+      #
+      # Order of preference, each independent of the default-branch setting:
+      #   pull_request  the PR's own base commit
+      #   push          the ref's previous tip
+      #   fallback      the default branch, fetched explicitly
+      - name: Resolve the comparison base
+        id: base
+        shell: bash
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          PUSH_BEFORE: ${{ github.event.before }}
+          DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
+        run: |
+          set -euo pipefail
+
+          ZEROS="0000000000000000000000000000000000000000"
+          candidate=""
+
+          if [ "$EVENT_NAME" = "pull_request" ] && [ -n "$PR_BASE_SHA" ]; then
+            candidate="$PR_BASE_SHA"
+            echo "base candidate: pull request base commit $candidate"
+          elif [ -n "${PUSH_BEFORE:-}" ] && [ "$PUSH_BEFORE" != "$ZEROS" ] \
+               && git cat-file -e "${PUSH_BEFORE}^{commit}" 2>/dev/null; then
+            candidate="$PUSH_BEFORE"
+            echo "base candidate: previous tip of the pushed ref $candidate"
+          elif [ -n "${DEFAULT_BRANCH:-}" ]; then
+            # No || true here. A fetch that fails must fail the job rather than
+            # leave the check with nothing to compare against and a green tick.
+            git fetch --no-tags origin \
+              "+refs/heads/${DEFAULT_BRANCH}:refs/remotes/origin/${DEFAULT_BRANCH}"
+            candidate="origin/${DEFAULT_BRANCH}"
+            echo "base candidate: default branch $candidate"
+          fi
+
+          if [ -z "$candidate" ]; then
+            echo "could not resolve any base commit" >&2
+            exit 1
+          fi
+
+          if ! merge_base="$(git merge-base "$candidate" HEAD 2>/dev/null)"; then
+            echo "no common ancestor between $candidate and HEAD" >&2
+            echo "the checkout is probably shallow; fetch-depth: 0 is required" >&2
+            exit 1
+          fi
+
+          head_sha="$(git rev-parse HEAD)"
+          echo "merge base: $merge_base"
+          echo "sha=$merge_base" >> "$GITHUB_OUTPUT"
+          if [ "$merge_base" = "$head_sha" ]; then
+            echo "head is the merge base, so this push adds nothing to compare"
+            echo "no_change=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "no_change=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Ledger CI (denied is terminal)
+        if: steps.base.outputs.no_change != 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m app.cli.ledger_ci --base "${{ steps.base.outputs.sha }}"
+
+      - name: Tests
+        run: python -m pytest -q
+
+      - name: Review file is current
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m app.cli.confirmed_aliases
+          # The review file is generated from the taxonomy and the ledger, so it
+          # is current or stale with respect to the working tree, not with
+          # respect to any base commit. There is no merge base to resolve here.
+          #
+          # intent-to-add is what makes a newly generated file visible to
+          # git diff. Without it an untracked review file reads as no change,
+          # and a first-time generation would land uncommitted.
+          git add --intent-to-add review/
+          if ! git diff --quiet -- review/; then
+            echo "review/confirmed_aliases.md is stale." >&2
+            echo "Run: python -m app.cli.confirmed_aliases" >&2
+            git --no-pager diff -- review/ >&2
+            exit 1
+          fi

@@ -1,0 +1,69 @@
+{
+  "schema_version": 1,
+  "_note": "Test fixture. Fictional employers, fictional evidence. Loaded against the REAL vocab/taxonomy.json on purpose, so the gate tests exercise the taxonomy that actually ships rather than a convenient toy. Nothing here is a claim about Yash.",
+  "technologies": {
+    "kafka": {
+      "state": "confirmed",
+      "depth": "used",
+      "contexts": ["acme"],
+      "scope_note": "producer side only",
+      "versions": [],
+      "evidence": "Fictional. Wrote producers against an existing cluster at Acme.",
+      "added": "2025-01-10",
+      "origin": "unprompted"
+    },
+    "aws": {
+      "state": "confirmed",
+      "depth": "built",
+      "contexts": ["acme"],
+      "scope_note": "one platform only",
+      "services": ["Lambda", "S3", "DynamoDB", "API Gateway", "CloudWatch"],
+      "evidence": "Fictional. Designed and wrote the serverless ingestion platform at Acme.",
+      "added": "2025-01-10",
+      "origin": "unprompted"
+    },
+    "python": {
+      "state": "confirmed",
+      "depth": "built",
+      "contexts": ["acme", "bolt"],
+      "evidence": "Fictional. Primary language at both fictional employers.",
+      "added": "2025-01-10",
+      "origin": "unprompted"
+    },
+    "postgresql": {
+      "state": "confirmed",
+      "depth": "used",
+      "contexts": ["bolt"],
+      "evidence": "Fictional. Operated the reporting database at Bolt.",
+      "added": "2025-01-10",
+      "origin": "unprompted"
+    },
+    "docker": {
+      "state": "confirmed",
+      "depth": "exposure",
+      "contexts": ["acme"],
+      "evidence": "Fictional. The Acme platform was containerised by another team.",
+      "added": "2025-01-10",
+      "origin": "unprompted"
+    },
+    "dotnet": {
+      "state": "confirmed",
+      "depth": "built",
+      "contexts": ["bolt"],
+      "versions": ["8"],
+      "evidence": "Fictional. Wrote the Bolt reporting service.",
+      "added": "2025-01-10",
+      "origin": "unprompted"
+    },
+    "terraform": {"state": "unconfirmed"},
+    "snowflake": {"state": "unconfirmed"},
+    "java": {"state": "denied"},
+
+    "azure_openai": {"state": "denied"},
+    "semantic_kernel": {"state": "denied"},
+    "azure_ai_foundry": {"state": "denied"},
+    "azure_ai_search": {"state": "denied"},
+    "mcp": {"state": "denied"},
+    "rag": {"state": "denied"}
+  }
+}

@@ -1,0 +1,36 @@
+{
+  "schema_version": 1,
+  "_note": "TEMPLATE, NOT EVIDENCE. Obviously fake. Copy to experience.json and replace everything. There is deliberately no estimated value for source: an estimated number is not evidence and cannot enter this file.",
+  "roles": [
+    {
+      "id": "fakerole",
+      "employer": "Fake Employer Inc",
+      "title": "Exact title as it appeared",
+      "start": "2020-01",
+      "end": "2021-12",
+      "location": "Fake City",
+      "facts": [
+        {
+          "id": "fakerole-f1",
+          "text": "A plain statement of what Yash did, in his words. No metrics here."
+        }
+      ],
+      "metrics": [
+        {
+          "id": "fakerole-m1",
+          "value": "99%",
+          "what": "what this number measures",
+          "source": "measured",
+          "note": "How it was measured, or where it is recorded."
+        },
+        {
+          "id": "fakerole-m2",
+          "value": "1234 fake units",
+          "what": "a number that was remembered rather than measured",
+          "source": "recalled",
+          "note": "A recalled metric caps its bullet at Thin in Step 4."
+        }
+      ]
+    }
+  ]
+}
