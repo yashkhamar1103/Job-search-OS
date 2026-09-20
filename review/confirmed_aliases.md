@@ -9,6 +9,879 @@ taxonomy bug and a fabrication route: fix `vocab/taxonomy.json`.
 Only ids confirmed in `evidence/ledger.json` appear. Unconfirmed and denied ids
 are excluded, because their aliases cannot reach output at all.
 
-0 confirmed technologies.
+76 confirmed technologies.
 
-Nothing is confirmed yet, so no alias can reach output. That is the correct state for an empty ledger.
+## ADO.NET
+
+- id: `adonet`
+- depth: `built`
+- contexts: `amnex_assoc`, `amnex_mid`, `amnex_senior`
+
+  Strings that will be read as this technology:
+
+  - `ADO.NET`
+  - `ADONET`
+  - `ADO NET`
+
+## Angular
+
+- id: `angular`
+- depth: `built`
+- contexts: `amnex_assoc`, `amnex_mid`, `amnex_senior`
+
+  Strings that will be read as this technology:
+
+  - `Angular`
+
+## Angular Material
+
+- id: `angular_material`
+- depth: `built`
+- contexts: `amnex_assoc`, `amnex_mid`, `amnex_senior`
+
+  Strings that will be read as this technology:
+
+  - `Angular Material`
+
+## AngularJS
+
+- id: `angularjs`
+- depth: `built`
+- contexts: `amnex_assoc`, `amnex_mid`, `amnex_senior`
+
+  Strings that will be read as this technology:
+
+  - `AngularJS`
+  - `Angular.js`
+
+## ASP.NET Core
+
+- id: `aspnet_core`
+- depth: `built`
+- contexts: `amnex_assoc`, `amnex_mid`, `amnex_senior`
+
+  Strings that will be read as this technology:
+
+  - `ASP.NET Core`
+  - `ASPNET Core`
+
+## ASP.NET MVC
+
+- id: `aspnet_mvc`
+- depth: `built`
+- contexts: `amnex_assoc`, `amnex_mid`, `amnex_senior`
+
+  Strings that will be read as this technology:
+
+  - `ASP.NET MVC`
+  - `ASPNET MVC`
+
+## ASP.NET Web API
+
+- id: `aspnet_web_api`
+- depth: `built`
+- contexts: `amnex_assoc`, `amnex_mid`, `amnex_senior`
+
+  Strings that will be read as this technology:
+
+  - `ASP.NET Web API`
+  - `ASPNET Web API`
+
+## Azure Kubernetes Service
+
+- id: `azure_aks`
+- depth: `used`
+- contexts: `amnex_mid`, `amnex_senior`
+- scope note: operated or configured the platform; application code written against it
+  - Not enforceable in code. Shown next to the bullet in Step 4 for review.
+
+  Strings that will be read as this technology:
+
+  - `Azure Kubernetes Service`
+  - `AKS`
+
+## Azure App Service
+
+- id: `azure_app_service`
+- depth: `used`
+- contexts: `amnex_mid`, `amnex_senior`
+- scope note: operated or configured the platform; application code written against it
+  - Not enforceable in code. Shown next to the bullet in Step 4 for review.
+
+  Strings that will be read as this technology:
+
+  - `Azure App Service`
+  - `App Service`
+
+## Azure DevOps
+
+- id: `azure_devops`
+- depth: `used`
+- contexts: `amnex_senior`
+
+  Strings that will be read as this technology:
+
+  - `Azure DevOps`
+  - `Azure Boards`
+  - `VSTS`
+  - `Team Foundation Server`
+  - `TFS`
+
+## Azure Document Intelligence
+
+- id: `azure_document_intelligence`
+- depth: `used`
+- contexts: `amnex_senior`, `digiwell`
+- scope note: operated or configured the platform; application code written against it
+  - Not enforceable in code. Shown next to the bullet in Step 4 for review.
+
+  Strings that will be read as this technology:
+
+  - `Azure Document Intelligence`
+  - `Document Intelligence`
+  - `Azure Form Recognizer`
+  - `Form Recognizer`
+
+## Azure Functions
+
+- id: `azure_functions`
+- depth: `used`
+- contexts: `amnex_mid`, `amnex_senior`
+- scope note: operated or configured the platform; application code written against it
+  - Not enforceable in code. Shown next to the bullet in Step 4 for review.
+
+  Strings that will be read as this technology:
+
+  - `Azure Functions`
+  - `Azure Function App`
+
+## Azure Key Vault
+
+- id: `azure_key_vault`
+- depth: `used`
+- contexts: `amnex_mid`, `amnex_senior`
+- scope note: operated or configured the platform; application code written against it
+  - Not enforceable in code. Shown next to the bullet in Step 4 for review.
+
+  Strings that will be read as this technology:
+
+  - `Azure Key Vault`
+  - `Key Vault`
+
+## Azure Pipelines
+
+- id: `azure_pipelines`
+- depth: `used`
+- contexts: `amnex_mid`, `amnex_senior`
+
+  Strings that will be read as this technology:
+
+  - `Azure Pipelines`
+
+## Azure Repos
+
+- id: `azure_repos`
+- depth: `used`
+- contexts: `amnex_mid`, `amnex_senior`
+
+  Strings that will be read as this technology:
+
+  - `Azure Repos`
+
+## Azure SQL Database
+
+- id: `azure_sql`
+- depth: `used`
+- contexts: `amnex_assoc`, `amnex_mid`, `amnex_senior`
+- scope note: operated or configured the platform; application code written against it
+  - Not enforceable in code. Shown next to the bullet in Step 4 for review.
+
+  Strings that will be read as this technology:
+
+  - `Azure SQL Database`
+  - `Azure SQL`
+
+## Bootstrap
+
+- id: `bootstrap`
+- depth: `built`
+- contexts: `amnex_mid`, `amnex_senior`
+
+  Strings that will be read as this technology:
+
+  - `Bootstrap`
+
+## Claude Code
+
+- id: `claude_code`
+- depth: `used`
+- contexts: `amnex_senior`, `digiwell`
+
+  Strings that will be read as this technology:
+
+  - `Claude Code`
+
+## Azure Cosmos DB
+
+- id: `cosmos_db`
+- depth: `used`
+- contexts: `amnex_assoc`, `amnex_mid`, `amnex_senior`
+- scope note: operated or configured the platform; application code written against it
+  - Not enforceable in code. Shown next to the bullet in Step 4 for review.
+
+  Strings that will be read as this technology:
+
+  - `Azure Cosmos DB`
+  - `Cosmos DB`
+  - `CosmosDB`
+  - `DocumentDB`
+
+## C#
+
+- id: `csharp`
+- depth: `built`
+- contexts: `amnex_assoc`, `amnex_mid`, `amnex_senior`
+
+  Strings that will be read as this technology:
+
+  - `C#`
+  - `CSharp`
+  - `C Sharp`
+
+## CSS
+
+- id: `css`
+- depth: `built`
+- contexts: `amnex_mid`, `amnex_senior`
+
+  Strings that will be read as this technology:
+
+  - `CSS`
+  - `CSS3`
+
+## D3.js
+
+- id: `d3js`
+- depth: `built`
+- contexts: `amnex_mid`
+
+  Strings that will be read as this technology:
+
+  - `D3.js`
+  - `D3js`
+  - `D3`
+
+## Dependency Injection
+
+- id: `dependency_injection`
+- depth: `built`
+- contexts: `amnex_assoc`, `amnex_mid`, `amnex_senior`
+
+  Strings that will be read as this technology:
+
+  - `Dependency Injection`
+
+## Docker
+
+- id: `docker`
+- depth: `used`
+- contexts: `amnex_assoc`, `amnex_mid`, `amnex_senior`
+- scope note: operated or configured the platform; application code written against it
+  - Not enforceable in code. Shown next to the bullet in Step 4 for review.
+
+  Strings that will be read as this technology:
+
+  - `Docker`
+
+## .NET
+
+- id: `dotnet`
+- depth: `built`
+- contexts: `amnex_assoc`, `amnex_mid`, `amnex_senior`
+
+  Strings that will be read as this technology:
+
+  - `.NET`
+  - `.NET Core`
+  - `.NET Framework`
+  - `dotnet`
+
+## Entity Framework Core
+
+- id: `ef_core`
+- depth: `built`
+- contexts: `amnex_assoc`, `amnex_mid`, `amnex_senior`
+
+  Strings that will be read as this technology:
+
+  - `Entity Framework Core`
+  - `EF Core`
+
+## Elasticsearch
+
+- id: `elasticsearch`
+- depth: `used`
+- contexts: `amnex_mid`
+- scope note: built application-side retrieval against it; did not operate or tune the cluster
+  - Not enforceable in code. Shown next to the bullet in Step 4 for review.
+
+  Strings that will be read as this technology:
+
+  - `Elasticsearch`
+  - `Elastic Search`
+  - `ELK stack`
+
+## Entity Framework
+
+- id: `entity_framework`
+- depth: `built`
+- contexts: `amnex_assoc`, `amnex_mid`, `amnex_senior`
+
+  Strings that will be read as this technology:
+
+  - `Entity Framework`
+  - `Entity Framework 6`
+  - `EF6`
+
+## Microsoft Entra ID
+
+- id: `entra_id`
+- depth: `used`
+- contexts: `amnex_mid`, `amnex_senior`
+- scope note: operated or configured the platform; application code written against it
+  - Not enforceable in code. Shown next to the bullet in Step 4 for review.
+
+  Strings that will be read as this technology:
+
+  - `Microsoft Entra ID`
+  - `Entra ID`
+  - `Entra`
+  - `Azure Active Directory`
+  - `Azure AD`
+  - `AAD`
+
+## FastAPI
+
+- id: `fastapi`
+- depth: `built`
+- contexts: `digiwell`
+
+  Strings that will be read as this technology:
+
+  - `FastAPI`
+
+## Git
+
+- id: `git`
+- depth: `used`
+- contexts: `amnex_assoc`, `amnex_mid`, `amnex_senior`
+
+  Strings that will be read as this technology:
+
+  - `Git`
+
+## GitHub
+
+- id: `github`
+- depth: `used`
+- contexts: `amnex_assoc`, `amnex_mid`, `amnex_senior`
+
+  Strings that will be read as this technology:
+
+  - `GitHub`
+
+## GitHub Actions
+
+- id: `github_actions`
+- depth: `used`
+- contexts: `amnex_assoc`, `amnex_mid`, `amnex_senior`
+
+  Strings that will be read as this technology:
+
+  - `GitHub Actions`
+
+## GitHub Copilot
+
+- id: `github_copilot`
+- depth: `used`
+- contexts: `amnex_senior`
+
+  Strings that will be read as this technology:
+
+  - `GitHub Copilot`
+  - `GH Copilot`
+
+## GitLab CI
+
+- id: `gitlab_ci`
+- depth: `used`
+- contexts: `amnex_assoc`, `amnex_mid`, `amnex_senior`
+
+  Strings that will be read as this technology:
+
+  - `GitLab CI`
+
+## GraphQL
+
+- id: `graphql`
+- depth: `built`
+- contexts: `amnex_senior`
+
+  Strings that will be read as this technology:
+
+  - `GraphQL`
+
+## HTML
+
+- id: `html`
+- depth: `built`
+- contexts: `amnex_mid`, `amnex_senior`
+
+  Strings that will be read as this technology:
+
+  - `HTML`
+  - `HTML5`
+
+## Jasmine
+
+- id: `jasmine`
+- depth: `built`
+- contexts: `amnex_mid`, `amnex_senior`
+
+  Strings that will be read as this technology:
+
+  - `Jasmine`
+
+## JavaScript
+
+- id: `javascript`
+- depth: `built`
+- contexts: `amnex_assoc`, `amnex_mid`, `amnex_senior`
+
+  Strings that will be read as this technology:
+
+  - `JavaScript`
+  - `JS`
+  - `ECMAScript`
+
+## Jenkins
+
+- id: `jenkins`
+- depth: `used`
+- contexts: `amnex_assoc`, `amnex_mid`, `amnex_senior`
+
+  Strings that will be read as this technology:
+
+  - `Jenkins`
+
+## JWT
+
+- id: `jwt`
+- depth: `built`
+- contexts: `amnex_mid`, `amnex_senior`
+
+  Strings that will be read as this technology:
+
+  - `JWT`
+  - `JSON Web Token`
+
+## Apache Kafka
+
+- id: `kafka`
+- depth: `used`
+- contexts: `amnex_mid`
+- scope note: producer side only
+  - Not enforceable in code. Shown next to the bullet in Step 4 for review.
+
+  Strings that will be read as this technology:
+
+  - `Apache Kafka`
+  - `Kafka`
+
+## Karma
+
+- id: `karma`
+- depth: `built`
+- contexts: `amnex_mid`, `amnex_senior`
+
+  Strings that will be read as this technology:
+
+  - `Karma`
+  - `Karma test runner`
+
+## Kubernetes
+
+- id: `kubernetes`
+- depth: `used`
+- contexts: `amnex_mid`, `amnex_senior`
+- scope note: operated or configured the platform; application code written against it
+  - Not enforceable in code. Shown next to the bullet in Step 4 for review.
+
+  Strings that will be read as this technology:
+
+  - `Kubernetes`
+  - `K8s`
+
+## LINQ
+
+- id: `linq`
+- depth: `built`
+- contexts: `amnex_assoc`, `amnex_mid`, `amnex_senior`
+
+  Strings that will be read as this technology:
+
+  - `LINQ`
+
+## microservices
+
+- id: `microservices`
+- depth: `built`
+- contexts: `amnex_assoc`, `amnex_mid`, `amnex_senior`
+
+  Strings that will be read as this technology:
+
+  - `microservices`
+  - `microservice architecture`
+
+## MongoDB Atlas
+
+- id: `mongodb_atlas`
+- depth: `used`
+- contexts: `digiwell`
+- scope note: application-side reads and writes; did not administer the cluster
+  - Not enforceable in code. Shown next to the bullet in Step 4 for review.
+
+  Strings that will be read as this technology:
+
+  - `MongoDB Atlas`
+  - `Mongo Atlas`
+
+## MSTest
+
+- id: `mstest`
+- depth: `built`
+- contexts: `amnex_mid`, `amnex_senior`
+
+  Strings that will be read as this technology:
+
+  - `MSTest`
+  - `MS Test`
+
+## MySQL
+
+- id: `mysql`
+- depth: `used`
+- contexts: `amnex_assoc`, `amnex_mid`, `amnex_senior`
+- scope note: operated or configured the platform; application code written against it
+  - Not enforceable in code. Shown next to the bullet in Step 4 for review.
+
+  Strings that will be read as this technology:
+
+  - `MySQL`
+
+## New Relic
+
+- id: `new_relic`
+- depth: `used`
+- contexts: `amnex_mid`
+
+  Strings that will be read as this technology:
+
+  - `New Relic`
+
+## Node.js
+
+- id: `nodejs`
+- depth: `built`
+- contexts: `amnex_assoc`, `amnex_mid`, `amnex_senior`
+
+  Strings that will be read as this technology:
+
+  - `Node.js`
+  - `NodeJS`
+
+## NUnit
+
+- id: `nunit`
+- depth: `built`
+- contexts: `amnex_mid`, `amnex_senior`
+
+  Strings that will be read as this technology:
+
+  - `NUnit`
+
+## OAuth
+
+- id: `oauth`
+- depth: `built`
+- contexts: `amnex_mid`, `amnex_senior`
+
+  Strings that will be read as this technology:
+
+  - `OAuth`
+  - `OAuth2`
+  - `OAuth 2.0`
+
+## OpenID Connect
+
+- id: `openid_connect`
+- depth: `built`
+- contexts: `amnex_mid`, `amnex_senior`
+
+  Strings that will be read as this technology:
+
+  - `OpenID Connect`
+  - `OIDC`
+
+## Oracle Database
+
+- id: `oracle_db`
+- depth: `used`
+- contexts: `amnex_assoc`, `amnex_mid`, `amnex_senior`
+- scope note: operated or configured the platform; application code written against it
+  - Not enforceable in code. Shown next to the bullet in Step 4 for review.
+
+  Strings that will be read as this technology:
+
+  - `Oracle Database`
+  - `Oracle DB`
+  - `Oracle`
+  - `PL/SQL`
+
+## PostgreSQL
+
+- id: `postgresql`
+- depth: `used`
+- contexts: `amnex_assoc`, `amnex_mid`, `amnex_senior`
+- scope note: operated or configured the platform; application code written against it
+  - Not enforceable in code. Shown next to the bullet in Step 4 for review.
+
+  Strings that will be read as this technology:
+
+  - `PostgreSQL`
+  - `Postgres`
+
+## Postman
+
+- id: `postman`
+- depth: `used`
+- contexts: `amnex_assoc`, `amnex_mid`, `amnex_senior`
+
+  Strings that will be read as this technology:
+
+  - `Postman`
+
+## Pydantic
+
+- id: `pydantic`
+- depth: `built`
+- contexts: `digiwell`
+
+  Strings that will be read as this technology:
+
+  - `Pydantic`
+
+## pytest
+
+- id: `pytest`
+- depth: `built`
+- contexts: `amnex_mid`, `amnex_senior`, `digiwell`
+
+  Strings that will be read as this technology:
+
+  - `pytest`
+
+## Python
+
+- id: `python`
+- depth: `built`
+- contexts: `amnex_mid`, `digiwell`
+
+  Strings that will be read as this technology:
+
+  - `Python`
+
+## RBAC
+
+- id: `rbac`
+- depth: `built`
+- contexts: `amnex_mid`, `amnex_senior`
+
+  Strings that will be read as this technology:
+
+  - `RBAC`
+  - `role-based access control`
+
+## React
+
+- id: `react`
+- depth: `built`
+- contexts: `amnex_assoc`, `amnex_mid`, `amnex_senior`
+
+  Strings that will be read as this technology:
+
+  - `React`
+  - `React.js`
+  - `ReactJS`
+
+## Redis
+
+- id: `redis`
+- depth: `used`
+- contexts: `amnex_assoc`, `amnex_mid`, `amnex_senior`
+- scope note: operated or configured the platform; application code written against it
+  - Not enforceable in code. Shown next to the bullet in Step 4 for review.
+
+  Strings that will be read as this technology:
+
+  - `Redis`
+
+## REST API
+
+- id: `rest_api`
+- depth: `built`
+- contexts: `amnex_assoc`, `amnex_mid`, `amnex_senior`
+
+  Strings that will be read as this technology:
+
+  - `REST API`
+  - `RESTful API`
+  - `RESTful`
+  - `RESTful services`
+  - `RESTful web services`
+
+## RxJS
+
+- id: `rxjs`
+- depth: `built`
+- contexts: `amnex_mid`, `amnex_senior`
+
+  Strings that will be read as this technology:
+
+  - `RxJS`
+  - `Rx.js`
+  - `Reactive Extensions for JavaScript`
+
+## Sass
+
+- id: `sass`
+- depth: `built`
+- contexts: `amnex_mid`, `amnex_senior`
+
+  Strings that will be read as this technology:
+
+  - `Sass`
+  - `SCSS`
+
+## Selenium
+
+- id: `selenium`
+- depth: `built`
+- contexts: `amnex_mid`, `amnex_senior`
+
+  Strings that will be read as this technology:
+
+  - `Selenium`
+
+## SonarQube
+
+- id: `sonarqube`
+- depth: `used`
+- contexts: `amnex_assoc`, `amnex_mid`, `amnex_senior`
+
+  Strings that will be read as this technology:
+
+  - `SonarQube`
+
+## Apache Spark
+
+- id: `spark`
+- depth: `built`
+- contexts: `amnex_senior`, `digiwell`
+- scope note: PySpark, the Python API
+  - Not enforceable in code. Shown next to the bullet in Step 4 for review.
+
+  Strings that will be read as this technology:
+
+  - `Apache Spark`
+  - `Spark`
+  - `PySpark`
+
+## Microsoft SQL Server
+
+- id: `sql_server`
+- depth: `used`
+- contexts: `amnex_assoc`, `amnex_mid`
+- scope note: operated the platform, wrote T-SQL against it; did not administer or build the engine
+  - Not enforceable in code. Shown next to the bullet in Step 4 for review.
+
+  Strings that will be read as this technology:
+
+  - `SQL Server`
+  - `Microsoft SQL Server`
+  - `MSSQL`
+
+## Swagger
+
+- id: `swagger`
+- depth: `used`
+- contexts: `amnex_assoc`, `amnex_mid`, `amnex_senior`
+
+  Strings that will be read as this technology:
+
+  - `Swagger`
+  - `Swagger UI`
+
+## T-SQL
+
+- id: `tsql`
+- depth: `built`
+- contexts: `amnex_assoc`, `amnex_mid`
+
+  Strings that will be read as this technology:
+
+  - `T-SQL`
+  - `Transact-SQL`
+
+## TypeScript
+
+- id: `typescript`
+- depth: `built`
+- contexts: `amnex_assoc`, `amnex_mid`, `amnex_senior`
+
+  Strings that will be read as this technology:
+
+  - `TypeScript`
+  - `TS`
+
+## Vue.js
+
+- id: `vue`
+- depth: `used`
+- contexts: `amnex_mid`, `amnex_senior`
+
+  Strings that will be read as this technology:
+
+  - `Vue.js`
+  - `Vue`
+  - `VueJS`
+
+## WebSocket
+
+- id: `websockets`
+- depth: `built`
+- contexts: `amnex_assoc`, `amnex_mid`, `amnex_senior`
+
+  Strings that will be read as this technology:
+
+  - `WebSocket`
+
+## xUnit
+
+- id: `xunit`
+- depth: `built`
+- contexts: `amnex_mid`, `amnex_senior`
+
+  Strings that will be read as this technology:
+
+  - `xUnit`

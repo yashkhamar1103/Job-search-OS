@@ -1,0 +1,242 @@
+{
+  "schema_version": 1,
+  "roles": [
+    {
+      "id": "digiwell",
+      "employer": "Digiwell Marketing",
+      "title": "AI Automation Engineer (Contract)",
+      "start": "2026-04",
+      "end": null,
+      "location": "Richmond Hill, ON",
+      "facts": [
+        {
+          "id": "dw-f1",
+          "text": "I built a Python pipeline that takes source content and content ideas, runs them through extraction, drafting, voice/rubric evaluation, claims checking, novelty evaluation, trust-gating and calendar rendering, and produces validated, scored posts that are either cleared for publishing or flagged for human review, across three MongoDB Atlas collections."
+        },
+        {
+          "id": "dw-f2",
+          "text": "I wrote a FastAPI intake service with Pydantic contracts on the inputs."
+        },
+        {
+          "id": "dw-f3",
+          "text": "Between the model stages I wrote deterministic validation that checks schema and contract conformance and whether the output satisfies the trust conditions, including blocking voice findings, unsupported evidence and sensitive claims."
+        },
+        {
+          "id": "dw-f4",
+          "text": "I noticed the scoring looked wrong because a duplicated judgment path was influencing the rubric result. I ran a controlled probe holding the content and surrounding conditions constant, and the decision moved from 11/15 ship to 10/15 rewrite when the duplicated judgment was exposed. I corrected the scoring specification before the pattern spread into six further implementations."
+        }
+      ],
+      "metrics": [
+        {
+          "id": "dw-m1",
+          "value": "229",
+          "what": "passing tests in the V2 suite",
+          "source": "measured",
+          "note": "python -m pytest -q run by Yash on the V2 repository, observed directly."
+        },
+        {
+          "id": "dw-m2",
+          "value": "11/15 to 10/15",
+          "what": "rubric score shift in the controlled defect probe",
+          "source": "measured",
+          "note": "Observed by Yash in his own controlled probe, content and conditions held constant."
+        },
+        {
+          "id": "dw-m3",
+          "value": "3",
+          "what": "MongoDB Atlas collections the pipeline runs over",
+          "source": "recalled",
+          "note": "Structure of the system Yash built; visible in Atlas, not separately checked."
+        },
+        {
+          "id": "dw-m4",
+          "value": "60%",
+          "what": "reduction in routine human review",
+          "source": "recalled",
+          "note": "provenance not yet established; classify against a source before relying on it"
+        },
+        {
+          "id": "dw-m5",
+          "value": "220+",
+          "what": "posts the workflow ran across",
+          "source": "recalled",
+          "note": "provenance not yet established; classify against a source before relying on it"
+        },
+        {
+          "id": "dw-m6",
+          "value": "2",
+          "what": "audits the scoring defect survived",
+          "source": "recalled",
+          "note": "provenance not yet established; classify against a source before relying on it"
+        },
+        {
+          "id": "dw-m7",
+          "value": "6",
+          "what": "further implementations corrected before inheriting the defect",
+          "source": "recalled",
+          "note": "provenance not yet established; classify against a source before relying on it"
+        },
+        {
+          "id": "dw-m8",
+          "value": "9",
+          "what": "client-approved posts used for calibration",
+          "source": "recalled",
+          "note": "provenance not yet established; classify against a source before relying on it"
+        },
+        {
+          "id": "dw-m9",
+          "value": "126",
+          "what": "diagnostic classifications produced by the calibration",
+          "source": "recalled",
+          "note": "provenance not yet established; classify against a source before relying on it"
+        },
+        {
+          "id": "dw-m10",
+          "value": "3",
+          "what": "candidate scoring policies compared",
+          "source": "recalled",
+          "note": "provenance not yet established; classify against a source before relying on it"
+        }
+      ]
+    },
+    {
+      "id": "amnex_senior",
+      "employer": "Amnex Infotechnologies",
+      "title": "Senior Software AI Application Developer",
+      "start": "2023-08",
+      "end": "2024-11",
+      "location": "Ahmedabad, India",
+      "facts": [
+        {
+          "id": "as-f1",
+          "text": "I provided technical leadership for 3 developers, including sprint planning, estimation, code reviews, design discussions, and Azure DevOps pull-request reviews."
+        },
+        {
+          "id": "as-f2",
+          "text": "I introduced GitHub Copilot into the team's .NET development workflow and used it across implementation, testing, debugging, refactoring, and documentation."
+        },
+        {
+          "id": "as-f3",
+          "text": "I set the review and security rules for AI-generated code: no credentials or environment configuration in external tools, and AI-assisted changes had to pass the same PR review, automated testing, and release gates as normal code."
+        },
+        {
+          "id": "as-f4",
+          "text": "I continued working across .NET and Angular application delivery while collaborating with product owners, QA, and business stakeholders on requirements and technical decisions."
+        }
+      ],
+      "metrics": [
+        {
+          "id": "as-m1",
+          "value": "3",
+          "what": "developers given technical leadership",
+          "source": "recalled",
+          "note": "Three developers officially assigned as direct reports on promotion to senior: two with around 2.8 years experience, one fresher. Work allocation, technical direction, code review, daily stand-ups under Agile. No roster or HR artifact."
+        },
+        {
+          "id": "as-m2",
+          "value": "3 to 2",
+          "what": "developer-days per full stack enhancement cycle",
+          "source": "recalled",
+          "note": "no ticket or time record available"
+        }
+      ]
+    },
+    {
+      "id": "amnex_mid",
+      "employer": "Amnex Infotechnologies",
+      "title": "Application Developer",
+      "start": "2019-06",
+      "end": "2023-07",
+      "location": "Ahmedabad, India",
+      "facts": [
+        {
+          "id": "am-f1",
+          "text": "I built and maintained C#/.NET backend services, REST APIs, and Angular front ends for multi-tenant enterprise applications."
+        },
+        {
+          "id": "am-f2",
+          "text": "I worked on SQL Server data access and performance, including queries, indexes, stored procedures, execution plans, and changes to the .NET data-access path."
+        },
+        {
+          "id": "am-f3",
+          "text": "I built application-side integrations across multiple source systems and wrote Python ingestion for live tracking data that published events through Apache Kafka."
+        },
+        {
+          "id": "am-f4",
+          "text": "I built Elasticsearch-based retrieval for historical tracking data."
+        },
+        {
+          "id": "am-f5",
+          "text": "I implemented tenant-scoped data access and organisation-level filtering, and built D3.js dashboards and data visualizations for the application."
+        },
+        {
+          "id": "am-f6",
+          "text": "I handled production troubleshooting with New Relic and traced issues across the frontend, API, business-logic, database, and deployment layers."
+        }
+      ],
+      "metrics": [
+        {
+          "id": "am-m1",
+          "value": "28,574",
+          "what": "business users on the multi-tenant platform, 2019 to 2023",
+          "source": "measured",
+          "note": "Date-filtered count run by Yash against the production database during a paid support engagement, Sept 2026. Current figure at that time: 72,777."
+        },
+        {
+          "id": "am-m2",
+          "value": "180",
+          "what": "countries served by the platform",
+          "source": "measured",
+          "note": "Checked during the same Sept 2026 support engagement. Current figure at that time: 204."
+        },
+        {
+          "id": "am-m3",
+          "value": "8",
+          "what": "source systems integrated for ingestion",
+          "source": "measured",
+          "note": "Checked during the same Sept 2026 support engagement. Now expanded to 12 integrated applications."
+        },
+        {
+          "id": "am-m4",
+          "value": "38 seconds to 2.7 seconds",
+          "what": "project monitoring query, production",
+          "source": "measured",
+          "note": "Timed by Yash before and after the fix. Junior team member's SQL sequencing mistake; diagnosed from the execution plan, index redesign validated in staging before production."
+        },
+        {
+          "id": "am-m5",
+          "value": "14 seconds to 1.6 seconds",
+          "what": "project monitoring query, staging, validated before production",
+          "source": "recalled",
+          "note": "Staging validation happened before the production change; the staging figures themselves are not separately confirmed."
+        },
+        {
+          "id": "am-m6",
+          "value": "5.4 seconds to 1.3 seconds",
+          "what": "invoice status API response time",
+          "source": "measured",
+          "note": "Timed by Yash before and after the change to the .NET data-access path, same incident."
+        }
+      ]
+    },
+    {
+      "id": "amnex_assoc",
+      "employer": "Amnex Infotechnologies",
+      "title": "Associate Application Developer",
+      "start": "2018-06",
+      "end": "2019-05",
+      "location": "Ahmedabad, India",
+      "facts": [
+        {
+          "id": "aa-f1",
+          "text": "I built and maintained features across .NET and Angular applications with SQL Server, under senior review."
+        },
+        {
+          "id": "aa-f2",
+          "text": "I fixed defects across the frontend, API and database layers, and validated the fixes before release."
+        }
+      ],
+      "metrics": []
+    }
+  ]
+}

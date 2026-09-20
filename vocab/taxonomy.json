@@ -350,12 +350,26 @@
       "category": "devops",
       "aliases": [
         "Azure DevOps",
-        "Azure Pipelines",
-        "Azure Repos",
         "Azure Boards",
         "VSTS",
         "Team Foundation Server",
         "TFS"
+      ]
+    },
+    "azure_pipelines": {
+      "display": "Azure Pipelines",
+      "category": "devops",
+      "parent": "azure_devops",
+      "aliases": [
+        "Azure Pipelines"
+      ]
+    },
+    "azure_repos": {
+      "display": "Azure Repos",
+      "category": "devops",
+      "parent": "azure_devops",
+      "aliases": [
+        "Azure Repos"
       ]
     },
     "azure_data_factory": {
@@ -1237,7 +1251,13 @@
       "aliases": [
         "SQL Server",
         "Microsoft SQL Server",
-        "MSSQL",
+        "MSSQL"
+      ]
+    },
+    "tsql": {
+      "display": "T-SQL",
+      "category": "language",
+      "aliases": [
         "T-SQL",
         "Transact-SQL"
       ]
@@ -1402,10 +1422,31 @@
       "display": "ASP.NET",
       "category": "backend",
       "aliases": [
-        "ASP.NET",
+        "ASP.NET"
+      ]
+    },
+    "aspnet_core": {
+      "display": "ASP.NET Core",
+      "category": "backend",
+      "aliases": [
         "ASP.NET Core",
+        "ASPNET Core"
+      ]
+    },
+    "aspnet_mvc": {
+      "display": "ASP.NET MVC",
+      "category": "backend",
+      "aliases": [
         "ASP.NET MVC",
-        "ASP.NET Web API"
+        "ASPNET MVC"
+      ]
+    },
+    "aspnet_web_api": {
+      "display": "ASP.NET Web API",
+      "category": "backend",
+      "aliases": [
+        "ASP.NET Web API",
+        "ASPNET Web API"
       ]
     },
     "golang": {
@@ -1620,8 +1661,15 @@
       "display": "OpenAPI",
       "category": "backend",
       "aliases": [
-        "OpenAPI",
-        "Swagger"
+        "OpenAPI"
+      ]
+    },
+    "swagger": {
+      "display": "Swagger",
+      "category": "backend",
+      "aliases": [
+        "Swagger",
+        "Swagger UI"
       ]
     },
     "microservices": {
@@ -1699,8 +1747,15 @@
       "display": "Angular",
       "category": "frontend",
       "aliases": [
-        "Angular",
-        "AngularJS"
+        "Angular"
+      ]
+    },
+    "angularjs": {
+      "display": "AngularJS",
+      "category": "frontend",
+      "aliases": [
+        "AngularJS",
+        "Angular.js"
       ]
     },
     "vue": {
@@ -2093,7 +2148,7 @@
         "PagerDuty"
       ]
     },
-    "pytest_tool": {
+    "pytest": {
       "display": "pytest",
       "category": "testing",
       "aliases": [
@@ -2634,6 +2689,136 @@
       "category": "gis",
       "aliases": [
         "Mapbox"
+      ]
+    },
+    "d3js": {
+      "display": "D3.js",
+      "category": "frontend",
+      "aliases": [
+        "D3.js",
+        "D3js",
+        "D3"
+      ]
+    },
+    "angular_material": {
+      "display": "Angular Material",
+      "category": "frontend",
+      "aliases": [
+        "Angular Material"
+      ]
+    },
+    "rxjs": {
+      "display": "RxJS",
+      "category": "frontend",
+      "aliases": [
+        "RxJS",
+        "Rx.js",
+        "Reactive Extensions for JavaScript"
+      ]
+    },
+    "entity_framework": {
+      "display": "Entity Framework",
+      "category": "backend",
+      "aliases": [
+        "Entity Framework",
+        "Entity Framework 6",
+        "EF6"
+      ]
+    },
+    "ef_core": {
+      "display": "Entity Framework Core",
+      "category": "backend",
+      "aliases": [
+        "Entity Framework Core",
+        "EF Core"
+      ]
+    },
+    "adonet": {
+      "display": "ADO.NET",
+      "category": "backend",
+      "aliases": [
+        "ADO.NET",
+        "ADONET",
+        "ADO NET"
+      ]
+    },
+    "linq": {
+      "display": "LINQ",
+      "category": "backend",
+      "aliases": [
+        "LINQ"
+      ]
+    },
+    "dependency_injection": {
+      "display": "Dependency Injection",
+      "category": "methodology",
+      "aliases": [
+        "Dependency Injection"
+      ]
+    },
+    "pydantic": {
+      "display": "Pydantic",
+      "category": "backend",
+      "aliases": [
+        "Pydantic"
+      ]
+    },
+    "mstest": {
+      "display": "MSTest",
+      "category": "testing",
+      "aliases": [
+        "MSTest",
+        "MS Test"
+      ]
+    },
+    "jasmine": {
+      "display": "Jasmine",
+      "category": "testing",
+      "aliases": [
+        "Jasmine"
+      ]
+    },
+    "karma": {
+      "display": "Karma",
+      "category": "testing",
+      "aliases": [
+        "Karma",
+        "Karma test runner"
+      ]
+    },
+    "github_copilot": {
+      "display": "GitHub Copilot",
+      "category": "ai",
+      "parent": "github",
+      "aliases": [
+        "GitHub Copilot",
+        "GH Copilot"
+      ]
+    },
+    "claude_code": {
+      "display": "Claude Code",
+      "category": "ai",
+      "aliases": [
+        "Claude Code"
+      ]
+    },
+    "azure_document_intelligence": {
+      "display": "Azure Document Intelligence",
+      "category": "ai",
+      "parent": "azure",
+      "aliases": [
+        "Azure Document Intelligence",
+        "Document Intelligence",
+        "Azure Form Recognizer",
+        "Form Recognizer"
+      ]
+    },
+    "mongodb_atlas": {
+      "display": "MongoDB Atlas",
+      "category": "database",
+      "aliases": [
+        "MongoDB Atlas",
+        "Mongo Atlas"
       ]
     }
   }

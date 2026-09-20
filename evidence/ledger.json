@@ -1,11 +1,906 @@
 {
   "schema_version": 1,
   "technologies": {
-    "azure_openai":     { "state": "denied" },
-    "semantic_kernel":  { "state": "denied" },
-    "azure_ai_foundry": { "state": "denied" },
-    "azure_ai_search":  { "state": "denied" },
-    "mcp":              { "state": "denied" },
-    "rag":              { "state": "denied" }
+    "azure_openai": {
+      "state": "denied"
+    },
+    "semantic_kernel": {
+      "state": "denied"
+    },
+    "azure_ai_foundry": {
+      "state": "denied"
+    },
+    "azure_ai_search": {
+      "state": "denied"
+    },
+    "mcp": {
+      "state": "denied"
+    },
+    "rag": {
+      "state": "denied"
+    },
+    "csharp": {
+      "state": "confirmed",
+      "depth": "built",
+      "contexts": [
+        "amnex_assoc",
+        "amnex_mid",
+        "amnex_senior"
+      ],
+      "evidence": "Wrote C# backend services, REST APIs and application code across all three Amnex roles.",
+      "added": "2026-09-20",
+      "origin": "unprompted"
+    },
+    "dotnet": {
+      "state": "confirmed",
+      "depth": "built",
+      "contexts": [
+        "amnex_assoc",
+        "amnex_mid",
+        "amnex_senior"
+      ],
+      "versions": [],
+      "evidence": "Built and maintained .NET backend services and the data-access path for multi-tenant enterprise applications.",
+      "added": "2026-09-20",
+      "origin": "unprompted"
+    },
+    "angular": {
+      "state": "confirmed",
+      "depth": "built",
+      "contexts": [
+        "amnex_assoc",
+        "amnex_mid",
+        "amnex_senior"
+      ],
+      "versions": [],
+      "evidence": "Built Angular front ends for multi-tenant enterprise applications.",
+      "added": "2026-09-20",
+      "origin": "unprompted"
+    },
+    "tsql": {
+      "state": "confirmed",
+      "depth": "built",
+      "contexts": [
+        "amnex_assoc",
+        "amnex_mid"
+      ],
+      "evidence": "Wrote queries, stored procedures and index changes; worked from execution plans to redesign indexes.",
+      "added": "2026-09-20",
+      "origin": "unprompted"
+    },
+    "sql_server": {
+      "state": "confirmed",
+      "depth": "used",
+      "contexts": [
+        "amnex_assoc",
+        "amnex_mid"
+      ],
+      "scope_note": "operated the platform, wrote T-SQL against it; did not administer or build the engine",
+      "evidence": "Data access and performance work on SQL Server: queries, indexes, stored procedures, execution plan analysis.",
+      "added": "2026-09-20",
+      "origin": "unprompted"
+    },
+    "python": {
+      "state": "confirmed",
+      "depth": "built",
+      "contexts": [
+        "amnex_mid",
+        "digiwell"
+      ],
+      "evidence": "Wrote Python ingestion for live tracking data that published events through Kafka. At Digiwell, wrote the pipeline over three MongoDB Atlas collections.",
+      "added": "2026-09-20",
+      "origin": "unprompted"
+    },
+    "kafka": {
+      "state": "confirmed",
+      "depth": "used",
+      "contexts": [
+        "amnex_mid"
+      ],
+      "scope_note": "producer side only",
+      "evidence": "Python ingestion published live tracking events through Kafka. No consumer-side work.",
+      "added": "2026-09-20",
+      "origin": "unprompted"
+    },
+    "elasticsearch": {
+      "state": "confirmed",
+      "depth": "used",
+      "contexts": [
+        "amnex_mid"
+      ],
+      "scope_note": "built application-side retrieval against it; did not operate or tune the cluster",
+      "evidence": "Built retrieval over historical tracking data held in Elasticsearch.",
+      "added": "2026-09-20",
+      "origin": "unprompted"
+    },
+    "d3js": {
+      "state": "confirmed",
+      "depth": "built",
+      "contexts": [
+        "amnex_mid"
+      ],
+      "evidence": "Built dashboards and data visualizations in D3.js for the application.",
+      "added": "2026-09-20",
+      "origin": "unprompted"
+    },
+    "new_relic": {
+      "state": "confirmed",
+      "depth": "used",
+      "contexts": [
+        "amnex_mid"
+      ],
+      "evidence": "Used New Relic for APM monitoring and production troubleshooting across application layers.",
+      "added": "2026-09-20",
+      "origin": "unprompted"
+    },
+    "rest_api": {
+      "state": "confirmed",
+      "depth": "built",
+      "contexts": [
+        "amnex_assoc",
+        "amnex_mid",
+        "amnex_senior"
+      ],
+      "evidence": "Built REST APIs for multi-tenant enterprise applications.",
+      "added": "2026-09-20",
+      "origin": "unprompted"
+    },
+    "github_copilot": {
+      "state": "confirmed",
+      "depth": "used",
+      "contexts": [
+        "amnex_senior"
+      ],
+      "evidence": "Introduced Copilot into the team's .NET workflow from Aug 2023 and set the review rules for AI-generated code.",
+      "added": "2026-09-20",
+      "origin": "unprompted"
+    },
+    "azure_devops": {
+      "state": "confirmed",
+      "depth": "used",
+      "contexts": [
+        "amnex_senior"
+      ],
+      "evidence": "Ran pull-request reviews and set the review standard through Azure DevOps.",
+      "added": "2026-09-20",
+      "origin": "unprompted"
+    },
+    "fastapi": {
+      "state": "confirmed",
+      "depth": "built",
+      "contexts": [
+        "digiwell"
+      ],
+      "evidence": "Wrote the FastAPI intake service with Pydantic contracts on the inputs.",
+      "added": "2026-09-20",
+      "origin": "unprompted"
+    },
+    "pydantic": {
+      "state": "confirmed",
+      "depth": "built",
+      "contexts": [
+        "digiwell"
+      ],
+      "evidence": "Wrote the Pydantic contracts enforced on pipeline inputs.",
+      "added": "2026-09-20",
+      "origin": "unprompted"
+    },
+    "mongodb_atlas": {
+      "state": "confirmed",
+      "depth": "used",
+      "contexts": [
+        "digiwell"
+      ],
+      "scope_note": "application-side reads and writes; did not administer the cluster",
+      "evidence": "The pipeline runs over three MongoDB Atlas collections.",
+      "added": "2026-09-20",
+      "origin": "unprompted"
+    },
+    "react": {
+      "state": "confirmed",
+      "depth": "built",
+      "contexts": [
+        "amnex_assoc",
+        "amnex_mid",
+        "amnex_senior"
+      ],
+      "evidence": "Confirmed by Yash in a bulk classification; no specific project detail recorded yet.",
+      "added": "2026-09-20",
+      "origin": "unprompted"
+    },
+    "angularjs": {
+      "state": "confirmed",
+      "depth": "built",
+      "contexts": [
+        "amnex_assoc",
+        "amnex_mid",
+        "amnex_senior"
+      ],
+      "evidence": "Confirmed by Yash in a bulk classification; no specific project detail recorded yet.",
+      "added": "2026-09-20",
+      "origin": "unprompted"
+    },
+    "javascript": {
+      "state": "confirmed",
+      "depth": "built",
+      "contexts": [
+        "amnex_assoc",
+        "amnex_mid",
+        "amnex_senior"
+      ],
+      "evidence": "Confirmed by Yash in a bulk classification; no specific project detail recorded yet.",
+      "added": "2026-09-20",
+      "origin": "unprompted"
+    },
+    "angular_material": {
+      "state": "confirmed",
+      "depth": "built",
+      "contexts": [
+        "amnex_assoc",
+        "amnex_mid",
+        "amnex_senior"
+      ],
+      "evidence": "Confirmed by Yash in a bulk classification; no specific project detail recorded yet.",
+      "added": "2026-09-20",
+      "origin": "unprompted"
+    },
+    "typescript": {
+      "state": "confirmed",
+      "depth": "built",
+      "contexts": [
+        "amnex_assoc",
+        "amnex_mid",
+        "amnex_senior"
+      ],
+      "evidence": "Confirmed by Yash in a bulk classification; no specific project detail recorded yet.",
+      "added": "2026-09-20",
+      "origin": "unprompted"
+    },
+    "vue": {
+      "state": "confirmed",
+      "depth": "used",
+      "contexts": [
+        "amnex_mid",
+        "amnex_senior"
+      ],
+      "evidence": "Confirmed by Yash in a bulk classification; no specific project detail recorded yet.",
+      "added": "2026-09-20",
+      "origin": "unprompted"
+    },
+    "html": {
+      "state": "confirmed",
+      "depth": "built",
+      "contexts": [
+        "amnex_mid",
+        "amnex_senior"
+      ],
+      "evidence": "Confirmed by Yash in a bulk classification; no specific project detail recorded yet.",
+      "added": "2026-09-20",
+      "origin": "unprompted"
+    },
+    "css": {
+      "state": "confirmed",
+      "depth": "built",
+      "contexts": [
+        "amnex_mid",
+        "amnex_senior"
+      ],
+      "evidence": "Confirmed by Yash in a bulk classification; no specific project detail recorded yet.",
+      "added": "2026-09-20",
+      "origin": "unprompted"
+    },
+    "sass": {
+      "state": "confirmed",
+      "depth": "built",
+      "contexts": [
+        "amnex_mid",
+        "amnex_senior"
+      ],
+      "evidence": "Confirmed by Yash in a bulk classification; no specific project detail recorded yet.",
+      "added": "2026-09-20",
+      "origin": "unprompted"
+    },
+    "rxjs": {
+      "state": "confirmed",
+      "depth": "built",
+      "contexts": [
+        "amnex_mid",
+        "amnex_senior"
+      ],
+      "evidence": "Confirmed by Yash in a bulk classification; no specific project detail recorded yet.",
+      "added": "2026-09-20",
+      "origin": "unprompted"
+    },
+    "bootstrap": {
+      "state": "confirmed",
+      "depth": "built",
+      "contexts": [
+        "amnex_mid",
+        "amnex_senior"
+      ],
+      "evidence": "Confirmed by Yash in a bulk classification; no specific project detail recorded yet.",
+      "added": "2026-09-20",
+      "origin": "unprompted"
+    },
+    "aspnet_core": {
+      "state": "confirmed",
+      "depth": "built",
+      "contexts": [
+        "amnex_assoc",
+        "amnex_mid",
+        "amnex_senior"
+      ],
+      "evidence": "Confirmed by Yash in a bulk classification; no specific project detail recorded yet.",
+      "added": "2026-09-20",
+      "origin": "unprompted"
+    },
+    "aspnet_mvc": {
+      "state": "confirmed",
+      "depth": "built",
+      "contexts": [
+        "amnex_assoc",
+        "amnex_mid",
+        "amnex_senior"
+      ],
+      "evidence": "Confirmed by Yash in a bulk classification; no specific project detail recorded yet.",
+      "added": "2026-09-20",
+      "origin": "unprompted"
+    },
+    "aspnet_web_api": {
+      "state": "confirmed",
+      "depth": "built",
+      "contexts": [
+        "amnex_assoc",
+        "amnex_mid",
+        "amnex_senior"
+      ],
+      "evidence": "Confirmed by Yash in a bulk classification; no specific project detail recorded yet.",
+      "added": "2026-09-20",
+      "origin": "unprompted"
+    },
+    "entity_framework": {
+      "state": "confirmed",
+      "depth": "built",
+      "contexts": [
+        "amnex_assoc",
+        "amnex_mid",
+        "amnex_senior"
+      ],
+      "evidence": "Confirmed by Yash in a bulk classification; no specific project detail recorded yet.",
+      "added": "2026-09-20",
+      "origin": "unprompted"
+    },
+    "ef_core": {
+      "state": "confirmed",
+      "depth": "built",
+      "contexts": [
+        "amnex_assoc",
+        "amnex_mid",
+        "amnex_senior"
+      ],
+      "evidence": "Confirmed by Yash in a bulk classification; no specific project detail recorded yet.",
+      "added": "2026-09-20",
+      "origin": "unprompted"
+    },
+    "adonet": {
+      "state": "confirmed",
+      "depth": "built",
+      "contexts": [
+        "amnex_assoc",
+        "amnex_mid",
+        "amnex_senior"
+      ],
+      "evidence": "Confirmed by Yash in a bulk classification; no specific project detail recorded yet.",
+      "added": "2026-09-20",
+      "origin": "unprompted"
+    },
+    "linq": {
+      "state": "confirmed",
+      "depth": "built",
+      "contexts": [
+        "amnex_assoc",
+        "amnex_mid",
+        "amnex_senior"
+      ],
+      "evidence": "Confirmed by Yash in a bulk classification; no specific project detail recorded yet.",
+      "added": "2026-09-20",
+      "origin": "unprompted"
+    },
+    "nodejs": {
+      "state": "confirmed",
+      "depth": "built",
+      "contexts": [
+        "amnex_assoc",
+        "amnex_mid",
+        "amnex_senior"
+      ],
+      "evidence": "Confirmed by Yash in a bulk classification; no specific project detail recorded yet.",
+      "added": "2026-09-20",
+      "origin": "unprompted"
+    },
+    "microservices": {
+      "state": "confirmed",
+      "depth": "built",
+      "contexts": [
+        "amnex_assoc",
+        "amnex_mid",
+        "amnex_senior"
+      ],
+      "evidence": "Confirmed by Yash in a bulk classification; no specific project detail recorded yet.",
+      "added": "2026-09-20",
+      "origin": "unprompted"
+    },
+    "dependency_injection": {
+      "state": "confirmed",
+      "depth": "built",
+      "contexts": [
+        "amnex_assoc",
+        "amnex_mid",
+        "amnex_senior"
+      ],
+      "evidence": "Confirmed by Yash in a bulk classification; no specific project detail recorded yet.",
+      "added": "2026-09-20",
+      "origin": "unprompted"
+    },
+    "graphql": {
+      "state": "confirmed",
+      "depth": "built",
+      "contexts": [
+        "amnex_senior"
+      ],
+      "evidence": "Confirmed by Yash in a bulk classification; no specific project detail recorded yet.",
+      "added": "2026-09-20",
+      "origin": "unprompted"
+    },
+    "azure_sql": {
+      "state": "confirmed",
+      "depth": "used",
+      "contexts": [
+        "amnex_assoc",
+        "amnex_mid",
+        "amnex_senior"
+      ],
+      "scope_note": "operated or configured the platform; application code written against it",
+      "evidence": "Confirmed by Yash in a bulk classification; no specific project detail recorded yet.",
+      "added": "2026-09-20",
+      "origin": "unprompted"
+    },
+    "postgresql": {
+      "state": "confirmed",
+      "depth": "used",
+      "contexts": [
+        "amnex_assoc",
+        "amnex_mid",
+        "amnex_senior"
+      ],
+      "scope_note": "operated or configured the platform; application code written against it",
+      "evidence": "Confirmed by Yash in a bulk classification; no specific project detail recorded yet.",
+      "added": "2026-09-20",
+      "origin": "unprompted"
+    },
+    "mysql": {
+      "state": "confirmed",
+      "depth": "used",
+      "contexts": [
+        "amnex_assoc",
+        "amnex_mid",
+        "amnex_senior"
+      ],
+      "scope_note": "operated or configured the platform; application code written against it",
+      "evidence": "Confirmed by Yash in a bulk classification; no specific project detail recorded yet.",
+      "added": "2026-09-20",
+      "origin": "unprompted"
+    },
+    "oracle_db": {
+      "state": "confirmed",
+      "depth": "used",
+      "contexts": [
+        "amnex_assoc",
+        "amnex_mid",
+        "amnex_senior"
+      ],
+      "scope_note": "operated or configured the platform; application code written against it",
+      "evidence": "Confirmed by Yash in a bulk classification; no specific project detail recorded yet.",
+      "added": "2026-09-20",
+      "origin": "unprompted"
+    },
+    "redis": {
+      "state": "confirmed",
+      "depth": "used",
+      "contexts": [
+        "amnex_assoc",
+        "amnex_mid",
+        "amnex_senior"
+      ],
+      "scope_note": "operated or configured the platform; application code written against it",
+      "evidence": "Confirmed by Yash in a bulk classification; no specific project detail recorded yet.",
+      "added": "2026-09-20",
+      "origin": "unprompted"
+    },
+    "cosmos_db": {
+      "state": "confirmed",
+      "depth": "used",
+      "contexts": [
+        "amnex_assoc",
+        "amnex_mid",
+        "amnex_senior"
+      ],
+      "scope_note": "operated or configured the platform; application code written against it",
+      "evidence": "Confirmed by Yash in a bulk classification; no specific project detail recorded yet.",
+      "added": "2026-09-20",
+      "origin": "unprompted"
+    },
+    "websockets": {
+      "state": "confirmed",
+      "depth": "built",
+      "contexts": [
+        "amnex_assoc",
+        "amnex_mid",
+        "amnex_senior"
+      ],
+      "evidence": "Confirmed by Yash in a bulk classification; no specific project detail recorded yet.",
+      "added": "2026-09-20",
+      "origin": "unprompted"
+    },
+    "xunit": {
+      "state": "confirmed",
+      "depth": "built",
+      "contexts": [
+        "amnex_mid",
+        "amnex_senior"
+      ],
+      "evidence": "Confirmed by Yash in a bulk classification; no specific project detail recorded yet.",
+      "added": "2026-09-20",
+      "origin": "unprompted"
+    },
+    "nunit": {
+      "state": "confirmed",
+      "depth": "built",
+      "contexts": [
+        "amnex_mid",
+        "amnex_senior"
+      ],
+      "evidence": "Confirmed by Yash in a bulk classification; no specific project detail recorded yet.",
+      "added": "2026-09-20",
+      "origin": "unprompted"
+    },
+    "mstest": {
+      "state": "confirmed",
+      "depth": "built",
+      "contexts": [
+        "amnex_mid",
+        "amnex_senior"
+      ],
+      "evidence": "Confirmed by Yash in a bulk classification; no specific project detail recorded yet.",
+      "added": "2026-09-20",
+      "origin": "unprompted"
+    },
+    "pytest": {
+      "state": "confirmed",
+      "depth": "built",
+      "contexts": [
+        "amnex_mid",
+        "amnex_senior",
+        "digiwell"
+      ],
+      "evidence": "Confirmed by Yash in a bulk classification; no specific project detail recorded yet.",
+      "added": "2026-09-20",
+      "origin": "unprompted"
+    },
+    "selenium": {
+      "state": "confirmed",
+      "depth": "built",
+      "contexts": [
+        "amnex_mid",
+        "amnex_senior"
+      ],
+      "evidence": "Confirmed by Yash in a bulk classification; no specific project detail recorded yet.",
+      "added": "2026-09-20",
+      "origin": "unprompted"
+    },
+    "jasmine": {
+      "state": "confirmed",
+      "depth": "built",
+      "contexts": [
+        "amnex_mid",
+        "amnex_senior"
+      ],
+      "evidence": "Confirmed by Yash in a bulk classification; no specific project detail recorded yet.",
+      "added": "2026-09-20",
+      "origin": "unprompted"
+    },
+    "karma": {
+      "state": "confirmed",
+      "depth": "built",
+      "contexts": [
+        "amnex_mid",
+        "amnex_senior"
+      ],
+      "evidence": "Confirmed by Yash in a bulk classification; no specific project detail recorded yet.",
+      "added": "2026-09-20",
+      "origin": "unprompted"
+    },
+    "postman": {
+      "state": "confirmed",
+      "depth": "used",
+      "contexts": [
+        "amnex_assoc",
+        "amnex_mid",
+        "amnex_senior"
+      ],
+      "evidence": "Confirmed by Yash in a bulk classification; no specific project detail recorded yet.",
+      "added": "2026-09-20",
+      "origin": "unprompted"
+    },
+    "swagger": {
+      "state": "confirmed",
+      "depth": "used",
+      "contexts": [
+        "amnex_assoc",
+        "amnex_mid",
+        "amnex_senior"
+      ],
+      "evidence": "Confirmed by Yash in a bulk classification; no specific project detail recorded yet.",
+      "added": "2026-09-20",
+      "origin": "unprompted"
+    },
+    "sonarqube": {
+      "state": "confirmed",
+      "depth": "used",
+      "contexts": [
+        "amnex_assoc",
+        "amnex_mid",
+        "amnex_senior"
+      ],
+      "evidence": "Confirmed by Yash in a bulk classification; no specific project detail recorded yet.",
+      "added": "2026-09-20",
+      "origin": "unprompted"
+    },
+    "azure_app_service": {
+      "state": "confirmed",
+      "depth": "used",
+      "contexts": [
+        "amnex_mid",
+        "amnex_senior"
+      ],
+      "scope_note": "operated or configured the platform; application code written against it",
+      "evidence": "Confirmed by Yash in a bulk classification; no specific project detail recorded yet.",
+      "added": "2026-09-20",
+      "origin": "unprompted"
+    },
+    "azure_functions": {
+      "state": "confirmed",
+      "depth": "used",
+      "contexts": [
+        "amnex_mid",
+        "amnex_senior"
+      ],
+      "scope_note": "operated or configured the platform; application code written against it",
+      "evidence": "Confirmed by Yash in a bulk classification; no specific project detail recorded yet.",
+      "added": "2026-09-20",
+      "origin": "unprompted"
+    },
+    "azure_aks": {
+      "state": "confirmed",
+      "depth": "used",
+      "contexts": [
+        "amnex_mid",
+        "amnex_senior"
+      ],
+      "scope_note": "operated or configured the platform; application code written against it",
+      "evidence": "Confirmed by Yash in a bulk classification; no specific project detail recorded yet.",
+      "added": "2026-09-20",
+      "origin": "unprompted"
+    },
+    "azure_pipelines": {
+      "state": "confirmed",
+      "depth": "used",
+      "contexts": [
+        "amnex_mid",
+        "amnex_senior"
+      ],
+      "evidence": "Confirmed by Yash in a bulk classification; no specific project detail recorded yet.",
+      "added": "2026-09-20",
+      "origin": "unprompted"
+    },
+    "azure_repos": {
+      "state": "confirmed",
+      "depth": "used",
+      "contexts": [
+        "amnex_mid",
+        "amnex_senior"
+      ],
+      "evidence": "Confirmed by Yash in a bulk classification; no specific project detail recorded yet.",
+      "added": "2026-09-20",
+      "origin": "unprompted"
+    },
+    "kubernetes": {
+      "state": "confirmed",
+      "depth": "used",
+      "contexts": [
+        "amnex_mid",
+        "amnex_senior"
+      ],
+      "scope_note": "operated or configured the platform; application code written against it",
+      "evidence": "Confirmed by Yash in a bulk classification; no specific project detail recorded yet.",
+      "added": "2026-09-20",
+      "origin": "unprompted"
+    },
+    "docker": {
+      "state": "confirmed",
+      "depth": "used",
+      "contexts": [
+        "amnex_assoc",
+        "amnex_mid",
+        "amnex_senior"
+      ],
+      "scope_note": "operated or configured the platform; application code written against it",
+      "evidence": "Confirmed by Yash in a bulk classification; no specific project detail recorded yet.",
+      "added": "2026-09-20",
+      "origin": "unprompted"
+    },
+    "git": {
+      "state": "confirmed",
+      "depth": "used",
+      "contexts": [
+        "amnex_assoc",
+        "amnex_mid",
+        "amnex_senior"
+      ],
+      "evidence": "Confirmed by Yash in a bulk classification; no specific project detail recorded yet.",
+      "added": "2026-09-20",
+      "origin": "unprompted"
+    },
+    "github": {
+      "state": "confirmed",
+      "depth": "used",
+      "contexts": [
+        "amnex_assoc",
+        "amnex_mid",
+        "amnex_senior"
+      ],
+      "evidence": "Confirmed by Yash in a bulk classification; no specific project detail recorded yet.",
+      "added": "2026-09-20",
+      "origin": "unprompted"
+    },
+    "github_actions": {
+      "state": "confirmed",
+      "depth": "used",
+      "contexts": [
+        "amnex_assoc",
+        "amnex_mid",
+        "amnex_senior"
+      ],
+      "evidence": "Confirmed by Yash in a bulk classification; no specific project detail recorded yet.",
+      "added": "2026-09-20",
+      "origin": "unprompted"
+    },
+    "jenkins": {
+      "state": "confirmed",
+      "depth": "used",
+      "contexts": [
+        "amnex_assoc",
+        "amnex_mid",
+        "amnex_senior"
+      ],
+      "evidence": "Confirmed by Yash in a bulk classification; no specific project detail recorded yet.",
+      "added": "2026-09-20",
+      "origin": "unprompted"
+    },
+    "gitlab_ci": {
+      "state": "confirmed",
+      "depth": "used",
+      "contexts": [
+        "amnex_assoc",
+        "amnex_mid",
+        "amnex_senior"
+      ],
+      "evidence": "Confirmed by Yash in a bulk classification; no specific project detail recorded yet.",
+      "added": "2026-09-20",
+      "origin": "unprompted"
+    },
+    "oauth": {
+      "state": "confirmed",
+      "depth": "built",
+      "contexts": [
+        "amnex_mid",
+        "amnex_senior"
+      ],
+      "evidence": "Confirmed by Yash in a bulk classification; no specific project detail recorded yet.",
+      "added": "2026-09-20",
+      "origin": "unprompted"
+    },
+    "openid_connect": {
+      "state": "confirmed",
+      "depth": "built",
+      "contexts": [
+        "amnex_mid",
+        "amnex_senior"
+      ],
+      "evidence": "Confirmed by Yash in a bulk classification; no specific project detail recorded yet.",
+      "added": "2026-09-20",
+      "origin": "unprompted"
+    },
+    "jwt": {
+      "state": "confirmed",
+      "depth": "built",
+      "contexts": [
+        "amnex_mid",
+        "amnex_senior"
+      ],
+      "evidence": "Confirmed by Yash in a bulk classification; no specific project detail recorded yet.",
+      "added": "2026-09-20",
+      "origin": "unprompted"
+    },
+    "rbac": {
+      "state": "confirmed",
+      "depth": "built",
+      "contexts": [
+        "amnex_mid",
+        "amnex_senior"
+      ],
+      "evidence": "Confirmed by Yash in a bulk classification; no specific project detail recorded yet.",
+      "added": "2026-09-20",
+      "origin": "unprompted"
+    },
+    "entra_id": {
+      "state": "confirmed",
+      "depth": "used",
+      "contexts": [
+        "amnex_mid",
+        "amnex_senior"
+      ],
+      "scope_note": "operated or configured the platform; application code written against it",
+      "evidence": "Confirmed by Yash in a bulk classification; no specific project detail recorded yet.",
+      "added": "2026-09-20",
+      "origin": "unprompted"
+    },
+    "azure_key_vault": {
+      "state": "confirmed",
+      "depth": "used",
+      "contexts": [
+        "amnex_mid",
+        "amnex_senior"
+      ],
+      "scope_note": "operated or configured the platform; application code written against it",
+      "evidence": "Confirmed by Yash in a bulk classification; no specific project detail recorded yet.",
+      "added": "2026-09-20",
+      "origin": "unprompted"
+    },
+    "azure_document_intelligence": {
+      "state": "confirmed",
+      "depth": "used",
+      "contexts": [
+        "amnex_senior",
+        "digiwell"
+      ],
+      "scope_note": "operated or configured the platform; application code written against it",
+      "evidence": "Confirmed by Yash in a bulk classification; no specific project detail recorded yet.",
+      "added": "2026-09-20",
+      "origin": "unprompted"
+    },
+    "spark": {
+      "state": "confirmed",
+      "depth": "built",
+      "contexts": [
+        "amnex_senior",
+        "digiwell"
+      ],
+      "evidence": "Confirmed by Yash in a bulk classification; no specific project detail recorded yet.",
+      "added": "2026-09-20",
+      "origin": "unprompted",
+      "scope_note": "PySpark, the Python API"
+    },
+    "claude_code": {
+      "state": "confirmed",
+      "depth": "used",
+      "contexts": [
+        "amnex_senior",
+        "digiwell"
+      ],
+      "evidence": "Confirmed by Yash in a bulk classification; no specific project detail recorded yet.",
+      "added": "2026-09-20",
+      "origin": "unprompted"
+    }
   }
 }
