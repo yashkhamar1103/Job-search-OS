@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "technologies": {
+    "azure_openai":     { "state": "denied" },
+    "semantic_kernel":  { "state": "denied" },
+    "azure_ai_foundry": { "state": "denied" },
+    "azure_ai_search":  { "state": "denied" },
+    "mcp":              { "state": "denied" },
+    "rag":              { "state": "denied" }
+  }
+}
