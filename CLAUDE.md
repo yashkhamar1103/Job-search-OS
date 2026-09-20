@@ -624,3 +624,13 @@ Four alias sets in `vocab/taxonomy.json` conflated products that the ledger need
 **Not split, decided against.** `oauth2` stays folded into `oauth`: nobody writing a CV means OAuth 1.0, so the version split would carry no information. `pyspark` stays folded into `spark`: PySpark is the Python API of one product, not a second product, and the ledger records that as a scope note instead.
 
 `vocab/confusables.json` was re-pointed to match. Three pins asserted the old conflation and now assert the split, and eleven more were added so each new distinction is pinned the way the originals were. A pin is what stops an alias drifting back, so the pins move with the decision rather than after it.
+
+### `synonyms.json`: two questions raised, both answered by keeping what was there
+
+The file arrived with a different shape from the schema, which stopped the load. Both differences were raised as questions rather than corrected, because `app/schemas/` is Claude Code's to write and `evidence/` is Yash's. Both were resolved in favour of the existing schema, deliberately.
+
+**The key stays `translations`, not `synonyms`.** The filename already says these are synonyms. The key should say what each entry *is*, and an entry is a translation from a JD term to one of Yash's. Nothing in Sections 4.4 or 5 names the key, so this was an open question rather than a spec requirement.
+
+**The container stays an array of four-field objects, not a mapping.** A mapping from JD term to evidence term cannot carry `approved_by_yash` or `added`. Yash's reason for keeping the array is stronger than the one originally given for choosing it: a JD term added with no record of who approved it is the exact shape of the incident this system exists to prevent. The guard is the point of the file, not an ornament on it.
+
+The file ships with `"translations": []`. An empty list is the correct state until an employer's term actually needs declaring, and the schema accepts it without the file having to claim anything.
